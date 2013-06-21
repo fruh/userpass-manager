@@ -1,8 +1,12 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 import sqlite3
 import logging
 
 class DbController:
+    """
+        Implements basic DB initialitation.
+    """
     def __init__(self, database = None):
         self._cursor = None
         self._database = database
@@ -47,9 +51,9 @@ class DbController:
                     description TEXT, icon BLOB);
                 
                 DROP TABLE IF EXISTS Passwords;
-                CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title TEXT NOT NULL, username TEXT NOT NULL,
-                    passwd TEXT NOT NULL, url TEXT, comment TEXT, 
-                    c_date DATETIME NOT NULL, m_date DATETIME NOT NULL, e_date DATETIME,
+                CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title BLOB NOT NULL, username BLOB NOT NULL,
+                    passwd BLOB NOT NULL, url BLOB, comment BLOB, 
+                    c_date BLOB NOT NULL, m_date BLOB NOT NULL, BLOB DATETIME,
                     grp_id INTEGER, user_id INTEGER, attachment BLOB,
                     salt TEXT, iv TEXT,
                     FOREIGN KEY(grp_id) REFERENCES Groups(id),

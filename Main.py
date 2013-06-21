@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
-from DbController import *
-from UserController import *
-import base64
+from DbController import DbController
+from UserController import UserController
+from GroupController import GroupController
+import CryptoBasics
 
 if (__name__ == "__main__"):
     logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
@@ -12,14 +13,16 @@ if (__name__ == "__main__"):
     db_con.connectDB()
     
     user = UserController(db_con)
-    db_con.createTables()
-#     user.insertUser("Ferčšo", "heslo")
+    group = GroupController(db_con)
+    
+#     db_con.createTables()
+    user.insertUser("Ferčšo", "heslo")
 #     user.insertUser("Fero", "heslo")
     key = CryptoBasics.genCipherKey("ahoj", CryptoBasics.genSalt(32))
 #     key = binascii.unhexlify("5ddea602fddf75ddea602fddf7765154e31016525f6cb765154e31016525f6cb")
     iv = CryptoBasics.genIV()
     #binascii.unhexlify("5ddea602fddf7765154e31016525f6cb")
-    plaint = "sestnastznakov16sestnastznakov16aaa"
+    plaint = "aaaaaa"
     print(type(plaint))
 
     ct = CryptoBasics.encryptDataAutoPad(plaint, key, iv)
@@ -30,5 +33,9 @@ if (__name__ == "__main__"):
 #     print(CryptoBasics.genIV())
     print(user.selectAll())
 #     print(db_con.getTables())
+    
+    group.insertGroup("Default", "Default gorup")
+    
+    print(group.selectById(1))
     
     db_con._connection.close()
