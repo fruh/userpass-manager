@@ -12,7 +12,7 @@ if (__name__ == "__main__"):
     db_con.connectDB()
     
     user = UserController(db_con)
-#     db_con.createTables()
+    db_con.createTables()
 #     user.insertUser("Ferčšo", "heslo")
 #     user.insertUser("Fero", "heslo")
     key = CryptoBasics.genCipherKey("ahoj", CryptoBasics.genSalt(32))
