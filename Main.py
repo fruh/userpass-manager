@@ -3,6 +3,7 @@ import logging
 from DbController import DbController
 from UserController import UserController
 from GroupController import GroupController
+from PasswdController import PasswdController
 import CryptoBasics
 
 if (__name__ == "__main__"):
@@ -14,6 +15,7 @@ if (__name__ == "__main__"):
     
     user = UserController(db_con)
     group = GroupController(db_con)
+    passwd_ctrl = PasswdController(db_con)
     
 #     db_con.createTables()
     user.insertUser("Ferčšo", "heslo")
@@ -35,7 +37,10 @@ if (__name__ == "__main__"):
 #     print(db_con.getTables())
     
     group.insertGroup("Default", "Default gorup")
-    
+#     passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "m_date", "e_date", "grp_id", "user_id", "attachment")
     print(group.selectById(1))
+    
+    passwd_ctrl.deletePassword(1)
+    print(passwd_ctrl.selectAll()[0]["title"])
     
     db_con._connection.close()

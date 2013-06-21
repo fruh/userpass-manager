@@ -53,9 +53,9 @@ class DbController:
                 DROP TABLE IF EXISTS Passwords;
                 CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title BLOB NOT NULL, username BLOB NOT NULL,
                     passwd BLOB NOT NULL, url BLOB, comment BLOB, 
-                    c_date BLOB NOT NULL, m_date BLOB NOT NULL, BLOB DATETIME,
+                    c_date BLOB NOT NULL, m_date BLOB NOT NULL, e_date BLOB NOT NULL,
                     grp_id INTEGER, user_id INTEGER, attachment BLOB,
-                    salt TEXT, iv TEXT,
+                    salt TEXT, iv BLOB,
                     FOREIGN KEY(grp_id) REFERENCES Groups(id),
                     FOREIGN KEY(user_id) REFERENCES Users(id));
                 """)

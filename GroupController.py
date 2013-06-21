@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import logging
-import CryptoBasics
 
 class GroupController:
     """
@@ -89,6 +88,16 @@ class GroupController:
             logging.warning(e)
         except sqlite3.Error as e:
             logging.exception(e)
+           
+    def updateGroup(self, g_id, name, description, icon):
+        """
+            Updates group with id.
+            @param g_id: group ID
+            @param name: group name
+            @param description: group description
+            @param icon: group icon
+        """
+        pass
             
     def deleteGroup(self, g_id):
         """
@@ -102,8 +111,8 @@ class GroupController:
             count = self._cursor.rowcount
             
             if (count > 0):
-                logging.info("%i user with id: %i deleted", count, g_id)
+                logging.info("%i group with id: %i deleted", count, g_id)
             else:
-                logging.info("%i user with id: %i found", count, g_id)
+                logging.info("%i group with id: %i found", count, g_id)
         except sqlite3.Error as e:
             logging.exception(e)
