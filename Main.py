@@ -36,11 +36,12 @@ if (__name__ == "__main__"):
     print(user.selectAll())
 #     print(db_con.getTables())
     
+    group.updateGroup(5, "nova", "description", "icon")
     group.insertGroup("Default", "Default gorup")
-#     passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "m_date", "e_date", "grp_id", "user_id", "attachment")
+#     passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "m_date", "e_date", "grp_id", "user_id", "attachment", "heslo")
     print(group.selectById(1))
     
     passwd_ctrl.deletePassword(1)
-    print(passwd_ctrl.selectAll()[0]["title"])
+    print(passwd_ctrl.selectAll())
     
     db_con._connection.close()

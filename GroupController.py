@@ -97,7 +97,14 @@ class GroupController:
             @param description: group description
             @param icon: group icon
         """
-        pass
+        try:
+            self._cursor.execute("UPDATE Groups SET name = :name, description = :description, icon = :icon WHERE id = :id;",
+                                {"id" : g_id, "name" : name, "description" : description, "icon" : icon})
+            logging.info("groups updated: %i, with ID: %i", self._cursor.rowcount, g_id)
+        except sqlite3.IntegrityError as e:
+            logging.warning(e)
+        except sqlite3.Error as e:
+            logging.exception(e)
             
     def deleteGroup(self, g_id):
         """
