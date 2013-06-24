@@ -5,6 +5,9 @@ from UserController import UserController
 from GroupController import GroupController
 from PasswdController import PasswdController
 import CryptoBasics
+import datetime
+import time
+import struct
 
 if (__name__ == "__main__"):
     logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
@@ -15,9 +18,9 @@ if (__name__ == "__main__"):
     
     user = UserController(db_con)
     group = GroupController(db_con)
-    passwd_ctrl = PasswdController(db_con)
+    passwd_ctrl = PasswdController(db_con, "heslo")
     
-#     db_con.createTables()
+    db_con.createTables()
     user.insertUser("Ferčšo", "heslo")
 #     user.insertUser("Fero", "heslo")
     key = CryptoBasics.genCipherKey("ahoj", CryptoBasics.genSalt(32))
@@ -38,10 +41,14 @@ if (__name__ == "__main__"):
     
     group.updateGroup(5, "nova", "description", "icon")
     group.insertGroup("Default", "Default gorup")
-#     passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "m_date", "e_date", "grp_id", "user_id", "attachment", "heslo")
+    passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "e_date", "grp_id", "user_id", "attachment")
     print(group.selectById(1))
     
-    passwd_ctrl.deletePassword(1)
-    print(passwd_ctrl.selectAll())
+    
+    
+#     passwd_ctrl.deletePassword(1)
+    print(datetime.datetime.fromtimestamp(passwd_ctrl.selectAll()[0]["m_date"]))
+    print(passwd_ctrl.selectAll()[0]["m_date"])
+    print(struct.unpack("<d", struct.pack("<d", time.time())))
     
     db_con._connection.close()
