@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import logging
+from GroupController import GroupController
+from IconController import IconController
+import os
 
 class DbController:
     """
@@ -11,6 +14,8 @@ class DbController:
         self._cursor = None
         self._database = database
         self._connection = None
+        
+        self._ICONS_ROOT = ".." + os.sep + "icons" + os.sep
         
     def connectDB(self, database = None):
         """
@@ -31,14 +36,20 @@ class DbController:
             raise e
     
     def getDBVersion(self):
-        """ Returns SQLite version """
+        """ 
+            Returns SQLite version 
+        """
         self._cursor.execute('SELECT SQLITE_VERSION()')
     
         return self._cursor.fetchone()[0]
     
     def createTables(self):      
         """
-            Creates neccessery tables.
+            Creates neccessery tables. 
+            Users table: users of UserPass manager application.
+            Icons table: contains icons for groups
+            Groups table: groups of passwords i.e. (Page, SSH, E-Mail, PC and user defined)
+            Password table: holds usernames, passwords and their metada in ecrypted form
         """ 
         try:
             self._cursor.executescript("""
@@ -46,9 +57,13 @@ class DbController:
                 CREATE TABLE Users(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, 
                     passwd TEXT NOT NULL, salt_p TEXT NOT NULL);
                 
+                DROP TABLE IF EXISTS Icons;
+                CREATE TABLE Icons(id INTEGER PRIMARY KEY, icon BLOB);
+                
                 DROP TABLE IF EXISTS Groups;
                 CREATE TABLE Groups(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, 
-                    description TEXT, icon BLOB);
+                    description TEXT, icon_id INTEGER,
+                    FOREIGN KEY(icon_id) REFERENCES Icons(id));
                 
                 DROP TABLE IF EXISTS Passwords;
                 CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title BLOB NOT NULL, username BLOB NOT NULL,
@@ -60,20 +75,44 @@ class DbController:
                     FOREIGN KEY(user_id) REFERENCES Users(id));
                 """)
             self._connection.commit()
-            logging.info("tables created.")
+            
+            # insert default groups
+            self.insertDefaultGroups()
+            
+            # insert default icons
+            self.insertDefaultIcons()
+            
+            logging.info("%i tables created.", self._cursor.rowcount)
         except sqlite3.Error as e:
             logging.exception(e)
             
+            # rollback changes
             self._connection.rollback()
+            raise e
+    
+    def insertDefaultIcons(self):
+        """
+            Creates default icons for groups.
+            Page, SSH, E-Mail, PC
+        """
+        icon_ctrl = IconController(self)
+        
+        icon_ctrl.insertIcon(self._ICONS_ROOT + "ANAKey.ico")
+        
+    def insertDefaultGroups(self):
+        """
+            Creates default password groups.
+            Page, SSH, E-Mail, PC
+        """
+        grp_ctrl = GroupController(self)
+        
+        # now insert new groups
+        grp_ctrl.insertGroup("Page", "Web page credentials.", 1)
+        grp_ctrl.insertGroup("SSH", "SSH credentials.", 2)
+        grp_ctrl.insertGroup("E-Mail", "E-Mail credentials.", 3)
+        grp_ctrl.insertGroup("PC", "PC credentials.", 4)
     
     def getTables(self):
         self._cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         
         return self._cursor.fetchall()
-    
-if __name__ == "__main__":
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.INFO)
-    
-    db = DbController()
-    
-    db.connectDB("test.db")

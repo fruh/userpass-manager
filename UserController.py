@@ -25,6 +25,8 @@ class UserController:
             logging.info("users selected: %s", len(rows))
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return rows
         
@@ -46,6 +48,8 @@ class UserController:
             logging.info("users selected: %s", count)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return row
     
@@ -67,6 +71,8 @@ class UserController:
             logging.info("users selected: %s", count)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return row
 
@@ -89,11 +95,14 @@ class UserController:
             self._cursor.execute("INSERT INTO Users(name, passwd, salt_p) VALUES(:name, :passwd, :salt_p)",
                                   {"name" : name, "passwd" : passwd, "salt_p" : salt_p})
             self._connection.commit()
-            logging.info("users inserted: %s", self._cursor.rowcount)
+            logging.info("users with ID: %i, inserted: %s", self._cursor.lastrowid, self._cursor.rowcount)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            self._connection.rollback()
+            raise e
             
     def deleteUser(self, u_id):
         """
@@ -112,3 +121,6 @@ class UserController:
                 logging.info("%s user with id: %s found", count, u_id)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            self._connection.rollback()
+            raise e

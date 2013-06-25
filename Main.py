@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
 from DbController import DbController
@@ -40,11 +41,9 @@ if (__name__ == "__main__"):
 #     print(db_con.getTables())
     
     group.updateGroup(5, "nova", "description", "icon")
-    group.insertGroup("Default", "Default gorup")
+    group.insertGroup("Default", "Default gorup", 5)
     passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "e_date", "grp_id", "user_id", "attachment")
     print(group.selectById(1))
-    
-    
     
 #     passwd_ctrl.deletePassword(1)
     print(datetime.datetime.fromtimestamp(passwd_ctrl.selectAll()[0]["m_date"]))

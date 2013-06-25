@@ -24,6 +24,8 @@ class GroupController:
             logging.info("groups selected: %i", len(rows))
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return rows
         
@@ -45,6 +47,8 @@ class GroupController:
             logging.info("groups selected: %i", count)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return row
     
@@ -66,45 +70,60 @@ class GroupController:
             logging.info("users selected: %i", count)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return row
 
-    def insertGroup(self, name, description, icon = None):
+    def insertGroup(self, name, description, icon_id):
         """
-            Inset user in talbe Users. User password is hashed with salt_p.
+            Inset group in table Groups.
             @param name: group name
             @param description: group description
-            @param icon: group icon, not required
+            @param icon_id: group icon id
         """
         name = unicode(name)
         description = unicode(description)
         
         try:
-            self._cursor.execute("INSERT INTO Groups(name, description, icon) VALUES(:name, :description, :icon)",
-                                  {"name" : name, "description" : description, "icon" : icon})
+            self._cursor.execute("INSERT INTO Groups(name, description, icon_id) VALUES(:name, :description, :icon_id)",
+                                  {"name" : name, "description" : description, "icon_id" : icon_id})
             self._connection.commit()
-            logging.info("groups inserted: %i", self._cursor.rowcount)
+            
+            logging.info("groups with ID: %i, inserted: %i", self._cursor.lastrowid, self._cursor.rowcount)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
+            
+            self._connection.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            self._connection.rollback()
+            raise e
            
-    def updateGroup(self, g_id, name, description, icon):
+    def updateGroup(self, g_id, name, description, icon_id):
         """
             Updates group with id.
             @param g_id: group ID
             @param name: group name
             @param description: group description
-            @param icon: group icon
+            @param icon_id: group icon ID
         """
         try:
-            self._cursor.execute("UPDATE Groups SET name = :name, description = :description, icon = :icon WHERE id = :id;",
-                                {"id" : g_id, "name" : name, "description" : description, "icon" : icon})
+            self._cursor.execute("UPDATE Groups SET name = :name, description = :description, icon_id = :icon_id WHERE id = :id;",
+                                {"id" : g_id, "name" : name, "description" : description, "icon_id" : icon_id})
+            self._connection.commit()
+            
             logging.info("groups updated: %i, with ID: %i", self._cursor.rowcount, g_id)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
+            
+            self._cursor.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            self._cursor.rollback()
+            raise e
             
     def deleteGroup(self, g_id):
         """
@@ -123,3 +142,6 @@ class GroupController:
                 logging.info("%i group with id: %i found", count, g_id)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            self._cursor.rollback()
+            raise e

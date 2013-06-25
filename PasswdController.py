@@ -8,7 +8,7 @@ import struct
 
 class PasswdController:
     """
-        Provides manipulating passwords in database.
+        Provides manipulating passwords in database. Encrypts and decrypts data.
     """
     def __init__(self, db_controller, master):
         self._db_ctrl = db_controller
@@ -21,20 +21,22 @@ class PasswdController:
     
     def selectAll(self):
         """
-            Select all password from table Passwords.
-            @return: rows touple of dictionaries
+            Select all password from table Passwords and decrypt.
+            @return: rows touple of dictionaries, decrypted data
         """
         try:
             self._cursor.execute("SELECT * FROM Passwords;")
             rows = self._cursor.fetchall()
             
-            # decrypt data
+            # decrypt selected data
             for i in range(0, len(rows)):
                 rows[i] = self.decryptRowDic(rows[i])                      
             
             logging.info("passwords selected: %i", len(rows))
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return rows
         
@@ -45,9 +47,11 @@ class PasswdController:
             @return: row
         """
         try:
+            # select from table
             self._cursor.execute("SELECT * FROM Passwords WHERE id = :id;", {"id" : p_id})
             row = self._cursor.fetchone()
             
+            # if exists ID
             if (row):
                 count = 1
                 
@@ -59,6 +63,8 @@ class PasswdController:
             logging.info("passwords selected: %i", count)
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            raise e
         finally:
             return row
 
@@ -91,11 +97,17 @@ class PasswdController:
                 VALUES(:title, :username, :passwd, :url, :comment, :c_date, :m_date, :e_date, :grp_id, :user_id, :attachment, :salt, :iv)""",
                                   encrypted_row)
             self._connection.commit()
-            logging.info("passwords inserted: %i", self._cursor.rowcount)
+            
+            logging.info("passwords with ID: %i, inserted: %i", self._cursor.lastrowid, self._cursor.rowcount)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
+            
+            self._cursor.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
+            
+            self._cursor.rollback()
+            raise e
             
     def updatePasswd(self, p_id, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment):
         """
@@ -112,21 +124,41 @@ class PasswdController:
             @param attachment: attachment of password
         """
         try:
+            # first select old row to get salt and iv
             old = self.selectById(p_id)
             
+            # if old row exists
             if old:
+                # encrypt data and prepare for sqlite
                 row = self.encryptAndPrepRow(title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, old["salt"], old["iv"])
                 
                 self._cursor.execute("""UPDATE Passwords SET title = :title, username = :username, passwd = :passwd, url = :url, 
                                     comment = :comment, c_date = :c_date, m_date = :m_date, e_date = :e_date, grp_id = :grp_id,
                                     attachment = :attachment WHERE id = :id;""", row)
+                self._connection.commit()
+                
+                logging.debug("passwd with ID: %i updated.", p_id)
             else:
-                logging.warning("password with id: %i doesn't exists.", p_id)
+                logging.warning("password with id: %i doesn't exists. Can't be updated.", p_id)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
+            
+            self._cursor.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
             
+            self._cursor.rollback()
+            raise e
+          
+    def updatePasswdDic(self, row):
+        """
+            Updates password record, implements updatePasswd().
+            
+            @param row: new data
+        """
+        self.updatePasswd(row["p_id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"], 
+                        row["c_date"], row["e_date"], row["grp_id"], row["user_id"], row["attachment"])
+        
     def deletePassword(self, p_id):
         """
             Delete password with ID.
@@ -145,10 +177,13 @@ class PasswdController:
         except sqlite3.Error as e:
             logging.exception(e)
             
+            self._cursor.rollback()
+            raise e
+            
     def encryptAndPrepRow(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, salt, iv):
         """
             Encrypts password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
-            Also change m_date column, modification date, to current timestamp.
+            Also change m_date column, modification date, to current timestamp. Encrypted data are inserted as BLOB type.
             
             And prepares them for sqlite binary data.
             @param title: password title
@@ -172,7 +207,7 @@ class PasswdController:
         m_date = time.time()
         logging.debug("modification timestamp: %f", m_date)
         
-        # use little endian and float type
+        # use little endian and float type to convert timestamp
         m_date = struct.pack(self._TIME_PRECISION, m_date)
 
         # encrypt data
@@ -234,8 +269,10 @@ class PasswdController:
         url = CryptoBasics.decryptDataAutoPad(url, secret_key, iv)
         comment = CryptoBasics.decryptDataAutoPad(comment, secret_key, iv)
         c_date = CryptoBasics.decryptDataAutoPad(c_date, secret_key, iv)
-        # unpack return a touple, but I need just one value
+        
+        # unpack returns a touple, but I need just one value
         m_date = struct.unpack(self._TIME_PRECISION, CryptoBasics.decryptDataAutoPad(m_date, secret_key, iv))[0]
+        
         e_date = CryptoBasics.decryptDataAutoPad(e_date, secret_key, iv)
         attachment = CryptoBasics.decryptDataAutoPad(attachment, secret_key, iv)
         
@@ -245,8 +282,9 @@ class PasswdController:
         
     def decryptRowDic(self, row):
         """
-            decrypts password in table Passwords. Decrypts slected data. Only grp_id, user_id salt and iv are not encrypted.
-            @param row: selected row, encrypted
+            Decrypts password in table Passwords. Decrypts slected data. Only grp_id, user_id salt and iv are not encrypted.
+            
+            @param row: selected row, encrypted, as dictionary
             
             @return: enrypted dictionary data
         """
@@ -261,3 +299,11 @@ class PasswdController:
             @param master: master password
         """
         self._master = master
+        
+    def getMster(self):
+        """
+            Returns currnet master password.
+            
+            @return: master
+        """
+        return self._master
