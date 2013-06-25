@@ -54,7 +54,7 @@ class IconController:
     
     def insertIcon(self, icon_path):
         """
-            Inset icon in talbe Icons.
+            Insert icon in talbe Icons.
             @param icon_path: path to icon
         """
         # open and read icon
