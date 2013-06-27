@@ -3,6 +3,7 @@
 import sqlite3
 import logging
 import CryptoBasics
+from UserModel import UserModel
 
 class UserController:
     """
@@ -16,7 +17,7 @@ class UserController:
     def selectAll(self):
         """
             Select all users from table Users.
-            @return: rows touple of dictionaries
+            @return: rows touple of users (UserModel)
         """
         try:
             self._cursor.execute("SELECT * FROM Users;")
@@ -28,7 +29,11 @@ class UserController:
             
             raise e
         finally:
-            return rows
+            users = []
+            
+            for row in rows:
+                users.append(self.createUserObj(row))
+            return users
         
     def selectById(self, u_id):
         """
@@ -124,3 +129,13 @@ class UserController:
             
             self._connection.rollback()
             raise e
+        
+    def createUserObj(self, dic):
+        """
+            Creates user from dictionary returned from db.
+            
+            @param dic: user returned from db
+            
+            @return: UserModel object
+        """
+        return UserModel(dic["id"], dic["name"], dic["passwd"], dic["salt_p"])

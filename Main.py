@@ -24,20 +24,9 @@ if (__name__ == "__main__"):
     db_con.createTables()
     user.insertUser("Ferčšo", "heslo")
 #     user.insertUser("Fero", "heslo")
-    key = CryptoBasics.genCipherKey("ahoj", CryptoBasics.genSalt(32))
-#     key = binascii.unhexlify("5ddea602fddf75ddea602fddf7765154e31016525f6cb765154e31016525f6cb")
-    iv = CryptoBasics.genIV()
-    #binascii.unhexlify("5ddea602fddf7765154e31016525f6cb")
-    plaint = "aaaaaa"
-    print(type(plaint))
 
-    ct = CryptoBasics.encryptDataAutoPad(plaint, key, iv)
-    print(ct)
-    buf = CryptoBasics.decryptDataAutoPad(ct, key, iv)
-    print(buf)
-#     print()
-#     print(CryptoBasics.genIV())
-    print(user.selectAll())
+
+    print(user.selectAll()[0]._passwd)
 #     print(db_con.getTables())
     
     group.updateGroup(5, "nova", "description", "icon")
