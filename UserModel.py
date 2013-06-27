@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import logging
-
 class UserModel:
     """
         Holds User data.

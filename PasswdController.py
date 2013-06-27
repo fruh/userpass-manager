@@ -5,6 +5,7 @@ import sqlite3
 import CryptoBasics
 import time
 import struct
+from PasswdModel import PasswdModel
 
 class PasswdController:
     """
@@ -38,7 +39,11 @@ class PasswdController:
             
             raise e
         finally:
-            return rows
+            passwords = []
+            
+            for row in rows:
+                passwords.append(self.createPasswdObj(row))
+            return passwords
         
     def selectById(self, p_id):
         """
@@ -66,7 +71,7 @@ class PasswdController:
             
             raise e
         finally:
-            return row
+            return self.createPasswdObj(row)
 
     def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment):
         """
@@ -291,19 +296,15 @@ class PasswdController:
         return self.decryptRow(row["id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"],
                             row["c_date"], row["m_date"], row["e_date"], row["grp_id"], row["user_id"], 
                             row["attachment"], row["salt"], row["iv"])
-        
-    def setMaster(self, master):
+    
+    def createPasswdObj(self, dic):
         """
-            Set master password for controller.
+            Creates group from dictionary returned from db.
             
-            @param master: master password
-        """
-        self._master = master
-        
-    def getMster(self):
-        """
-            Returns currnet master password.
+            @param dic: group returned from db
             
-            @return: master
+            @return: GroupModel object
         """
-        return self._master
+        return PasswdModel(dic["id"], dic["title"], dic["username"], dic["passwd"], dic["url"], dic["comment"],
+                            dic["c_date"], dic["m_date"], dic["e_date"], dic["grp_id"], dic["user_id"], 
+                            dic["attachment"], dic["salt"], dic["iv"])

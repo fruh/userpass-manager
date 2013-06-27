@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import logging
+from IconModel import IconModel
 
 class IconController:
     """
@@ -27,7 +28,11 @@ class IconController:
             
             raise e
         finally:
-            return rows
+            icons = []
+            
+            for row in rows:
+                icons.append(self.createIconObj(row))
+            return icons
         
     def selectById(self, i_id):
         """
@@ -50,7 +55,7 @@ class IconController:
             
             raise e
         finally:
-            return row
+            return self.createIconObj(row)
     
     def insertIcon(self, icon_path):
         """
@@ -146,3 +151,12 @@ class IconController:
             if img:
                 img.close()
         
+    def createIconObj(self, dic):
+        """
+            Creates icon from dictionary returned from db.
+            
+            @param dic: icon returned from db
+            
+            @return: IconModel object
+        """
+        return IconModel(dic["id"], dic["icon"])

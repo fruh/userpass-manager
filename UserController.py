@@ -17,7 +17,7 @@ class UserController:
     def selectAll(self):
         """
             Select all users from table Users.
-            @return: rows touple of users (UserModel)
+            @return: list of users (UserModel)
         """
         try:
             self._cursor.execute("SELECT * FROM Users;")
@@ -39,7 +39,7 @@ class UserController:
         """
             Search user by id.
             @param id: user id
-            @return: row
+            @return: UserModel object
         """
         try:
             self._cursor.execute("SELECT * FROM Users WHERE id = :id;", {"id" : u_id})
@@ -56,13 +56,13 @@ class UserController:
             
             raise e
         finally:
-            return row
+            return self.createUserObj(row)
     
     def selectByName(self, name):
         """
             Search user by name.
             @param name: user name
-            @return: row
+            @return: UserModel object
         """
         name = unicode(name)
         try:
@@ -79,7 +79,7 @@ class UserController:
             
             raise e
         finally:
-            return row
+            return self.createUserObj(row)
 
     def insertUser(self, name, passwd):
         """

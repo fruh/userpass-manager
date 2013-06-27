@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 import logging
+from GroupModel import GroupModel
 
 class GroupController:
     """
@@ -15,7 +16,7 @@ class GroupController:
     def selectAll(self):
         """
             Select all groups from table Groups.
-            @return: rows touple of dictionaries
+            @return: list of GroupModel objects
         """
         try:
             self._cursor.execute("SELECT * FROM Groups;")
@@ -27,7 +28,11 @@ class GroupController:
             
             raise e
         finally:
-            return rows
+            groups = []
+            
+            for row in rows:
+                groups.append(self.createGroupObj(row))
+            return groups
         
     def selectById(self, g_id):
         """
@@ -50,7 +55,7 @@ class GroupController:
             
             raise e
         finally:
-            return row
+            return self.createGroupObj(row)
     
     def selectByName(self, name):
         """
@@ -73,7 +78,7 @@ class GroupController:
             
             raise e
         finally:
-            return row
+            return self.createGroupObj(row)
 
     def insertGroup(self, name, description, icon_id):
         """
@@ -145,3 +150,13 @@ class GroupController:
             
             self._cursor.rollback()
             raise e
+        
+    def createGroupObj(self, dic):
+        """
+            Creates group from dictionary returned from db.
+            
+            @param dic: group returned from db
+            
+            @return: GroupModel object
+        """
+        return GroupModel(dic["id"], dic["name"], dic["description"], dic["icon_id"])

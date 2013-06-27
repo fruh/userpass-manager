@@ -5,7 +5,6 @@ from DbController import DbController
 from UserController import UserController
 from GroupController import GroupController
 from PasswdController import PasswdController
-import CryptoBasics
 import datetime
 import time
 import struct
@@ -35,8 +34,8 @@ if (__name__ == "__main__"):
     print(group.selectById(1))
     
 #     passwd_ctrl.deletePassword(1)
-    print(datetime.datetime.fromtimestamp(passwd_ctrl.selectAll()[0]["m_date"]))
-    print(passwd_ctrl.selectAll()[0]["m_date"])
+    print(datetime.datetime.fromtimestamp(passwd_ctrl.selectAll()[0]._m_date))
+    print(passwd_ctrl.selectAll()[0]._m_date)
     print(struct.unpack("<d", struct.pack("<d", time.time())))
     
     db_con._connection.close()
