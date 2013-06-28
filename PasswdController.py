@@ -6,6 +6,7 @@ import CryptoBasics
 import time
 import struct
 from PasswdModel import PasswdModel
+from TransController import tr
 
 class PasswdController:
     """
@@ -72,6 +73,33 @@ class PasswdController:
             raise e
         finally:
             return self.createPasswdObj(row)
+        
+    def selectByGroupId(self, g_id):
+        """
+            Search password by group id.
+            @param g_id: group id
+            @return: rows
+        """
+        try:
+            # select from table
+            self._cursor.execute("SELECT * FROM Passwords WHERE grp_id = :id;", {"id" : g_id})
+            rows = self._cursor.fetchall()
+            
+            # decrypt selected data
+            for i in range(0, len(rows)):
+                rows[i] = self.decryptRowDic(rows[i])                      
+            
+            logging.info("passwords selected: %i", len(rows))
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            raise e
+        finally:
+            passwords = []
+            
+            for row in rows:
+                passwords.append(self.createPasswdObj(row))
+            return passwords
 
     def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment):
         """
@@ -308,3 +336,13 @@ class PasswdController:
         return PasswdModel(dic["id"], dic["title"], dic["username"], dic["passwd"], dic["url"], dic["comment"],
                             dic["c_date"], dic["m_date"], dic["e_date"], dic["grp_id"], dic["user_id"], 
                             dic["attachment"], dic["salt"], dic["iv"])
+        
+    @staticmethod
+    def getVisibleColumns():
+        """
+            Return visible table columns.
+            
+            @return: list of column names
+        """
+        return [tr("Title"), tr("Username"), tr("Password"), tr("Url"), tr("Comment"), 
+                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Attachment"),]

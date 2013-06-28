@@ -8,10 +8,11 @@ from PasswdController import PasswdController
 import datetime
 import time
 import struct
+from PyQt4 import QtGui
+import sys
+from MainWindow import MainWindow
 
-if (__name__ == "__main__"):
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
-    
+def dbTest():    
     db_con = DbController("test.db")
     
     db_con.connectDB()
@@ -39,3 +40,17 @@ if (__name__ == "__main__"):
     print(struct.unpack("<d", struct.pack("<d", time.time())))
     
     db_con._connection.close()
+    
+def main():
+    app = QtGui.QApplication(sys.argv)
+    
+    w = MainWindow()
+    
+    w.show()
+    
+    sys.exit(app.exec_())
+    
+if (__name__ == "__main__"):
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
+    
+    main()
