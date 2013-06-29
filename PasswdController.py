@@ -101,7 +101,7 @@ class PasswdController:
                 passwords.append(self.createPasswdObj(row))
             return passwords
 
-    def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment):
+    def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name):
         """
             Inserts password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             @param title: password title
@@ -114,6 +114,7 @@ class PasswdController:
             @param grp_id: password group ID, from Groups table
             @param user_id: user ID, from Users table
             @param attachment: attachment of password
+            @param att_name: attachment name
         """
         salt = unicode(CryptoBasics.genKeySalt())
         iv = CryptoBasics.genIV()
@@ -121,13 +122,14 @@ class PasswdController:
         # encrypt data       
         encrypted_row = self.encryptAndPrepRow(title, username, passwd, url, 
                                                comment, c_date, e_date, 
-                                               grp_id, user_id, attachment, 
+                                               grp_id, user_id, attachment,
+                                               att_name, 
                                                salt, iv)
         
         try:
             self._cursor.execute("""INSERT INTO 
-                Passwords(title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, salt, iv)
-                VALUES(:title, :username, :passwd, :url, :comment, :c_date, :m_date, :e_date, :grp_id, :user_id, :attachment, :salt, :iv)""",
+                Passwords(title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv)
+                VALUES(:title, :username, :passwd, :url, :comment, :c_date, :m_date, :e_date, :grp_id, :user_id, :attachment, :att_name, :salt, :iv)""",
                                   encrypted_row)
             self._connection.commit()
             
@@ -135,14 +137,14 @@ class PasswdController:
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
             
-    def updatePasswd(self, p_id, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment):
+    def updatePasswd(self, p_id, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name):
         """
             Updates password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             @param title: password title
@@ -155,6 +157,7 @@ class PasswdController:
             @param grp_id: password group ID, from Groups table
             @param user_id: user ID, from Users table
             @param attachment: attachment of password
+            @param att_name: attachment name
         """
         try:
             # first select old row to get salt and iv
@@ -163,11 +166,11 @@ class PasswdController:
             # if old row exists
             if old:
                 # encrypt data and prepare for sqlite
-                row = self.encryptAndPrepRow(title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, old["salt"], old["iv"])
+                row = self.encryptAndPrepRow(title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, old["salt"], old["iv"])
                 
                 self._cursor.execute("""UPDATE Passwords SET title = :title, username = :username, passwd = :passwd, url = :url, 
                                     comment = :comment, c_date = :c_date, m_date = :m_date, e_date = :e_date, grp_id = :grp_id,
-                                    attachment = :attachment WHERE id = :id;""", row)
+                                    attachment = :attachment, att_name = :att_name WHERE id = :id;""", row)
                 self._connection.commit()
                 
                 logging.debug("passwd with ID: %i updated.", p_id)
@@ -190,7 +193,7 @@ class PasswdController:
             @param row: new data
         """
         self.updatePasswd(row["p_id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"], 
-                        row["c_date"], row["e_date"], row["grp_id"], row["user_id"], row["attachment"])
+                        row["c_date"], row["e_date"], row["grp_id"], row["user_id"], row["attachment"], row["att_name"])
         
     def deletePassword(self, p_id):
         """
@@ -213,7 +216,7 @@ class PasswdController:
             self._cursor.rollback()
             raise e
             
-    def encryptAndPrepRow(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, salt, iv):
+    def encryptAndPrepRow(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, salt, iv):
         """
             Encrypts password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             Also change m_date column, modification date, to current timestamp. Encrypted data are inserted as BLOB type.
@@ -229,6 +232,7 @@ class PasswdController:
             @param grp_id: password group ID, from Groups table
             @param user_id: user ID, from Users table
             @param attachment: attachment of password
+            @param att_name: attachment name
             @param salt: secret key salt
             @param iv: cipher input vector
             
@@ -253,6 +257,7 @@ class PasswdController:
         m_date = CryptoBasics.encryptDataAutoPad(m_date, secret_key, iv)
         e_date = CryptoBasics.encryptDataAutoPad(e_date, secret_key, iv)
         attachment = CryptoBasics.encryptDataAutoPad(attachment, secret_key, iv)
+        att_name = CryptoBasics.encryptDataAutoPad(att_name, secret_key, iv)
         
         # prepare binary data
         title = sqlite3.Binary(title)
@@ -263,16 +268,17 @@ class PasswdController:
         c_date = sqlite3.Binary(c_date)
         m_date = sqlite3.Binary(m_date)
         e_date = sqlite3.Binary(e_date)
-        grp_id = sqlite3.Binary(grp_id)
-        user_id = sqlite3.Binary(user_id)
+#         grp_id = sqlite3.Binary(grp_id)
+#         user_id = sqlite3.Binary(user_id)
         attachment = sqlite3.Binary(attachment)
+        att_name = sqlite3.Binary(att_name)
         iv = sqlite3.Binary(iv)
         
         return {"title" : title, "username" : username, "passwd" : passwd, "url" : url, "comment" : comment, 
             "c_date" : c_date, "m_date" : m_date, "e_date" : e_date, "grp_id" : grp_id, "user_id" : user_id,
-            "attachment" : attachment, "salt" : salt, "iv" : iv}
+            "attachment" : attachment, "att_name" : att_name, "salt" : salt, "iv" : iv}
     
-    def decryptRow(self, p_id, title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, salt, iv):
+    def decryptRow(self, p_id, title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv):
         """
             Decrypts password in table Passwords. Decrypts slected data. Only grp_id, user_id salt and iv are not encrypted.
             
@@ -288,6 +294,7 @@ class PasswdController:
             @param grp_id: password group ID, from Groups table
             @param user_id: user ID, from Users table
             @param attachment: attachment of password
+            @param att_name: attachment name
             @param salt: secret key salt
             @param iv: cipher input vector
             
@@ -308,10 +315,11 @@ class PasswdController:
         
         e_date = CryptoBasics.decryptDataAutoPad(e_date, secret_key, iv)
         attachment = CryptoBasics.decryptDataAutoPad(attachment, secret_key, iv)
+        att_name = CryptoBasics.decryptDataAutoPad(att_name, secret_key, iv)
         
         return {"id" : id, "title" : title, "username" : username, "passwd" : passwd, "url" : url, "comment" : comment, 
             "c_date" : c_date, "m_date" : m_date, "e_date" : e_date, "grp_id" : grp_id, "user_id" : user_id,
-            "attachment" : attachment, "salt" : salt, "iv" : iv}
+            "attachment" : attachment, "att_name" : att_name, "salt" : salt, "iv" : iv}
         
     def decryptRowDic(self, row):
         """
@@ -323,7 +331,7 @@ class PasswdController:
         """
         return self.decryptRow(row["id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"],
                             row["c_date"], row["m_date"], row["e_date"], row["grp_id"], row["user_id"], 
-                            row["attachment"], row["salt"], row["iv"])
+                            row["attachment"], row["att_name"], row["salt"], row["iv"])
     
     def createPasswdObj(self, dic):
         """
@@ -335,7 +343,7 @@ class PasswdController:
         """
         return PasswdModel(dic["id"], dic["title"], dic["username"], dic["passwd"], dic["url"], dic["comment"],
                             dic["c_date"], dic["m_date"], dic["e_date"], dic["grp_id"], dic["user_id"], 
-                            dic["attachment"], dic["salt"], dic["iv"])
+                            dic["attachment"], dic["att_name"], dic["salt"], dic["iv"], self._db_ctrl)
         
     @staticmethod
     def getVisibleColumns():
@@ -345,4 +353,4 @@ class PasswdController:
             @return: list of column names
         """
         return [tr("Title"), tr("Username"), tr("Password"), tr("Url"), tr("Comment"), 
-                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Attachment"),]
+                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Attachment Name")]

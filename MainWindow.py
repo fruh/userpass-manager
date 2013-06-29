@@ -24,7 +24,6 @@ class MainWindow(QtGui.QMainWindow):
 #         self.resize(300, 300)
         
         self.setWindowTitle(unicode("UserPass Manager alpha"))
-        self.createMenu()
         
         self.center()
         self.setDockOptions(QtGui.QMainWindow.AnimatedDocks | QtGui.QMainWindow.AllowNestedDocks)
@@ -83,13 +82,19 @@ class MainWindow(QtGui.QMainWindow):
         """
             Initialize all actions, i.e. Close, Save etc.
         """
-        # init actions
+        # init close
         self._close_act = QtGui.QAction(tr("&Close"), self)
         self._close_act.setShortcuts(QtGui.QKeySequence.Close)
         self._close_act.setStatusTip(tr("Close application"))
         
         # connect to slot
         self._close_act.triggered.connect(QtCore.QCoreApplication.instance().quit)
+        
+        # init about action
+        self._about_act = QtGui.QAction(tr("About"), self)
+        self._about_act.setStatusTip(tr("About UserPass Manager"))
+        
+        self._about_act.triggered.connect(self.aboutDialog)
         
     def createMenu(self):
         """
@@ -103,6 +108,9 @@ class MainWindow(QtGui.QMainWindow):
         file_menu = self.menuBar().addMenu(tr("&File"))
         file_menu.addAction(self._close_act)
         
+        about_menu = self.menuBar().addMenu(tr("About"))
+        about_menu.addAction(self._about_act)
+        
     def center(self):
         """
             Center window.
@@ -115,5 +123,8 @@ class MainWindow(QtGui.QMainWindow):
         wg.moveCenter(cs)
         
         self.move(wg.topLeft())
+        
+    def aboutDialog(self):
+        QtGui.QMessageBox( QtGui.QMessageBox.Information, "About", "UserPass Manager v0.0.1 alpha\n\nSafely backup your credentials.").exec_()
         
         

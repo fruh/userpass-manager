@@ -69,7 +69,7 @@ class DbController:
                 CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title BLOB NOT NULL, username BLOB NOT NULL,
                     passwd BLOB NOT NULL, url BLOB, comment BLOB, 
                     c_date BLOB NOT NULL, m_date BLOB NOT NULL, e_date BLOB NOT NULL,
-                    grp_id INTEGER, user_id INTEGER, attachment BLOB,
+                    grp_id INTEGER, user_id INTEGER, attachment BLOB, att_name BLOB,
                     salt TEXT, iv BLOB,
                     FOREIGN KEY(grp_id) REFERENCES Groups(id),
                     FOREIGN KEY(user_id) REFERENCES Users(id));

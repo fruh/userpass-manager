@@ -30,8 +30,7 @@ def dbTest():
 #     print(db_con.getTables())
     
     group.updateGroup(5, "nova", "description", "icon")
-    group.insertGroup("Default", "Default gorup", 5)
-    passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "e_date", "grp_id", "user_id", "attachment")
+    passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "e_date", 1, 1, "attachment", "attname")
     print(group.selectById(1))
     
 #     passwd_ctrl.deletePassword(1)
@@ -54,3 +53,4 @@ if (__name__ == "__main__"):
     logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
     
     main()
+#     dbTest()

@@ -159,4 +159,4 @@ class GroupController:
             
             @return: GroupModel object
         """
-        return GroupModel(dic["id"], dic["name"], dic["description"], dic["icon_id"])
+        return GroupModel(dic["id"], dic["name"], dic["description"], dic["icon_id"], self._db_ctrl)
