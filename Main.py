@@ -43,8 +43,20 @@ def dbTest():
 def main():
     app = QtGui.QApplication(sys.argv)
     
-    db_con = DbController("test.db")
+    db_con = DbController("test.db", "heslo")
     db_con.createTables()
+    
+    user = UserController(db_con)
+    passwd_ctrl = PasswdController(db_con, db_con._master)
+    
+    user.insertUser("Ferčšo", "heslo")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "vfdfgdsg", "c_date", "e_date", 1, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "commgreent", "c_date", "e_date", 2, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "commfwefefwent", "c_date", "e_date", 3, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "commfewent", "c_date", "e_date", 4, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "comewment", "c_date", "e_date", 1, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "comfewfwefwefewment", "c_date", "e_date", 2, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "cofewfwemment", "c_date", "e_date", 3, 1, "attachment", "attname")
     
     w = MainWindow(db_con)
     

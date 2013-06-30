@@ -10,12 +10,13 @@ class DbController:
     """
         Implements basic DB initialitation.
     """
-    def __init__(self, database = None):
+    def __init__(self, database = None, master = None):
         self._cursor = None
         self._database = database
         self._connection = None
+        self._master = master
         
-        self._ICONS_ROOT = ".." + os.sep + "icons" + os.sep
+        self._ICONS_ROOT = "." + os.sep + "icons" + os.sep
         
         if (database):
             self.connectDB()
