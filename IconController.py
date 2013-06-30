@@ -56,18 +56,43 @@ class IconController:
             raise e
         finally:
             return self.createIconObj(row)
-    
-    def insertIcon(self, icon_path):
+        
+    def selectByName(self, name):
         """
-            Insert icon in talbe Icons.
+            Search icon by name.
+            @param name: icon name
+            @return: row
+        """
+        try:
+            self._cursor.execute("SELECT * FROM Icons WHERE name = :name;", {"name" : name})
+            row = self._cursor.fetchone()
+            
+            if (row):
+                count = 1
+            else:
+                count = 0
+            
+            logging.info("icons selected: %i", count)
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            raise e
+        finally:
+            return self.createIconObj(row)
+    
+    def insertIcon(self, name, icon_path):
+        """
+            Insert icon in table Icons.
+            
+            @param name: icon name
             @param icon_path: path to icon
         """
         # open and read icon
         icon = self.readImage(icon_path)
         
         try:
-            self._cursor.execute("INSERT INTO Icons(icon) VALUES(:icon)",
-                                  {"icon" : icon})
+            self._cursor.execute("INSERT INTO Icons(name, icon) VALUES(:name, :icon)",
+                                  {"name" : name, "icon" : icon})
             self._connection.commit()
             
             logging.info("icons with ID: %i, inserted: %i, path to icon: %s", self._cursor.lastrowid, self._cursor.rowcount, icon_path)
@@ -81,18 +106,19 @@ class IconController:
             self._connection.rollback()
             raise e
            
-    def updateIcon(self, i_id, icon_path):
+    def updateIcon(self, i_id, name, icon_path):
         """
             Updates icon with id.
             @param i_id: icon id
+            @param name: icon name
             @param icon_path: path to icon file
         """
         # open and read icon
         icon = self.readImage(icon_path)
         
         try:
-            self._cursor.execute("UPDATE Icons SET icon = :icon WHERE id = :id;",
-                                {"icon" : icon, "id" : i_id})
+            self._cursor.execute("UPDATE Icons SET name = :name, icon = :icon WHERE id = :id;",
+                                {"icon" : icon, "name" : name, "id" : i_id})
             self._connection.commit()
             
             logging.info("icons updated: %i, with ID: %i, new icon image: %s", self._cursor.rowcount, i_id, icon_path)
@@ -135,6 +161,7 @@ class IconController:
             @return: BLOB type
         """
         img = None
+        icon = None
         
         # open and read icon
         try:
@@ -150,6 +177,7 @@ class IconController:
         finally:
             if img:
                 img.close()
+            return icon
         
     def createIconObj(self, dic):
         """
@@ -159,4 +187,4 @@ class IconController:
             
             @return: IconModel object
         """
-        return IconModel(dic["id"], dic["icon"])
+        return IconModel(dic["id"], dic["name"], dic["icon"])

@@ -3,12 +3,18 @@
 from PyQt4 import QtGui, QtCore
 from TransController import tr
 from PasswdController import PasswdController
+from GroupsWidget import GroupsWidget
 
 class MainWindow(QtGui.QMainWindow):
     """
         MainWindow class represents main window.
     """
-    def __init__(self):
+    # public attr:
+    _db_ctrl = None
+    
+    def __init__(self, db_ctrl):
+        self._db_ctrl = db_ctrl
+        
         super(MainWindow, self).__init__()
         
         self._close_act = None
@@ -37,21 +43,10 @@ class MainWindow(QtGui.QMainWindow):
 #         self._groups_dw.setLayout(self._groups_vl)
         
         # create groups tree widget
-        self._groups_tw = QtGui.QTreeWidget()
-        # remove tree header
-        self._groups_tw.header().close()
+        self._groups_tw = GroupsWidget(self)
+
         self._groups_dw.setWidget(self._groups_tw)
 #         self._groups_tw.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Minimum))
-        
-        item = QtGui.QTreeWidgetItem()
-        item.setText(0, tr("test"))
-        
-        item2 = QtGui.QTreeWidgetItem()
-        item2.setText(0, tr("test2"))
-        item2.setData(1, QtCore.Qt.DisplayRole, "dasdsad")
-        
-        self._groups_tw.addTopLevelItem(item)
-        item.addChild(item2)
         
         # passwords
         self._passwords_dw = QtGui.QDockWidget(tr("Passwords"))

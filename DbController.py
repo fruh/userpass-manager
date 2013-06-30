@@ -17,6 +17,9 @@ class DbController:
         
         self._ICONS_ROOT = ".." + os.sep + "icons" + os.sep
         
+        if (database):
+            self.connectDB()
+        
     def connectDB(self, database = None):
         """
             Connect existing or creates new database
@@ -58,7 +61,7 @@ class DbController:
                     passwd TEXT NOT NULL, salt_p TEXT NOT NULL);
                 
                 DROP TABLE IF EXISTS Icons;
-                CREATE TABLE Icons(id INTEGER PRIMARY KEY, icon BLOB);
+                CREATE TABLE Icons(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, icon BLOB);
                 
                 DROP TABLE IF EXISTS Groups;
                 CREATE TABLE Groups(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, 
@@ -76,11 +79,11 @@ class DbController:
                 """)
             self._connection.commit()
             
-            # insert default groups
-            self.insertDefaultGroups()
-            
             # insert default icons
             self.insertDefaultIcons()
+            
+            # insert default groups
+            self.insertDefaultGroups()
             
             logging.info("%i tables created.", self._cursor.rowcount)
         except sqlite3.Error as e:
@@ -97,7 +100,10 @@ class DbController:
         """
         icon_ctrl = IconController(self)
         
-        icon_ctrl.insertIcon(self._ICONS_ROOT + "ANAKey.ico")
+        icon_ctrl.insertIcon("key-personal", self._ICONS_ROOT + "key-personal.svg")
+        icon_ctrl.insertIcon("key-ssh", self._ICONS_ROOT + "key-ssh.svg")
+        icon_ctrl.insertIcon("key", self._ICONS_ROOT + "key.svg")
+        icon_ctrl.insertIcon("person", self._ICONS_ROOT + "person.svg")
         
     def insertDefaultGroups(self):
         """
@@ -105,12 +111,13 @@ class DbController:
             Page, SSH, E-Mail, PC
         """
         grp_ctrl = GroupController(self)
+        icon_ctrl = IconController(self)
         
         # now insert new groups
-        grp_ctrl.insertGroup("Page", "Web page credentials.", 1)
-        grp_ctrl.insertGroup("SSH", "SSH credentials.", 2)
-        grp_ctrl.insertGroup("E-Mail", "E-Mail credentials.", 3)
-        grp_ctrl.insertGroup("PC", "PC credentials.", 4)
+        grp_ctrl.insertGroup("Page", "Web page credentials.", icon_ctrl.selectByName("key-personal")._id)
+        grp_ctrl.insertGroup("SSH", "SSH credentials.", icon_ctrl.selectByName("key-ssh")._id)
+        grp_ctrl.insertGroup("E-Mail", "E-Mail credentials.", icon_ctrl.selectByName("key")._id)
+        grp_ctrl.insertGroup("PC", "PC credentials.", icon_ctrl.selectByName("person")._id)
     
     def getTables(self):
         self._cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")

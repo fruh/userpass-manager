@@ -43,7 +43,10 @@ def dbTest():
 def main():
     app = QtGui.QApplication(sys.argv)
     
-    w = MainWindow()
+    db_con = DbController("test.db")
+    db_con.createTables()
+    
+    w = MainWindow(db_con)
     
     w.show()
     
