@@ -47,8 +47,8 @@ class PasswdModel:
         self._salt = salt
         self._iv = iv
         
-        self._grp = self.selectGroup(grp_id, db_ctrl)
-        self._user = self.selectUser(user_id, db_ctrl)
+        self.selectGroup(grp_id, db_ctrl)
+        self.selectUser(user_id, db_ctrl)
         
     def selectGroup(self, g_id, db_ctrl):
         """
