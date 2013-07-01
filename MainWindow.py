@@ -4,6 +4,7 @@ from PyQt4 import QtGui, QtCore
 from TransController import tr
 from PasswdController import PasswdController
 from GroupsWidget import GroupsWidget
+from PasswordsWidget import PasswordsWidget
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -28,8 +29,7 @@ class MainWindow(QtGui.QMainWindow):
             Initialize gui components. Create dock widgets.
         """
 #         self.resize(300, 300)
-        
-        self.setWindowTitle(unicode("UserPass Manager alpha"))
+        self.setWindowTitle("UserPass Manager alpha")
         
         self.center()
         self.setDockOptions(QtGui.QMainWindow.AnimatedDocks | QtGui.QMainWindow.AllowNestedDocks)
@@ -62,16 +62,11 @@ class MainWindow(QtGui.QMainWindow):
         self._passwords_cw.setLayout(self._passwords_vl)
         
         # add table widget to passwords dock
-        self._passwords_table = QtGui.QTableWidget()
+        self._passwords_table = PasswordsWidget(self)
         self._passwords_vl.addWidget(self._passwords_table)
-        self._passwords_table.setColumnCount(len(PasswdController.getVisibleColumns()))
         
-        # auto resize columns
-        self._passwords_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
-        self._passwords_table.resizeColumnsToContents()
-        
-        # set column names
-        self._passwords_table.setHorizontalHeaderLabels(PasswdController.getVisibleColumns())
+        # create connection to update table view
+        self._groups_tw.emitPasswords.connect(self._passwords_table.showPasswords)
         
     def createActions(self):
         """

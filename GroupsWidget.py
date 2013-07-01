@@ -9,18 +9,25 @@ from IconController import IconController
 from PasswdController import PasswdController
 
 class GroupsWidget(QtGui.QTreeWidget):
-    # private attr:
-    __parent = None
-    __COL_ICON = 0
-    __COL_NAME = 1
-    __COL_ID = 2
-    __COL_TYPE = 3
-    __TYPE_ALL = 1
-    __TYPE_GROUP = 2
-    __TYPE_PASS = 3
+    # public static attr:
+    
+    _TYPE_ALL = 1
+    _TYPE_GROUP = 2
+    _TYPE_PASS = 3
+    
+    # public signals:
+    # first param: type, second: id
+    # when on a group or password in group widget is clicked
+    emitPasswords = QtCore.pyqtSignal(int, int)
     
     def __init__(self, parent = None):
+        # private attr:
         self.__parent = parent
+        self.__COL_ICON = 0
+        self.__COL_NAME = 1
+        self.__COL_ID = 2
+        self.__COL_TYPE = 3
+        
         super(GroupsWidget, self).__init__(parent)
         
         self.initUI()
@@ -53,20 +60,20 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         # group, that contains all passwords
         all_group = self.initItemData(icon_ctrl.selectByName("key")._icon, 
-                                      tr("All"), -1, tr("All passwords group."), self.__TYPE_ALL)
+                                      tr("All"), -1, tr("All passwords group."), self._TYPE_ALL)
         self.addTopLevelItem(all_group)
         
         # add cildren, all passwords to group all
         passwords = passwd_ctrl.selectAll()
         
         for passwd in passwords:
-            child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self.__TYPE_PASS)
+            child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)
             
             all_group.addChild(child)
         
         # insert groups to tree
         for group in groups:
-            item = self.initItemData(group._icon._icon, tr(group._name), group._id, group._description, self.__TYPE_GROUP)
+            item = self.initItemData(group._icon._icon, tr(group._name), group._id, group._description, self._TYPE_GROUP)
             
             self.addTopLevelItem(item)
             
@@ -74,8 +81,8 @@ class GroupsWidget(QtGui.QTreeWidget):
             passwords = passwd_ctrl.selectByGroupId(group._id)
             
             for passwd in passwords:
-                child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self.__TYPE_PASS)
-                
+                child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)
+            
                 item.addChild(child)
             
           
@@ -96,7 +103,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         # load image to display mode
         pix = QtGui.QPixmap()
         pix.loadFromData(icon)
-        
+  
         item.setIcon(self.__COL_ICON, QtGui.QIcon(pix))
         item.setText(self.__COL_NAME, tr(name))
         item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, tooltip)
@@ -106,9 +113,14 @@ class GroupsWidget(QtGui.QTreeWidget):
         return item
       
     def showPasswords(self, group):
-        self.currentItemData(self.__COL_ID)
         self.currentItemData(self.__COL_NAME)
-        self.currentItemData(self.__COL_TYPE)
+        
+        item_id = self.currentItemData(self.__COL_ID)
+        item_type = self.currentItemData(self.__COL_TYPE)
+        
+        logging.debug("emitting: type: %i, ID: %i", item_type, item_id)
+        
+        self.emitPasswords.emit(item_type, item_id)
         
               
     def currentItemData(self, col):
@@ -122,14 +134,17 @@ class GroupsWidget(QtGui.QTreeWidget):
         # to int return a tuple
         if (col == self.__COL_ID):
             ret = self.currentItem().data(self.__COL_ID, QtCore.Qt.DisplayRole).toInt()[0]
+            #.toInt()[0]
         
             logging.debug("curent item ID: %i", ret)
         elif (col == self.__COL_NAME):
             ret = self.currentItem().data(self.__COL_NAME, QtCore.Qt.DisplayRole).toString()
+            #tostring
         
             logging.debug("curent item name: %s", ret)
         elif (col == self.__COL_TYPE):
             ret = self.currentItem().data(self.__COL_TYPE, QtCore.Qt.DisplayRole).toInt()[0]
+            #.toInt()[0]
         
             logging.debug("curent item type: %i", ret)
         return ret

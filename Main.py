@@ -30,7 +30,7 @@ def dbTest():
 #     print(db_con.getTables())
     
     group.updateGroup(5, "nova", "description", "icon")
-    passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", "c_date", "e_date", 1, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("title", 'username', "passwd", "url", "comment", time.time(), time.time(), 1, 1, bytes(156), "attname")
     print(group.selectById(1))
     
 #     passwd_ctrl.deletePassword(1)
@@ -50,13 +50,13 @@ def main():
     passwd_ctrl = PasswdController(db_con, db_con._master)
     
     user.insertUser("Ferčšo", "heslo")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "vfdfgdsg", "c_date", "e_date", 1, 1, "attachment", "attname")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "commgreent", "c_date", "e_date", 2, 1, "attachment", "attname")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "commfwefefwent", "c_date", "e_date", 3, 1, "attachment", "attname")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "commfewent", "c_date", "e_date", 4, 1, "attachment", "attname")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "comewment", "c_date", "e_date", 1, 1, "attachment", "attname")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "comfewfwefwefewment", "c_date", "e_date", 2, 1, "attachment", "attname")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "cofewfwemment", "c_date", "e_date", 3, 1, "attachment", "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "vfdfgdsg", time.time(), time.time(), 1, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("Druhe heslo", 'aaaa', "1111", "url", "commgreent", time.time(), time.time(), 2, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("tretie heslo", 'bbbbb', "2222", "url", "commfwefefwent", time.time(), time.time(), 3, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("stvrte heslo", 'cccc', "3333", "url", "commfewent", time.time(), time.time(), 4, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("piate heslo", 'ddddd', "4444", "url", "comewment", time.time(), time.time(), 1, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("sieste heslo", 'eeee', "5555", "url", "comfewfwefwefewment", time.time(), time.time(), 2, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("siedme heslo", 'ffff', "6666", "url", "cofewfwemment", time.time(), time.time(), 3, 1, bytes(156), "attname")
     
     w = MainWindow(db_con)
     

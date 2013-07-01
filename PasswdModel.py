@@ -77,3 +77,6 @@ class PasswdModel:
             logging.exception("user with ID: %i, %s", u_id, e)
             
             raise e
+        
+    def __str__(self):
+        return "{'id' : " + str(self._id) + ", 'title' : " + self._title + ", 'username' : " + self._username + "...}"

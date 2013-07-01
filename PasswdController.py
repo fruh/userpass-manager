@@ -49,7 +49,7 @@ class PasswdController:
     def selectById(self, p_id):
         """
             Search password by id.
-            @param id: password id
+            @paramp_id: password id
             @return: row
         """
         try:
@@ -72,7 +72,7 @@ class PasswdController:
             
             raise e
         finally:
-            return self.createPasswdObj(row)
+            return [self.createPasswdObj(row)]
         
     def selectByGroupId(self, g_id):
         """
@@ -245,6 +245,8 @@ class PasswdController:
         logging.debug("modification timestamp: %f", m_date)
         
         # use little endian and float type to convert timestamp
+        c_date = struct.pack(self._TIME_PRECISION, c_date)
+        e_date = struct.pack(self._TIME_PRECISION, e_date)
         m_date = struct.pack(self._TIME_PRECISION, m_date)
 
         # encrypt data
@@ -309,15 +311,19 @@ class PasswdController:
         url = CryptoBasics.decryptDataAutoPad(url, secret_key, iv)
         comment = CryptoBasics.decryptDataAutoPad(comment, secret_key, iv)
         c_date = CryptoBasics.decryptDataAutoPad(c_date, secret_key, iv)
+        e_date = CryptoBasics.decryptDataAutoPad(e_date, secret_key, iv)
+        m_date = CryptoBasics.decryptDataAutoPad(m_date, secret_key, iv)
+        
         
         # unpack returns a touple, but I need just one value
-        m_date = struct.unpack(self._TIME_PRECISION, CryptoBasics.decryptDataAutoPad(m_date, secret_key, iv))[0]
-        
-        e_date = CryptoBasics.decryptDataAutoPad(e_date, secret_key, iv)
+        m_date = struct.unpack(self._TIME_PRECISION, m_date)[0]
+        c_date = struct.unpack(self._TIME_PRECISION, c_date)[0]
+        e_date = struct.unpack(self._TIME_PRECISION, e_date)[0]
+      
         attachment = CryptoBasics.decryptDataAutoPad(attachment, secret_key, iv)
         att_name = CryptoBasics.decryptDataAutoPad(att_name, secret_key, iv)
         
-        return {"id" : id, "title" : title, "username" : username, "passwd" : passwd, "url" : url, "comment" : comment, 
+        return {"id" :p_id, "title" : title, "username" : username, "passwd" : passwd, "url" : url, "comment" : comment, 
             "c_date" : c_date, "m_date" : m_date, "e_date" : e_date, "grp_id" : grp_id, "user_id" : user_id,
             "attachment" : attachment, "att_name" : att_name, "salt" : salt, "iv" : iv}
         
@@ -353,4 +359,13 @@ class PasswdController:
             @return: list of column names
         """
         return [tr("Title"), tr("Username"), tr("Password"), tr("Url"), tr("Comment"), 
-                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Attachment Name")]
+                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Att. Name")]
+        
+    @staticmethod
+    def getTableColumns():
+        """
+            Return minimum table columns.
+            
+            @return: list of column names
+        """
+        return [tr("Title"), tr("Username"), tr("Password"), tr("Url")]
