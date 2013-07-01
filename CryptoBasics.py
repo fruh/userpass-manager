@@ -47,7 +47,7 @@ def getSha256(string):
         @param string: input string
         @return: sha256 checksum, hexa string
     """
-    hash_str = hashlib.new("sha256", string.encode("ascii")).hexdigest()
+    hash_str = hashlib.new("sha256", string.encode("utf8")).hexdigest()
     logging.debug("sha256 = %s", hash_str)
     
     return hash_str
@@ -58,7 +58,7 @@ def getSha512(string):
         @param string: input string
         @return: sha512 checksum, hexa string
     """
-    hash_str = hashlib.new("sha512", string.encode("ascii")).hexdigest()
+    hash_str = hashlib.new("sha512", string.encode("utf8")).hexdigest()
     logging.debug("sha512 = %s", hash_str)
     
     return hash_str

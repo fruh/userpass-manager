@@ -64,7 +64,7 @@ class UserController:
             @param name: user name
             @return: UserModel object
         """
-        name = unicode(name)
+        name = name.decode('utf-8')
         try:
             self._cursor.execute("SELECT * FROM Users WHERE name = :name;", {"name" : name})
             row = self._cursor.fetchone()
@@ -87,8 +87,8 @@ class UserController:
             @param name: user name
             @param passwd: user password
         """
-        name = unicode(name)
-        passwd = unicode(passwd)
+        name = name.decode('utf-8')
+        passwd = passwd.decode('utf-8')
         # generate salt using cryptographic safe pseudo-random generator
         salt_p = CryptoBasics.genUserPassSalt()
         

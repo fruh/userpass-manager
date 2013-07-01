@@ -6,6 +6,8 @@ from PasswdController import PasswdController
 from GroupsWidget import GroupsWidget
 
 class PasswordsWidget(QtGui.QTableWidget):
+    signalPasswdClicked = QtCore.pyqtSignal(int)
+    
     def __init__(self, parent = None):
         self.__parent = parent
         self.__COL_TITLE = 0
@@ -38,6 +40,8 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.cellClicked.connect(self.showDetails)
         self.cellDoubleClicked.connect(self.editPasswd)
         
+        self.setMinimumWidth(400)
+        
     def showPasswords(self, item_type, item_id):
         """
             Public slot to show passwords in table, whe signal emitPasswords(int, int)
@@ -63,6 +67,8 @@ class PasswordsWidget(QtGui.QTableWidget):
             #select just one password
             passwords = passwd_ctrl.selectById(item_id)
             
+        self.__row_id_dic = {}
+            
         # now fill passwords table view
         for passwd in passwords:
             row = self.rowCount()
@@ -74,6 +80,9 @@ class PasswordsWidget(QtGui.QTableWidget):
             self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
             self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
             self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))
+            
+            # save row id reference
+            self.__row_id_dic[row] = passwd._id
     
     def removeAllRows(self):
         """
@@ -83,7 +92,9 @@ class PasswordsWidget(QtGui.QTableWidget):
             self.removeRow(self.rowCount() - 1)
             
     def showDetails(self, row, column):
-        logging.debug("clicked at item row: %i, column: %i", row, column)
+        logging.debug("clicked at item row: %i, column: %i, emiting ID: %i", row, column, self.__row_id_dic[row])
+        
+        self.signalPasswdClicked.emit(self.__row_id_dic[row])
         
     def editPasswd(self, row, column):
         logging.debug("double clicked at item row: %i, column: %i", row, column)

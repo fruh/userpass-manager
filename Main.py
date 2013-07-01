@@ -22,9 +22,8 @@ def dbTest():
     passwd_ctrl = PasswdController(db_con, "heslo")
     
     db_con.createTables()
-    user.insertUser("Ferčšo", "heslo")
-#     user.insertUser("Fero", "heslo")
-
+#     user.insertUser("Ferčšo", "heslo")
+    user.insertUser("Fero", "heslo")
 
     print(user.selectAll()[0]._passwd)
 #     print(db_con.getTables())
@@ -55,7 +54,7 @@ def main():
     passwd_ctrl.insertPassword("tretie heslo", 'bbbbb', "2222", "url", "commfwefefwent", time.time(), time.time(), 3, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("stvrte heslo", 'cccc', "3333", "url", "commfewent", time.time(), time.time(), 4, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("piate heslo", 'ddddd', "4444", "url", "comewment", time.time(), time.time(), 1, 1, bytes(156), "attname")
-    passwd_ctrl.insertPassword("sieste heslo", 'eeee', "5555", "url", "comfewfwefwefewment", time.time(), time.time(), 2, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("sieste heslo", 'eeee', "5555", "url", "comfewfwefwefewmentcomfewfwefwefewment\ncomfewfwefwefewmentcomfewfwefwefewmentcomfewfwefwefewment", time.time(), time.time(), 2, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("siedme heslo", 'ffff', "6666", "url", "cofewfwemment", time.time(), time.time(), 3, 1, bytes(156), "attname")
     
     w = MainWindow(db_con)

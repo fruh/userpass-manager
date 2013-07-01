@@ -18,7 +18,7 @@ class GroupsWidget(QtGui.QTreeWidget):
     # public signals:
     # first param: type, second: id
     # when on a group or password in group widget is clicked
-    emitPasswords = QtCore.pyqtSignal(int, int)
+    signalGroupClicked = QtCore.pyqtSignal(int, int)
     
     def __init__(self, parent = None):
         # private attr:
@@ -46,6 +46,8 @@ class GroupsWidget(QtGui.QTreeWidget):
         self.setColumnCount(2)
         # width for icon column
         self.setColumnWidth(0, 60)
+        
+        self.setMinimumWidth(170)
         
     def initItems(self):
         """
@@ -120,7 +122,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         logging.debug("emitting: type: %i, ID: %i", item_type, item_id)
         
-        self.emitPasswords.emit(item_type, item_id)
+        self.signalGroupClicked.emit(item_type, item_id)
         
               
     def currentItemData(self, col):

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui, QtCore
 from TransController import tr
-from PasswdController import PasswdController
 from GroupsWidget import GroupsWidget
 from PasswordsWidget import PasswordsWidget
+from DetailWidget import DetailWidget
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -65,8 +65,16 @@ class MainWindow(QtGui.QMainWindow):
         self._passwords_table = PasswordsWidget(self)
         self._passwords_vl.addWidget(self._passwords_table)
         
+        
+        
+        # add detail widget
+        self._detail_w = DetailWidget(self)
+        self._passwords_vl.addWidget(self._detail_w)
+        
         # create connection to update table view
-        self._groups_tw.emitPasswords.connect(self._passwords_table.showPasswords)
+        self._groups_tw.signalGroupClicked.connect(self._passwords_table.showPasswords)
+        self._groups_tw.signalGroupClicked.connect(self._detail_w.handleType)
+        self._passwords_table.signalPasswdClicked.connect(self._detail_w.setPassword)
         
     def createActions(self):
         """
