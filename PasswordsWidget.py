@@ -41,6 +41,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.cellDoubleClicked.connect(self.editPasswd)
         
         self.setMinimumWidth(400)
+        self.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
         
     def showPasswords(self, item_type, item_id):
         """
@@ -75,8 +76,11 @@ class PasswordsWidget(QtGui.QTableWidget):
             logging.debug("adding password: %s , at row: %i", passwd, row)
             self.insertRow(row)
        
+            pix = QtGui.QPixmap()
+            pix.loadFromData(passwd._grp._icon._icon)
+       
             # set data
-            self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem(passwd._title))
+            self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem((QtGui.QIcon(pix)), passwd._title))
             self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
             self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
             self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))

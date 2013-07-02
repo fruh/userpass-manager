@@ -30,30 +30,33 @@ class MainWindow(QtGui.QMainWindow):
         """
 #         self.resize(300, 300)
         self.setWindowTitle("UserPass Manager alpha")
-        
         self.center()
-        self.setDockOptions(QtGui.QMainWindow.AnimatedDocks | QtGui.QMainWindow.AllowNestedDocks)
         
-        # create dock widgets, 1. Groups, 2. Passwords
-        # groups
-        self._groups_dw = QtGui.QDockWidget(tr("Groups"))
-        self._groups_dw.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self._groups_dw)
+        # create main splitter, splits passwords table and gorups
+        self._main_splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.setCentralWidget(self._main_splitter)
+        
+        # create groups widget with label, and groups
+        groups_mw = QtGui.QWidget()
+        groups_vl = QtGui.QVBoxLayout()
+        
+        groups_mw.setLayout(groups_vl)
+        
+        # create label
+        groups_label = QtGui.QLabel("<b>" + tr("Groups") + "</b>")
+        groups_vl.addWidget(groups_label)
         
         # create groups tree widget
         self._groups_tw = GroupsWidget(self)
+        
+        groups_vl.addWidget(self._groups_tw)
 
-        self._groups_dw.setWidget(self._groups_tw)
-#         self._groups_tw.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Minimum))
+        self._main_splitter.addWidget(groups_mw)
         
-        # passwords
-        self._passwords_dw = QtGui.QDockWidget(tr("Passwords"))
-        self._passwords_dw.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self._passwords_dw)
-        
-        # create password dock central widget
+        # create password central widget
         self._passwords_cw = QtGui.QWidget()
-        self._passwords_dw.setWidget(self._passwords_cw)
+        self._main_splitter.addWidget(self._passwords_cw)
+        self._main_splitter.setStretchFactor(1, 1)
         
         # create passwords layout, will contain passwords table and detail widget with spliter
         self._passwords_vl = QtGui.QVBoxLayout()
@@ -64,6 +67,10 @@ class MainWindow(QtGui.QMainWindow):
         
         # create password and detail splitter
         self._passwd_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        
+        # create label
+        passwdords_label = QtGui.QLabel("<b>" + tr("Passwords") + "</b>")
+        self._passwords_vl.addWidget(passwdords_label)
         
         # add splitter to layout
         self._passwords_vl.addWidget(self._passwd_splitter)
@@ -112,6 +119,12 @@ class MainWindow(QtGui.QMainWindow):
         # create menu options and add actions
         file_menu = self.menuBar().addMenu(tr("&File"))
         file_menu.addAction(self._close_act)
+        
+        password_menu = self.menuBar().addMenu(tr("Password"))
+        
+        group_menu = self.menuBar().addMenu(tr("Group"))
+        
+        settings_menu = self.menuBar().addMenu(tr("Settings"))
         
         about_menu = self.menuBar().addMenu(tr("About"))
         about_menu.addAction(self._about_act)
