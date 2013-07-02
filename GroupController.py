@@ -63,7 +63,7 @@ class GroupController:
             @param name: group name
             @return: row
         """
-        name = unicode(name)
+        name = name.decode("utf8")
         try:
             self._cursor.execute("SELECT * FROM Groups WHERE name = :name;", {"name" : name})
             row = self._cursor.fetchone()
@@ -87,8 +87,8 @@ class GroupController:
             @param description: group description
             @param icon_id: group icon id
         """
-        name = unicode(name)
-        description = unicode(description)
+        name = name.decode("utf8")
+        description = description.decode("utf8")
         
         try:
             self._cursor.execute("INSERT INTO Groups(name, description, icon_id) VALUES(:name, :description, :icon_id)",

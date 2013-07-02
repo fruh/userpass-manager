@@ -39,8 +39,6 @@ class MainWindow(QtGui.QMainWindow):
         self._groups_dw = QtGui.QDockWidget(tr("Groups"))
         self._groups_dw.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self._groups_dw)
-#         self._groups_vl = QtGui.QVBoxLayout()
-#         self._groups_dw.setLayout(self._groups_vl)
         
         # create groups tree widget
         self._groups_tw = GroupsWidget(self)
@@ -57,19 +55,28 @@ class MainWindow(QtGui.QMainWindow):
         self._passwords_cw = QtGui.QWidget()
         self._passwords_dw.setWidget(self._passwords_cw)
         
-        # create passwords layout
+        # create passwords layout, will contain passwords table and detail widget with spliter
         self._passwords_vl = QtGui.QVBoxLayout()
         self._passwords_cw.setLayout(self._passwords_vl)
         
-        # add table widget to passwords dock
+        # add table widget
         self._passwords_table = PasswordsWidget(self)
-        self._passwords_vl.addWidget(self._passwords_table)
         
+        # create password and detail splitter
+        self._passwd_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         
+        # add splitter to layout
+        self._passwords_vl.addWidget(self._passwd_splitter)
         
-        # add detail widget
+        # create detail widget
         self._detail_w = DetailWidget(self)
-        self._passwords_vl.addWidget(self._detail_w)
+        
+        # add widgets to splitter
+        self._passwd_splitter.addWidget(self._passwords_table)
+        self._passwd_splitter.addWidget(self._detail_w)
+        
+        # set stretch factor for password table
+        self._passwd_splitter.setStretchFactor(0, 1)
         
         # create connection to update table view
         self._groups_tw.signalGroupClicked.connect(self._passwords_table.showPasswords)

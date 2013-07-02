@@ -116,7 +116,7 @@ class PasswdController:
             @param attachment: attachment of password
             @param att_name: attachment name
         """
-        salt = unicode(CryptoBasics.genKeySalt())
+        salt = CryptoBasics.genKeySalt().decode("utf8")
         iv = CryptoBasics.genIV()
         
         # encrypt data       
