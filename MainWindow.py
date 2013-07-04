@@ -5,6 +5,7 @@ from TransController import tr
 from GroupsWidget import GroupsWidget
 from PasswordsWidget import PasswordsWidget
 from DetailWidget import DetailWidget
+from EditPasswdDialog import EditPasswdDialog
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -86,9 +87,13 @@ class MainWindow(QtGui.QMainWindow):
         self._passwd_splitter.setStretchFactor(0, 1)
         
         # create connection to update table view
-        self._groups_tw.signalGroupClicked.connect(self._passwords_table.showPasswords)
-        self._groups_tw.signalGroupClicked.connect(self._detail_w.handleType)
+        self._groups_tw.signalGroupSelChanged.connect(self._passwords_table.showPasswords)
+        self._groups_tw.signalGroupSelChanged.connect(self._detail_w.handleType)
         self._passwords_table.signalPasswdClicked.connect(self._detail_w.setPassword)
+        
+        # show edit passwd dialog
+        self._passwords_table.signalPasswdDoubleClicked.connect(self.showEditPasswdDialog)
+        self._groups_tw.signalEditPasswd.connect(self.showEditPasswdDialog)
         
     def createActions(self):
         """
@@ -144,5 +149,15 @@ class MainWindow(QtGui.QMainWindow):
         
     def aboutDialog(self):
         QtGui.QMessageBox( QtGui.QMessageBox.Information, "About", "UserPass Manager v0.0.1 alpha\n\nSafely backup your credentials.").exec_()
+        
+    def showEditPasswdDialog(self, p_id):
+        """
+            Show edit password dialog.
+            
+            @param p_id: password id to edit
+        """
+        edit_dialog = EditPasswdDialog(self._db_ctrl, p_id)
+        
+        edit_dialog.exec_()
         
         

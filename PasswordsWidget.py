@@ -6,7 +6,9 @@ from PasswdController import PasswdController
 from GroupsWidget import GroupsWidget
 
 class PasswordsWidget(QtGui.QTableWidget):
+    # parameters are item ID
     signalPasswdClicked = QtCore.pyqtSignal(int)
+    signalPasswdDoubleClicked = QtCore.pyqtSignal(int)
     
     def __init__(self, parent = None):
         self.__parent = parent
@@ -37,11 +39,22 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         
         # set connections
-        self.cellClicked.connect(self.showDetails)
         self.cellDoubleClicked.connect(self.editPasswd)
         
-        self.setMinimumWidth(400)
+        # emits when slection cganged so (clicked, arrow move)
+        self.itemSelectionChanged.connect(self.callShowDetails)
+        
+        self.setMinimumWidth(460)
         self.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
+        
+    def keyReleaseEvent(self, event):
+        logging.debug("key pressed: %d", event.key())
+        
+        if (event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return):
+            if (self.rowCount()):
+                self.callEditPasswd()
+            else:
+                logging.debug("empty table")
         
     def showPasswords(self, item_type, item_id):
         """
@@ -96,9 +109,17 @@ class PasswordsWidget(QtGui.QTableWidget):
             self.removeRow(self.rowCount() - 1)
             
     def showDetails(self, row, column):
-        logging.debug("clicked at item row: %i, column: %i, emiting ID: %i", row, column, self.__row_id_dic[row])
+        logging.debug("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, self.__row_id_dic[row])
         
         self.signalPasswdClicked.emit(self.__row_id_dic[row])
         
     def editPasswd(self, row, column):
-        logging.debug("double clicked at item row: %i, column: %i", row, column)
+        logging.debug("double clicked or enter pressed at item row: %i, column: %i", row, column)
+        
+        self.signalPasswdDoubleClicked.emit(self.__row_id_dic[row])
+        
+    def callShowDetails(self):
+        self.showDetails(self.currentRow(), self.currentColumn())
+        
+    def callEditPasswd(self):
+        self.editPasswd(self.currentRow(), self.currentColumn())

@@ -3,21 +3,27 @@
 import logging
 from PyQt4 import QtGui, QtCore
 from PasswdController import PasswdController
-from TransController import tr
-from GroupsWidget import GroupsWidget
 import datetime
+from TransController import tr
 
-class DetailWidget(QtGui.QWidget):
-    def __init__(self, parent = None):
-        self.__parent = parent
-        super(DetailWidget, self).__init__(parent)
+class EditPasswdDialog(QtGui.QDialog):
+    def __init__(self, db_ctrl, p_id):
+        self.__db_ctrl = db_ctrl
+        self.__p_id = p_id
+        super(EditPasswdDialog, self).__init__()
         
         self.initUI()
+        self.setPassword(p_id)
         
     def initUI(self):
         """
             Initilize UI components.
         """
+        # not maximize, minimize buttons
+        self.setWindowFlags( QtCore.Qt.Tool);
+        
+        self.center()
+        
         layout_gl = QtGui.QGridLayout()
         self.setLayout(layout_gl)
         
@@ -35,41 +41,45 @@ class DetailWidget(QtGui.QWidget):
         layout_gl.addWidget(username_label, 1, 0)
         layout_gl.addWidget(passwd_label, 2, 0)
         layout_gl.addWidget(url_label, 3, 0)
-        layout_gl.addWidget(c_date_label, 0, 2)
-        layout_gl.addWidget(m_date_label, 1, 2)
-        layout_gl.addWidget(e_date_label, 2, 2)
-        layout_gl.addWidget(attachment_label, 3, 2)
-        layout_gl.addWidget(comment_label, 4, 0)
+        layout_gl.addWidget(c_date_label, 4, 0)
+        layout_gl.addWidget(m_date_label, 5, 0)
+        layout_gl.addWidget(e_date_label, 6, 0)
+        layout_gl.addWidget(attachment_label, 7, 0)
+        layout_gl.addWidget(comment_label, 8, 0)
         
-        self.__title = QtGui.QLabel()
-        self.__username = QtGui.QLabel()
-        self.__passwd = QtGui.QLabel()
-        self.__url = QtGui.QLabel()
+        self.__title = QtGui.QLineEdit()
+        self.__username = QtGui.QLineEdit()
+        self.__passwd = QtGui.QLineEdit()
+        self.__url = QtGui.QLineEdit()
         self.__c_date = QtGui.QLabel()
         self.__m_date = QtGui.QLabel()
-        self.__e_date = QtGui.QLabel()
+        self.__e_date = QtGui.QLineEdit()
         self.__comment = QtGui.QTextEdit()
         self.__comment.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
-        self.__comment.setMaximumHeight(100)
-        self.__comment.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        self.__comment.setMaximumHeight(200)
         
-        self.__attachment = QtGui.QLabel()
+        self.__attachment = QtGui.QLineEdit()
         
         layout_gl.addWidget(self.__title, 0, 1)
         layout_gl.addWidget(self.__username, 1, 1)
         layout_gl.addWidget(self.__passwd, 2, 1)
         layout_gl.addWidget(self.__url, 3, 1)
-        layout_gl.addWidget(self.__c_date, 0, 3)
-        layout_gl.addWidget(self.__m_date, 1, 3)
-        layout_gl.addWidget(self.__e_date, 2, 3)
-        layout_gl.addWidget(self.__attachment, 3, 3)
-        layout_gl.addWidget(self.__comment, 4, 1, 1, 3)
+        layout_gl.addWidget(self.__c_date, 4, 1)
+        layout_gl.addWidget(self.__m_date, 5, 1)
+        layout_gl.addWidget(self.__attachment, 7, 1)
+        layout_gl.addWidget(self.__comment, 8, 1)
         
-        layout_gl.setColumnStretch(1, 1)
-        layout_gl.setColumnStretch(3, 1)
+        # date time edit
+        self.__e_date_edit = QtGui.QDateTimeEdit()
+        self.__e_date_edit.setCalendarPopup(True)
         
-        # hide, it is none passwd clicked
-        self.setHidden(True)
+        # expiration date can't be lower than current date
+        self.__e_date_edit.setMinimumDateTime(QtCore.QDateTime.currentDateTime())
+        
+        layout_gl.addWidget(self.__e_date_edit, 6, 1)
+        
+#         layout_gl.setColumnStretch(1, 1)
+#         layout_gl.setColumnStretch(3, 1)
         
     def setPassword(self, p_id):
         """
@@ -79,10 +89,16 @@ class DetailWidget(QtGui.QWidget):
         """
         logging.debug("password details ID: %i", p_id)
         
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._db_ctrl._master)
+        passwd_ctrl = PasswdController(self.__db_ctrl, self.__db_ctrl._master)
         
         # select password
         passwd = passwd_ctrl.selectById(p_id)[0]
+        
+        # set window title
+        self.setWindowTitle(passwd._title)
+        
+        date_time_str = str(datetime.datetime.fromtimestamp(passwd._e_date).strftime("%Y-%m-%d %H:%M:%S"))
+        logging.debug("date time string: %s", date_time_str)
         
         self.__title.setText(passwd._title)
         self.__username.setText(passwd._username)
@@ -90,12 +106,22 @@ class DetailWidget(QtGui.QWidget):
         self.__url.setText(passwd._url)
         self.__c_date.setText(str(datetime.datetime.fromtimestamp(passwd._c_date).strftime("%Y-%m-%d %H:%M:%S")))
         self.__m_date.setText(str(datetime.datetime.fromtimestamp(passwd._m_date).strftime("%Y-%m-%d %H:%M:%S")))
-        self.__e_date.setText(str(datetime.datetime.fromtimestamp(passwd._e_date).strftime("%Y-%m-%d %H:%M:%S")))
+        self.__e_date_edit.setDateTime(QtCore.QDateTime.fromString(date_time_str, "yyyy-MM-dd HH:mm:ss"))
         self.__comment.setText(passwd._comment)
         self.__attachment.setText(passwd._att_name)
         
-        # now show details
-        self.setHidden(False)
+    def center(self):
+        """
+            Center window.
+        """
+        # get frame geometry
+        wg = self.frameGeometry()
+        
+        # get screen center
+        cs = QtGui.QDesktopWidget().availableGeometry().center()
+        wg.moveCenter(cs)
+        
+        self.move(wg.topLeft())
         
     def clearDetails(self):
         """
@@ -110,22 +136,3 @@ class DetailWidget(QtGui.QWidget):
         self.__e_date.setText("")
         self.__comment.setText("")
         self.__attachment.setText("")
-        
-    def handleType(self, item_type, item_id):
-        """
-            Handle signal from GroupsWidget, if it is clicked on password show detail, else do nothing.
-            
-            @param item_type: source type password, group, all
-            @param item_id: item id, i.e. password ID
-        """
-        logging.debug("handling type: %i ID: %i", item_type, item_id)
-        
-        if (item_type == GroupsWidget._TYPE_PASS):
-            # is password
-            self.setPassword(item_id)
-        else:
-            # clear detials
-            self.clearDetails()
-            
-            # hide details
-            self.setHidden(True)

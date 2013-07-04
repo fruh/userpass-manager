@@ -18,7 +18,10 @@ class GroupsWidget(QtGui.QTreeWidget):
     # public signals:
     # first param: type, second: id
     # when on a group or password in group widget is clicked
-    signalGroupClicked = QtCore.pyqtSignal(int, int)
+    signalGroupSelChanged = QtCore.pyqtSignal(int, int)
+    
+    # param: password ID
+    signalEditPasswd = QtCore.pyqtSignal(int)
     
     def __init__(self, parent = None):
         # private attr:
@@ -33,7 +36,8 @@ class GroupsWidget(QtGui.QTreeWidget):
         self.initUI()
         self.initItems()
         
-        self.clicked.connect(self.showPasswords)
+        self.itemSelectionChanged.connect(self.showPasswords)
+        self.itemDoubleClicked.connect(self.editPasswd)
         
     def initUI(self):
         """
@@ -48,6 +52,30 @@ class GroupsWidget(QtGui.QTreeWidget):
         self.setColumnWidth(0, 60)
         
         self.setMinimumWidth(170)
+        
+    def keyReleaseEvent(self, event):
+        """
+            Handle key prealease event, to edit password, when enter pressed.
+        """
+        logging.debug("key pressed: %d", event.key())
+        
+        if (event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return):
+            self.editPasswd()
+        
+    def editPasswd(self):
+        """
+            Emit signal if it is password.
+        """
+        item_id = self.currentItemData(self.__COL_ID)
+        item_type = self.currentItemData(self.__COL_TYPE)
+        
+        # if is password selected
+        if (item_type == self._TYPE_PASS):
+            logging.debug("emitting password to edit ID: %d", item_id)
+            
+            self.signalEditPasswd.emit(item_id)
+        else:
+            logging.debug("not password to emit")
         
     def initItems(self):
         """
@@ -114,7 +142,10 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         return item
       
-    def showPasswords(self, group):
+    def showPasswords(self):
+        """
+            EMit signal to show item data.
+        """
         self.currentItemData(self.__COL_NAME)
         
         item_id = self.currentItemData(self.__COL_ID)
@@ -122,7 +153,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         logging.debug("emitting: type: %i, ID: %i", item_type, item_id)
         
-        self.signalGroupClicked.emit(item_type, item_id)
+        self.signalGroupSelChanged.emit(item_type, item_id)
         
               
     def currentItemData(self, col):
