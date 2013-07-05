@@ -167,4 +167,7 @@ class MainWindow(QtGui.QMainWindow):
         
         edit_dialog.exec_()
         
+        self._groups_tw.reloadItems()
+        self._passwords_table.showAll()
+        
         

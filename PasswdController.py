@@ -34,7 +34,7 @@ class PasswdController:
             for i in range(0, len(rows)):
                 rows[i] = self.decryptRowDic(rows[i])                      
             
-            logging.info("passwords selected: %i", len(rows))
+            logging.info("passwords selected: %d", len(rows))
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -66,7 +66,7 @@ class PasswdController:
             else:
                 count = 0
             
-            logging.info("passwords selected: %i", count)
+            logging.info("passwords selected: %d", count)
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -89,7 +89,7 @@ class PasswdController:
             for i in range(0, len(rows)):
                 rows[i] = self.decryptRowDic(rows[i])                      
             
-            logging.info("passwords selected: %i", len(rows))
+            logging.info("passwords selected: %d", len(rows))
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -133,7 +133,7 @@ class PasswdController:
                                   encrypted_row)
             self._connection.commit()
             
-            logging.info("passwords with ID: %i, inserted: %i", self._cursor.lastrowid, self._cursor.rowcount)
+            logging.info("passwords with ID: %d, inserted: %d", self._cursor.lastrowid, self._cursor.rowcount)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
@@ -144,7 +144,7 @@ class PasswdController:
             self._connection.rollback()
             raise e
             
-    def updatePasswd(self, p_id, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name):
+    def updatePasswd(self, p_id, title, username, passwd, url, comment, e_date, grp_id, user_id, attachment, att_name):
         """
             Updates password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             @param title: password title
@@ -152,7 +152,6 @@ class PasswdController:
             @param passwd: account password
             @param url: account url
             @param comment: password comment
-            @param c_date: date of creation
             @param e_date: date of expiration
             @param grp_id: password group ID, from Groups table
             @param user_id: user ID, from Users table
@@ -161,29 +160,33 @@ class PasswdController:
         """
         try:
             # first select old row to get salt and iv
-            old = self.selectById(p_id)
+            old = self.selectById(p_id)[0]
             
             # if old row exists
             if old:
                 # encrypt data and prepare for sqlite
-                row = self.encryptAndPrepRow(title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, old["salt"], old["iv"])
+                # creation date doesnt matter, cant be changed
+                row = self.encryptAndPrepRow(title, username, passwd, url, comment, old._c_date, e_date, grp_id, user_id, attachment, att_name, old._salt, old._iv)
+                
+                # add password ID to row
+                row["id"] = p_id
                 
                 self._cursor.execute("""UPDATE Passwords SET title = :title, username = :username, passwd = :passwd, url = :url, 
-                                    comment = :comment, c_date = :c_date, m_date = :m_date, e_date = :e_date, grp_id = :grp_id,
+                                    comment = :comment, m_date = :m_date, e_date = :e_date, grp_id = :grp_id,
                                     attachment = :attachment, att_name = :att_name WHERE id = :id;""", row)
                 self._connection.commit()
                 
-                logging.debug("passwd with ID: %i updated.", p_id)
+                logging.debug("passwd with ID: %d updated.", p_id)
             else:
-                logging.warning("password with id: %i doesn't exists. Can't be updated.", p_id)
+                logging.warning("password with id: %d doesn't exists. Can't be updated.", p_id)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
           
     def updatePasswdDic(self, row):
@@ -193,7 +196,7 @@ class PasswdController:
             @param row: new data
         """
         self.updatePasswd(row["p_id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"], 
-                        row["c_date"], row["e_date"], row["grp_id"], row["user_id"], row["attachment"], row["att_name"])
+                        row["e_date"], row["grp_id"], row["user_id"], row["attachment"], row["att_name"])
         
     def deletePassword(self, p_id):
         """
@@ -207,13 +210,13 @@ class PasswdController:
             count = self._cursor.rowcount
             
             if (count > 0):
-                logging.info("%i password with id: %i deleted", count, p_id)
+                logging.info("%d password with id: %d deleted", count, p_id)
             else:
-                logging.info("%i password with id: %i found", count, p_id)
+                logging.info("%d password with id: %d found", count, p_id)
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
             
     def encryptAndPrepRow(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, salt, iv):
@@ -276,9 +279,9 @@ class PasswdController:
         att_name = sqlite3.Binary(att_name)
         iv = sqlite3.Binary(iv)
         
-        return {"title" : title, "username" : username, "passwd" : passwd, "url" : url, "comment" : comment, 
-            "c_date" : c_date, "m_date" : m_date, "e_date" : e_date, "grp_id" : grp_id, "user_id" : user_id,
-            "attachment" : attachment, "att_name" : att_name, "salt" : salt, "iv" : iv}
+        return {'title' : title, 'username' : username, 'passwd' : passwd, 'url' : url, 'comment' : comment, 
+            'c_date' : c_date, 'm_date' : m_date, 'e_date' : e_date, 'grp_id' : grp_id, 'user_id' : user_id,
+            'attachment' : attachment, 'att_name' : att_name, 'salt' : salt, 'iv' : iv}
     
     def decryptRow(self, p_id, title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv):
         """

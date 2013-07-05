@@ -22,7 +22,7 @@ class GroupController:
             self._cursor.execute("SELECT * FROM Groups;")
             rows = self._cursor.fetchall()        
             
-            logging.info("groups selected: %i", len(rows))
+            logging.info("groups selected: %d", len(rows))
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -49,7 +49,7 @@ class GroupController:
             else:
                 count = 0
             
-            logging.info("groups selected: %i", count)
+            logging.info("groups selected: %d", count)
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -72,7 +72,7 @@ class GroupController:
                 count = 1
             else:
                 count = 0
-            logging.info("users selected: %i", count)
+            logging.info("users selected: %d", count)
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -95,7 +95,7 @@ class GroupController:
                                   {"name" : name, "description" : description, "icon_id" : icon_id})
             self._connection.commit()
             
-            logging.info("groups with ID: %i, inserted: %i", self._cursor.lastrowid, self._cursor.rowcount)
+            logging.info("groups with ID: %d, inserted: %d", self._cursor.lastrowid, self._cursor.rowcount)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
@@ -119,7 +119,7 @@ class GroupController:
                                 {"id" : g_id, "name" : name, "description" : description, "icon_id" : icon_id})
             self._connection.commit()
             
-            logging.info("groups updated: %i, with ID: %i", self._cursor.rowcount, g_id)
+            logging.info("groups updated: %d, with ID: %d", self._cursor.rowcount, g_id)
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
@@ -142,9 +142,9 @@ class GroupController:
             count = self._cursor.rowcount
             
             if (count > 0):
-                logging.info("%i group with id: %i deleted", count, g_id)
+                logging.info("%d group with id: %d deleted", count, g_id)
             else:
-                logging.info("%i group with id: %i found", count, g_id)
+                logging.info("%d group with id: %d found", count, g_id)
         except sqlite3.Error as e:
             logging.exception(e)
             

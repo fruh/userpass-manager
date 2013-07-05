@@ -49,11 +49,11 @@ def main():
     passwd_ctrl = PasswdController(db_con, db_con._master)
     
     user.insertUser("Ferčšo", "heslo")
-    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "vfdfgdsg", time.time(), time.time() + 365*24*60, 1, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "vfdfgdsg", time.time(), time.time() + 365*24*60*60, 1, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("Druhe heslo", 'aaaa', "1111", "url", "commgreent", time.time(), time.time(), 2, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("tretie heslo", 'bbbbb', "2222", "url", "commfwefefwent", time.time(), time.time(), 3, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("stvrte heslo", 'cccc', "3333", "url", "commfewent", time.time(), time.time(), 4, 1, bytes(156), "attname")
-    passwd_ctrl.insertPassword("piate heslo", 'ddddd', "4444", "url", "http://", time.time(), time.time(), 1, 1, bytes(156), "attname")
+    passwd_ctrl.insertPassword("piate heslo", 'ddddd', "4444", "", "http://", time.time(), time.time(), 1, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("sieste heslo", 'eeee', "5555", "url", "comfewfwefwefewmentcomfewfwefwefewmentcomfewf dsad sa sda aFEWE FDS ADwefwefewmentcomfewfwefwefewmentcomfewfwefwefewment", time.time(), time.time(), 2, 1, bytes(156), "attname")
     passwd_ctrl.insertPassword("siedme heslo", 'ffff', "6666", "url", "cofewfwemment", time.time(), time.time(), 3, 1, bytes(156), "attname")
     

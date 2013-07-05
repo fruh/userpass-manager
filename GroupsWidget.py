@@ -124,7 +124,6 @@ class GroupsWidget(QtGui.QTreeWidget):
                 child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)
             
                 item.addChild(child)
-            
           
     def initItemData(self, icon, name, item_id, tooltip, item_type):
         """
@@ -191,3 +190,11 @@ class GroupsWidget(QtGui.QTreeWidget):
         
             logging.debug("curent item type: %i", ret)
         return ret
+    
+    def reloadItems(self):
+        """
+            Reloads data from DB.
+        """
+        self.clear()
+        
+        self.initItems()

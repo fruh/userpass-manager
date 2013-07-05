@@ -63,6 +63,43 @@ class PasswordsWidget(QtGui.QTableWidget):
             else:
                 logging.debug("empty table")
         
+    def showAll(self):
+        """
+            Show all passwords.
+        """
+        self.removeAllRows()
+        
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._db_ctrl._master)
+        passwords = passwd_ctrl.selectAll()
+        
+        self.fillTable(passwords)
+        
+    def fillTable(self, passwords):
+        """
+            Insert passwords to table.
+            
+            @param passwords: passwords list
+        """
+        self.__row_id_dic = {}
+            
+        # now fill passwords table view
+        for passwd in passwords:
+            row = self.rowCount()
+            logging.debug("adding password: %s , at row: %i", passwd, row)
+            self.insertRow(row)
+       
+            pix = QtGui.QPixmap()
+            pix.loadFromData(passwd._grp._icon._icon)
+       
+            # set data
+            self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem((QtGui.QIcon(pix)), passwd._title))
+            self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
+            self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
+            self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))
+            
+            # save row id reference
+            self.__row_id_dic[row] = passwd._id
+        
     def showPasswords(self, item_type, item_id):
         """
             Public slot to show passwords in table, whe signal emitPasswords(int, int)
@@ -87,26 +124,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         elif (item_type == GroupsWidget._TYPE_PASS):
             #select just one password
             passwords = passwd_ctrl.selectById(item_id)
-            
-        self.__row_id_dic = {}
-            
-        # now fill passwords table view
-        for passwd in passwords:
-            row = self.rowCount()
-            logging.debug("adding password: %s , at row: %i", passwd, row)
-            self.insertRow(row)
-       
-            pix = QtGui.QPixmap()
-            pix.loadFromData(passwd._grp._icon._icon)
-       
-            # set data
-            self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem((QtGui.QIcon(pix)), passwd._title))
-            self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
-            self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
-            self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))
-            
-            # save row id reference
-            self.__row_id_dic[row] = passwd._id
+        self.fillTable(passwords)
     
     def removeAllRows(self):
         """

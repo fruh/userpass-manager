@@ -5,6 +5,7 @@ from PyQt4 import QtGui, QtCore
 from PasswdController import PasswdController
 import datetime
 from TransController import tr
+from GroupController import GroupController
 
 class EditPasswdDialog(QtGui.QDialog):
     def __init__(self, db_ctrl, p_id):
@@ -37,6 +38,7 @@ class EditPasswdDialog(QtGui.QDialog):
         e_date_label = QtGui.QLabel("<b>" + tr("Expiration date:") + "</b>")
         comment_label = QtGui.QLabel("<b>" + tr("Comment:") + "</b>")
         attachment_label = QtGui.QLabel("<b>" + tr("Attachment:") + "</b>")
+        group_label = QtGui.QLabel("<b>" + tr("Groups:") + "</b>")
         
         layout_gl.addWidget(title_label, 0, 0)
         layout_gl.addWidget(username_label, 1, 0)
@@ -47,6 +49,7 @@ class EditPasswdDialog(QtGui.QDialog):
         layout_gl.addWidget(e_date_label, 6, 0)
         layout_gl.addWidget(attachment_label, 7, 0)
         layout_gl.addWidget(comment_label, 8, 0)
+        layout_gl.addWidget(group_label, 9, 0)
         
         self.__title = QtGui.QLineEdit()
         self.__username = QtGui.QLineEdit()
@@ -58,7 +61,7 @@ class EditPasswdDialog(QtGui.QDialog):
         self.__comment = QtGui.QTextEdit()
         self.__comment.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
         self.__comment.setMaximumHeight(200)
-        
+        self.__group = QtGui.QComboBox()
         self.__attachment = QtGui.QLineEdit()
         
         layout_gl.addWidget(self.__title, 0, 1)
@@ -69,6 +72,7 @@ class EditPasswdDialog(QtGui.QDialog):
         layout_gl.addWidget(self.__m_date, 5, 1)
         layout_gl.addWidget(self.__attachment, 7, 1)
         layout_gl.addWidget(self.__comment, 8, 1)
+        layout_gl.addWidget(self.__group, 9, 1)
         
         # date time edit
         self.__e_date_edit = QtGui.QDateTimeEdit()
@@ -90,7 +94,7 @@ class EditPasswdDialog(QtGui.QDialog):
         self.__button_box.addButton(self.__save_button, QtGui.QDialogButtonBox.AcceptRole)
         self.__button_box.addButton(self.__cancel_button, QtGui.QDialogButtonBox.RejectRole)
         
-        layout_gl.addWidget(self.__button_box, 9, 1)
+        layout_gl.addWidget(self.__button_box, 10, 1)
         
     def initConections(self):
         """
@@ -110,6 +114,7 @@ class EditPasswdDialog(QtGui.QDialog):
         self.__comment.textChanged.connect(self.enableSaveButton)
         self.__attachment.textChanged.connect(self.enableSaveButton)
         self.__e_date_edit.dateChanged.connect(self.enableSaveButton)
+        self.__group.currentIndexChanged.connect(self.enableSaveButton)
         
     def enableSaveButton(self):
         """
@@ -131,23 +136,70 @@ class EditPasswdDialog(QtGui.QDialog):
         passwd_ctrl = PasswdController(self.__db_ctrl, self.__db_ctrl._master)
         
         # select password
-        passwd = passwd_ctrl.selectById(p_id)[0]
+        self.__password = passwd_ctrl.selectById(p_id)[0]
         
         # set window title
-        self.setWindowTitle(passwd._title)
+        self.setWindowTitle(self.__password._title)
         
-        date_time_str = str(datetime.datetime.fromtimestamp(passwd._e_date).strftime("%Y-%m-%d %H:%M:%S"))
+        date_time_str = str(datetime.datetime.fromtimestamp(self.__password._e_date).strftime("%Y-%m-%d %H:%M:%S"))
         logging.debug("date time string: %s", date_time_str)
         
-        self.__title.setText(passwd._title)
-        self.__username.setText(passwd._username)
-        self.__passwd.setText(passwd._passwd)
-        self.__url.setText(passwd._url)
-        self.__c_date.setText(str(datetime.datetime.fromtimestamp(passwd._c_date).strftime("%Y-%m-%d %H:%M:%S")))
-        self.__m_date.setText(str(datetime.datetime.fromtimestamp(passwd._m_date).strftime("%Y-%m-%d %H:%M:%S")))
+        self.__title.setText(self.__password._title)
+        self.__username.setText(self.__password._username)
+        self.__passwd.setText(self.__password._passwd)
+        self.__url.setText(self.__password._url)
+        self.__c_date.setText(str(datetime.datetime.fromtimestamp(self.__password._c_date).strftime("%Y-%m-%d %H:%M:%S")))
+        self.__m_date.setText(str(datetime.datetime.fromtimestamp(self.__password._m_date).strftime("%Y-%m-%d %H:%M:%S")))
         self.__e_date_edit.setDateTime(QtCore.QDateTime.fromString(date_time_str, "yyyy-MM-dd HH:mm:ss"))
-        self.__comment.setText(passwd._comment)
-        self.__attachment.setText(passwd._att_name)
+        self.__comment.setText(self.__password._comment)
+        self.__attachment.setText(self.__password._att_name)
+        
+        # set groups combobox
+        group_ctrl = GroupController(self.__db_ctrl)
+        
+        groups = group_ctrl.selectAll()
+        # tmp index
+        tmp = 0
+        # have to increment tmp
+        inc_tmp = True
+        
+        # fill combobox
+        for group in groups:
+            logging.debug("adding group ID: %d", group._id)
+            
+            # load icon
+            pix = QtGui.QPixmap()
+            pix.loadFromData(group._icon._icon)
+            
+            # add item with icon, name and group ID
+            self.__group.addItem(QtGui.QIcon(pix), group._name, group._id)
+            
+            # if a dont have curent group
+            if (group._id != self.__password._grp._id and inc_tmp):
+                tmp += 1
+                
+                logging.debug("temp group index: %d, group._id: %d, __password._grp._id: %d", tmp, group._id, self.__password._grp._id)
+            else:
+                if inc_tmp:
+                    logging.debug("group found")
+                    inc_tmp = False
+        # set current group
+        self.__group.setCurrentIndex(tmp)
+        
+    def getGroupId(self):
+        """
+            Get group ID from combobox item.
+            
+            @return: group ID
+        """
+        index = self.__group.currentIndex()
+        
+        # return a touple
+        group_id = self.__group.itemData(index).toInt()[0]
+        
+        logging.debug("current item index: %d group: %d", index, group_id)
+        
+        return group_id
         
     def center(self):
         """
@@ -167,3 +219,27 @@ class EditPasswdDialog(QtGui.QDialog):
             Save changes to database, read all iinputs and update DB entry.
         """
         logging.debug("save button clicked.")
+        
+        self.__password._title = str(self.__title.text())
+        self.__password._username = str(self.__username.text())
+        self.__password._passwd = str(self.__passwd.text())
+        self.__password._url = str(self.__url.text())
+        self.__password._comment = str(self.__comment.toPlainText())
+        self.__password._att_name = str(self.__attachment.text())
+         
+        # get group
+        group_ctrl = GroupController(self.__db_ctrl)
+        self.__password._grp = group_ctrl.selectById(self.getGroupId())
+         
+        # set expiration date
+        self.__password._e_date = self.__e_date_edit.dateTime().toTime_t()
+        
+        # update password
+        passwd_ctrl = PasswdController(self.__db_ctrl, self.__db_ctrl._master)
+        
+        passwd_ctrl.updatePasswd(self.__password._id, self.__password._title, self.__password._username, self.__password._passwd, 
+                                 self.__password._url, self.__password._comment, self.__password._e_date, 
+                                 self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
+                                 self.__password._att_name)
+        
+        self.close()
