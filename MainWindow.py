@@ -24,6 +24,7 @@ class MainWindow(QtGui.QMainWindow):
         self.initUI()
         self.createActions()
         self.createMenu()
+        self.initConections()
         
     def initUI(self):
         """
@@ -86,6 +87,12 @@ class MainWindow(QtGui.QMainWindow):
         # set stretch factor for password table
         self._passwd_splitter.setStretchFactor(0, 1)
         
+    def initConections(self):
+        """
+            Initialize all connections, handling events.
+            
+            @requires: initUI() first
+        """
         # create connection to update table view
         self._groups_tw.signalGroupSelChanged.connect(self._passwords_table.showPasswords)
         self._groups_tw.signalGroupSelChanged.connect(self._detail_w.handleType)

@@ -20,6 +20,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         super(PasswordsWidget, self).__init__()
         
         self.initUI()
+        self.initConections()
         
     def initUI(self):
         """
@@ -38,14 +39,20 @@ class PasswordsWidget(QtGui.QTableWidget):
         # not editable
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         
-        # set connections
+        self.setMinimumWidth(460)
+        self.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
+        
+    def initConections(self):
+        """
+            Initialize all connections, handling events.
+            
+            @requires: initUI() first
+        """
+        # set connections for editing password
         self.cellDoubleClicked.connect(self.editPasswd)
         
         # emits when slection cganged so (clicked, arrow move)
         self.itemSelectionChanged.connect(self.callShowDetails)
-        
-        self.setMinimumWidth(460)
-        self.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
         
     def keyReleaseEvent(self, event):
         logging.debug("key pressed: %d", event.key())

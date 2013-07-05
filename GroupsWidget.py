@@ -35,8 +35,18 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         self.initUI()
         self.initItems()
+        self.initConections()
         
+    def initConections(self):
+        """
+            Initialize all connections, handling events.
+            
+            @requires: initUI() first
+        """
+        # show password detail
         self.itemSelectionChanged.connect(self.showPasswords)
+        
+        # show edit dialog
         self.itemDoubleClicked.connect(self.editPasswd)
         
     def initUI(self):

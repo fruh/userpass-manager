@@ -14,6 +14,7 @@ class EditPasswdDialog(QtGui.QDialog):
         
         self.initUI()
         self.setPassword(p_id)
+        self.initConections()
         
     def initUI(self):
         """
@@ -78,8 +79,46 @@ class EditPasswdDialog(QtGui.QDialog):
         
         layout_gl.addWidget(self.__e_date_edit, 6, 1)
         
-#         layout_gl.setColumnStretch(1, 1)
-#         layout_gl.setColumnStretch(3, 1)
+        # create buttons
+        self.__button_box = QtGui.QDialogButtonBox()
+        
+        self.__save_button = QtGui.QPushButton(tr("&Save"))
+        self.__save_button.setEnabled(False)
+        
+        self.__cancel_button = QtGui.QPushButton(tr("&Cancel"))
+        
+        self.__button_box.addButton(self.__save_button, QtGui.QDialogButtonBox.AcceptRole)
+        self.__button_box.addButton(self.__cancel_button, QtGui.QDialogButtonBox.RejectRole)
+        
+        layout_gl.addWidget(self.__button_box, 9, 1)
+        
+    def initConections(self):
+        """
+            Initialize all connections, handling events.
+            
+            @requires: initUI(), setPassword() first
+        """
+        # connections to buttons
+        self.__button_box.accepted.connect(self.saveChanges)
+        self.__button_box.rejected.connect(self.close)
+        
+        # when something changed, enable save button
+        self.__title.textChanged.connect(self.enableSaveButton)
+        self.__username.textChanged.connect(self.enableSaveButton)
+        self.__passwd.textChanged.connect(self.enableSaveButton)
+        self.__url.textChanged.connect(self.enableSaveButton)
+        self.__comment.textChanged.connect(self.enableSaveButton)
+        self.__attachment.textChanged.connect(self.enableSaveButton)
+        self.__e_date_edit.dateChanged.connect(self.enableSaveButton)
+        
+    def enableSaveButton(self):
+        """
+            Enable save button.
+        """
+        if (not self.__save_button.isEnabled()):
+            logging.debug("enabling save button")
+            
+            self.__save_button.setEnabled(True)
         
     def setPassword(self, p_id):
         """
@@ -123,16 +162,8 @@ class EditPasswdDialog(QtGui.QDialog):
         
         self.move(wg.topLeft())
         
-    def clearDetails(self):
+    def saveChanges(self):
         """
-            CLear displayed details.
+            Save changes to database, read all iinputs and update DB entry.
         """
-        self.__title.setText("")
-        self.__username.setText("")
-        self.__passwd.setText("")
-        self.__url.setText("")
-        self.__c_date.setText("")
-        self.__m_date.setText("")
-        self.__e_date.setText("")
-        self.__comment.setText("")
-        self.__attachment.setText("")
+        logging.debug("save button clicked.")
