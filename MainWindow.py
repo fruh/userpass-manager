@@ -103,13 +103,18 @@ class MainWindow(QtGui.QMainWindow):
         """
         # create connection to update table view
         self._groups_tw.signalGroupSelChanged.connect(self._passwords_table.showPasswords)
-        self._groups_tw.signalGroupSelChanged.connect(self._detail_w.handleType)
+        self._groups_tw.signalGroupSelChanged.connect(self._detail_w.handleTypePassword)
         self._passwords_table.signalShowDetailPasswd.connect(self._detail_w.setPassword)
         
         # show edit passwd dialog
         self._passwords_table.signalEditPasswd.connect(self.showEditPasswdDialog)
         self._groups_tw.signalEditPasswd.connect(self.showEditPasswdDialog)
         
+        # enable/disable delete action, depends on selection type in tree widget
+        self._groups_tw.signalGroupSelChanged.connect(self.enDisDeleteAction)
+        
+        # enable/disable delete action with selection password talbe
+        self._passwords_table.signalSelChangedTypeId.connect(self.enDisDeleteAction)
     def createActions(self):
         """
             Initialize all actions, i.e. Close, Save etc.
@@ -139,8 +144,18 @@ class MainWindow(QtGui.QMainWindow):
         self._del_passwd = QtGui.QAction(tr("Delete"), self)
         self._del_passwd.setShortcuts(QtGui.QKeySequence.Delete)
         self._del_passwd.setToolTip(tr("Delte password from DB"))
+        self._del_passwd.setDisabled(True)
         
         self._del_passwd.triggered.connect(self.deletePassword)
+        
+    def enDisDeleteAction(self, item_type, item_id):
+        """
+            Disable delete password action.
+        """
+        if (item_type == self._groups_tw._TYPE_PASS):
+            self._del_passwd.setEnabled(True)
+        else:
+            self._del_passwd.setEnabled(False)
         
     def createMenu(self):
         """
@@ -208,6 +223,11 @@ class MainWindow(QtGui.QMainWindow):
         title = self._passwords_table.currentItemTitle()
         p_id = self._passwords_table.currentItemID()
         
+        # also chck in tree widget
+        if (not title):
+            title = self._groups_tw.currentPasswordTitle()
+            p_id = self._groups_tw.currentPasswordId()
+            
         logging.debug("delete password title: %s, ID: %i", title, p_id)
         
         if (title):
@@ -221,7 +241,7 @@ class MainWindow(QtGui.QMainWindow):
             if (ret == QtGui.QMessageBox.Yes):
                 # delete password
                 self._passwords_table.deletePassword(p_id)
-                
+                self.reloadItems()
         
     def reloadItems(self, p_id = -1):
         """

@@ -191,6 +191,40 @@ class GroupsWidget(QtGui.QTreeWidget):
             logging.debug("curent item type: %i", ret)
         return ret
     
+    def currentPasswordTitle(self):
+        """
+            Get current password title.
+            
+            @return: password title, other False
+        """
+        item_type = self.currentItemData(self.__COL_TYPE)
+        
+        if (item_type == self._TYPE_PASS):
+            title = self.currentItemData(self.__COL_NAME)
+            
+            logging.debug("current item title: %s", title)
+            
+            return title
+        else:
+            return False
+        
+    def currentPasswordId(self):
+        """
+            Get current password title.
+            
+            @return: password ID, other False
+        """
+        item_type = self.currentItemData(self.__COL_TYPE)
+        
+        if (item_type == self._TYPE_PASS):
+            item_id = self.currentItemData(self.__COL_ID)
+            
+            logging.debug("current item ID: %s", item_id)
+            
+            return item_id
+        else:
+            return False
+    
     def reloadItems(self):
         """
             Reloads data from DB.

@@ -115,7 +115,7 @@ class DetailWidget(QtGui.QWidget):
         self.__comment.setText("")
         self.__attachment.setText("")
         
-    def handleType(self, item_type, item_id):
+    def handleTypePassword(self, item_type, item_id):
         """
             Handle signal from GroupsWidget, if it is clicked on password show detail, else do nothing.
             

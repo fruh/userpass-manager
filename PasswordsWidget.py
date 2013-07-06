@@ -10,6 +10,8 @@ class PasswordsWidget(QtGui.QTableWidget):
     signalShowDetailPasswd = QtCore.pyqtSignal(int)
     # when double clicked
     signalEditPasswd = QtCore.pyqtSignal(int)
+    # when selection changed params: type = password, item id
+    signalSelChangedTypeId = QtCore.pyqtSignal(int, int)
     
     def __init__(self, parent = None):
         self.__parent = parent
@@ -59,6 +61,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         
         # emits when slection cganged so (clicked, arrow move)
         self.itemSelectionChanged.connect(self.callShowDetails)
+        self.itemSelectionChanged.connect(self.emitSelChanged)
         
     def keyReleaseEvent(self, event):
         """
@@ -216,6 +219,13 @@ class PasswordsWidget(QtGui.QTableWidget):
             return item.text().toInt()[0]
         return False
     
+    def emitSelChanged(self):
+        """
+            When selection changed, and is item selected, emit signal.
+        """
+        if (self.currentItemTitle()):
+            self.signalSelChangedTypeId.emit(GroupsWidget._TYPE_PASS, self.currentItemID())
+    
     def deletePassword(self, p_id):
         """
             Delete password from DB. And reloads items.
@@ -228,4 +238,4 @@ class PasswordsWidget(QtGui.QTableWidget):
         passwd_ctrl.deletePassword(p_id)
         
         # now reload items
-        self.reloadItems()
+#         self.reloadItems()
