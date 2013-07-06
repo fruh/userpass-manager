@@ -7,7 +7,8 @@ from PasswordsWidget import PasswordsWidget
 from DetailWidget import DetailWidget
 from EditPasswdDialog import EditPasswdDialog
 from UserModel import UserModel
-from UserController import UserController
+from NewPasswdDialog import NewPasswdDialog
+import logging
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -114,16 +115,30 @@ class MainWindow(QtGui.QMainWindow):
         # init close
         self._close_act = QtGui.QAction(tr("&Close"), self)
         self._close_act.setShortcuts(QtGui.QKeySequence.Close)
-        self._close_act.setStatusTip(tr("Close application"))
+        self._close_act.setToolTip(tr("Close application"))
         
         # connect to slot
         self._close_act.triggered.connect(QtCore.QCoreApplication.instance().quit)
         
         # init about action
         self._about_act = QtGui.QAction(tr("About"), self)
-        self._about_act.setStatusTip(tr("About UserPass Manager"))
+        self._about_act.setToolTip(tr("About UserPass Manager"))
         
         self._about_act.triggered.connect(self.aboutDialog)
+        
+        # new password action
+        self._new_passwd = QtGui.QAction(tr("New"), self)
+        self._new_passwd.setShortcuts(QtGui.QKeySequence.New)
+        self._new_passwd.setToolTip(tr("Add new password to DB"))
+        
+        self._new_passwd.triggered.connect(self.showNewPasswdDialog)
+        
+        # new password action
+        self._del_passwd = QtGui.QAction(tr("Delete"), self)
+        self._del_passwd.setShortcuts(QtGui.QKeySequence.Delete)
+        self._del_passwd.setToolTip(tr("Delte password from DB"))
+        
+        self._del_passwd.triggered.connect(self.deletePassword)
         
     def createMenu(self):
         """
@@ -138,6 +153,8 @@ class MainWindow(QtGui.QMainWindow):
         file_menu.addAction(self._close_act)
         
         password_menu = self.menuBar().addMenu(tr("Password"))
+        password_menu.addAction(self._new_passwd)
+        password_menu.addAction(self._del_passwd)
         
         group_menu = self.menuBar().addMenu(tr("Group"))
         
@@ -169,18 +186,49 @@ class MainWindow(QtGui.QMainWindow):
             @param p_id: password id to edit
         """
         edit_dialog = EditPasswdDialog(self, p_id)
-        edit_dialog.singalPasswdSaved.connect(self.reloadItems)
+        edit_dialog.signalPasswdSaved.connect(self.reloadItems)
         
         edit_dialog.exec_()
         
-    def reloadItems(self, p_id):
+    def showNewPasswdDialog(self):
+        """
+            Password dialog to add new password.
+        """
+        new_pass_dialog = NewPasswdDialog(self)
+        new_pass_dialog.signalPasswdSaved.connect(self.reloadItems)
+        
+        new_pass_dialog.exec_()
+        
+    def deletePassword(self):
+        """
+            Delete password from database.
+        """
+        title = self._passwords_table.currentItemTitle()
+        p_id = self._passwords_table.currentItemID()
+        
+        logging.debug("delete password title: %s, ID: %i", title, p_id)
+        
+        if (title):
+            msg = QtGui.QMessageBox(QtGui.QMessageBox.Question, title ,tr("Do you want delete password '") 
+                              + title + "'?")
+            msg.addButton(QtGui.QMessageBox.Yes)
+            msg.addButton(QtGui.QMessageBox.No)
+            
+            ret = msg.exec_()
+            
+            if (ret == QtGui.QMessageBox.Yes):
+                # delete password
+                self._passwords_table.deletePassword(p_id)
+                
+        
+    def reloadItems(self, p_id = -1):
         """
             Reload groups, passwords.
             
             @param p_id: password id to display, if is < 0, doesn't display
         """
         self._groups_tw.reloadItems()
-        self._passwords_table.showAll()
+        self._passwords_table.reloadItems()
         
         if (p_id >= 0):
             self._detail_w.setPassword(p_id)
@@ -191,4 +239,4 @@ class MainWindow(QtGui.QMainWindow):
         """
             Log in user with master password.
         """
-        self._user = UserModel(1, username, "heslo", "salt", master)
+        self._user = UserModel(2, username, "heslo", "salt", master)

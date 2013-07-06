@@ -43,7 +43,7 @@ class PasswdModel:
         self._e_date = e_date
         self._grp = None
         self._user = None
-        self._attachment = attachment
+        self._att_name = attachment
         self._att_name = att_name
         self._salt = salt
         self._iv = iv

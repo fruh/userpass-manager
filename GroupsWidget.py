@@ -104,7 +104,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         self.addTopLevelItem(all_group)
         
         # add cildren, all passwords to group all
-        passwords = passwd_ctrl.selectAll()
+        passwords = passwd_ctrl.selectByUserId(self.__parent._user._id)
         
         for passwd in passwords:
             child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)
@@ -118,7 +118,7 @@ class GroupsWidget(QtGui.QTreeWidget):
             self.addTopLevelItem(item)
             
             # add cildren, all passwords to group all
-            passwords = passwd_ctrl.selectByGroupId(group._id)
+            passwords = passwd_ctrl.selectByUserGrpId(self.__parent._user._id, group._id)
             
             for passwd in passwords:
                 child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)

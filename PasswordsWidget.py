@@ -73,13 +73,19 @@ class PasswordsWidget(QtGui.QTableWidget):
     def showAll(self):
         """
             Show all passwords.
+        """        
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
+        passwords = passwd_ctrl.selectByUserId(self.__parent._user._id)
+        
+        self.fillTable(passwords)
+        
+    def reloadItems(self):
+        """
+            Reload items from DB.
         """
         self.removeAllRows()
         
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
-        passwords = passwd_ctrl.selectAll()
-        
-        self.fillTable(passwords)
+        self.showAll()
         
     def fillTable(self, passwords):
         """
@@ -125,10 +131,10 @@ class PasswordsWidget(QtGui.QTableWidget):
         # detect type
         if (item_type == GroupsWidget._TYPE_ALL):
             # select all
-            passwords = passwd_ctrl.selectAll()
+            passwords = passwd_ctrl.selectByUserId(self.__parent._user._id)
         elif (item_type == GroupsWidget._TYPE_GROUP):
             #select by group
-            passwords = passwd_ctrl.selectByGroupId(item_id)
+            passwords = passwd_ctrl.selectByUserGrpId(self.__parent._user._id, item_id)
         elif (item_type == GroupsWidget._TYPE_PASS):
             #select just one password
             passwords = passwd_ctrl.selectById(item_id)
@@ -145,18 +151,81 @@ class PasswordsWidget(QtGui.QTableWidget):
             self.removeRow(self.rowCount() - 1)
             
     def showDetails(self, row, column):
-        p_id = self.item(row, self.__COL_ID).text().toInt()[0]
-        logging.debug("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, p_id)
+        """
+            Emits signal to show details about password.
+            
+            @param row: row index in table
+            @param column: column index in table
+        """
+        item = self.item(row, self.__COL_ID)
         
-        self.signalShowDetailPasswd.emit(p_id)
+        if item:
+            p_id = item.text().toInt()[0]
+            logging.debug("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, p_id)
+        
+            self.signalShowDetailPasswd.emit(p_id)
+        else:
+            logging.debug("no item selected")
         
     def editPasswd(self, row, column):
+        """
+            Emits signal to edit password.
+            
+            @param row: row index in table
+            @param column: column index in table
+        """
         logging.debug("double clicked or enter pressed at item row: %i, column: %i", row, column)
         
         self.signalEditPasswd.emit(self.item(row, self.__COL_ID).text().toInt()[0])
         
     def callShowDetails(self):
+        """
+            Call showDetails().
+        """
         self.showDetails(self.currentRow(), self.currentColumn())
         
     def callEditPasswd(self):
+        """
+            Call editPasswd().
+        """
         self.editPasswd(self.currentRow(), self.currentColumn())
+        
+    def currentItemTitle(self):
+        """
+            Get current item title.
+            
+            @return: on succed Title string, else False
+        """
+        row = self.currentRow()
+        item = self.item(row, self.__COL_TITLE)
+        
+        if (item):
+            return str(item.text())
+        return False
+    
+    def currentItemID(self):
+        """
+            Get current item password ID.
+            
+            @return: on succed ID, else False
+        """
+        row = self.currentRow()
+        item = self.item(row, self.__COL_ID)
+        
+        if (item):
+            return item.text().toInt()[0]
+        return False
+    
+    def deletePassword(self, p_id):
+        """
+            Delete password from DB. And reloads items.
+            
+            @param p_id: password ID
+        """
+        logging.debug("deleting password with id: %i", p_id)
+        
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
+        passwd_ctrl.deletePassword(p_id)
+        
+        # now reload items
+        self.reloadItems()

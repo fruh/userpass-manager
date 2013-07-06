@@ -41,7 +41,7 @@ class EditPasswdDialog(PasswdDialog):
         self._m_date.setText(str(datetime.datetime.fromtimestamp(self.__password._m_date).strftime("%Y-%m-%d %H:%M:%S")))
         self._e_date_edit.setDateTime(QtCore.QDateTime.fromString(date_time_str, "yyyy-MM-dd HH:mm:ss"))
         self._comment.setText(self.__password._comment)
-        self._attachment.setText(self.__password._att_name)
+        self._att_name.setText(self.__password._att_name)
         
         # set expiration button
         if (self.__password._expire == "false"):
@@ -49,6 +49,15 @@ class EditPasswdDialog(PasswdDialog):
         else:
             self._e_date_never.setChecked(False)
         
+        self.loadGroups()
+        
+        # disable save button, because nothing changed, just loaded from DB
+        self.disableSaveButton()
+        
+    def loadGroups(self):
+        """
+            Load available groups to combobox
+        """
         # set groups combobox
         group_ctrl = GroupController(self.__parent._db_ctrl)
         
@@ -81,9 +90,6 @@ class EditPasswdDialog(PasswdDialog):
         # set current group
         self._group.setCurrentIndex(tmp)
         
-        # disable save button, because nothing changed, just loaded from DB
-        self.disableSaveButton()
-        
     def saveChanges(self):
         """
             Save changes to database, read all iinputs and update DB entry.
@@ -95,7 +101,7 @@ class EditPasswdDialog(PasswdDialog):
         self.__password._passwd = str(self._passwd.text())
         self.__password._url = str(self._url.text())
         self.__password._comment = str(self._comment.toPlainText())
-        self.__password._att_name = str(self._attachment.text())
+        self.__password._att_name = str(self._att_name.text())
         
         # set expiration
         if (self._e_date_never.isChecked()):
@@ -115,8 +121,8 @@ class EditPasswdDialog(PasswdDialog):
         
         passwd_ctrl.updatePasswd(self.__password._id, self.__password._title, self.__password._username, self.__password._passwd, 
                                  self.__password._url, self.__password._comment, self.__password._e_date, 
-                                 self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
+                                 self.__password._grp._id, self.__password._user._id, self.__password._att_name, 
                                  self.__password._att_name, self.__password._expire)
-        self.singalPasswdSaved.emit(self.__password._id)
+        self.signalPasswdSaved.emit(self.__password._id)
         
         self.close()

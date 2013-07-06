@@ -100,6 +100,62 @@ class PasswdController:
             for row in rows:
                 passwords.append(self.createPasswdObj(row))
             return passwords
+        
+    def selectByUserId(self, u_id):
+        """
+            Search password by user id.
+            @param u_id: group id
+            @return: rows
+        """
+        try:
+            # select from table
+            self._cursor.execute("SELECT * FROM Passwords WHERE user_id = :id;", {"id" : u_id})
+            rows = self._cursor.fetchall()
+            
+            # decrypt selected data
+            for i in range(0, len(rows)):
+                rows[i] = self.decryptRowDic(rows[i])                      
+            
+            logging.info("passwords selected: %d", len(rows))
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            raise e
+        finally:
+            passwords = []
+            
+            for row in rows:
+                passwords.append(self.createPasswdObj(row))
+            return passwords
+        
+    def selectByUserGrpId(self, u_id, g_id):
+        """
+            Search password by user and group id.
+            
+            @param u_id: user id
+            @param g_id: group id
+            @return: rows
+        """
+        try:
+            # select from table
+            self._cursor.execute("SELECT * FROM Passwords WHERE user_id = :id AND grp_id = :g_id;", {"id" : u_id, "g_id" : g_id})
+            rows = self._cursor.fetchall()
+            
+            # decrypt selected data
+            for i in range(0, len(rows)):
+                rows[i] = self.decryptRowDic(rows[i])                      
+            
+            logging.info("passwords selected: %d", len(rows))
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            raise e
+        finally:
+            passwords = []
+            
+            for row in rows:
+                passwords.append(self.createPasswdObj(row))
+            return passwords
 
     def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, expire):
         """

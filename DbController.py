@@ -11,14 +11,23 @@ class DbController:
         Implements basic DB initialitation.
     """
     def __init__(self, database = None):
+        """
+            If DB file is specified, then create DB, and tables if did not exist.
+        """
         self._cursor = None
         self._database = database
         self._connection = None
+        
+        # whether DB file existed
+        self._existed = False
         
         self._ICONS_ROOT = "." + os.sep + "icons" + os.sep
         
         if (database):
             self.connectDB()
+            
+            if (not self._existed):
+                self.createTables()
         
     def connectDB(self, database = None):
         """
@@ -28,6 +37,9 @@ class DbController:
         try:
             if (database):
                 self._database = database
+            # check if file exists    
+            self._existed = os.path.exists(self._database)
+            
             with sqlite3.connect(self._database) as self._connection:
                 # turn on dictionary mode
                 self._connection.row_factory = sqlite3.Row

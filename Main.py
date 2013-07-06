@@ -11,6 +11,7 @@ import struct
 from PyQt4 import QtGui
 import sys
 from MainWindow import MainWindow
+import os
 
 def dbTest():    
     db_con = DbController("test.db")
@@ -49,16 +50,32 @@ def main():
     passwd_ctrl = PasswdController(db_con, "heslo")
     
     user.insertUser("Ferčšo", "heslo")
+    user.insertUser("Ferdsačšo", "heslo")
     passwd_ctrl.insertPassword("Prve heslo", 'username', "passwd", "url", "vfdfgdsg", time.time(), time.time() + 365*24*60*60, 1, 1, bytes(156), "attname", "true")
     passwd_ctrl.insertPassword("Druhe heslo", 'aaaa', "1111", "url", "commgreent", time.time(), time.time(), 2, 1, bytes(156), "attname", "false")
     passwd_ctrl.insertPassword("tretie heslo", 'bbbbb', "2222", "url", "commfwefefwent", time.time(), time.time(), 3, 1, bytes(156), "attname", "false")
-    passwd_ctrl.insertPassword("stvrte heslo", 'cccc', "3333", "url", "commfewent", time.time(), time.time(), 4, 1, bytes(156), "attname", "false")
+    passwd_ctrl.insertPassword("stvrte heslo", 'cccc', "3333", "url", "commfewent", time.time(), time.time(), 4, 2, bytes(156), "attname", "false")
     passwd_ctrl.insertPassword("piate heslo", 'ddddd', "4444", "", "http://", time.time(), time.time(), 1, 1, bytes(156), "attname", "true")
     passwd_ctrl.insertPassword("sieste heslo", 'eeee', "5555", "url", "comfewfwefwefewmentcomfewfwefwefewmentcomfewf dsad sa sda aFEWE FDS ADwefwefewmentcomfewfwefwefewmentcomfewfwefwefewment", time.time(), time.time(), 2, 1, bytes(156), "attname", "true")
     passwd_ctrl.insertPassword("siedme heslo", 'ffff', "6666", "url", "cofewfwemment", time.time(), time.time(), 3, 1, bytes(156), "attname", "true")
     
     w = MainWindow(db_con)
+    w.reloadItems()
     
+    w.show()
+    
+    sys.exit(app.exec_())
+    
+def main2():
+    app = QtGui.QApplication(sys.argv)
+    
+    db_con = DbController("db" + os.path.sep + "test.db")
+    
+    user = UserController(db_con)
+    user.insertUser("Ferčšo", "heslo")
+    
+    w = MainWindow(db_con)
+    w.reloadItems()
     w.show()
     
     sys.exit(app.exec_())
@@ -66,5 +83,5 @@ def main():
 if (__name__ == "__main__"):
     logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
     
-    main()
+    main2()
 #     dbTest()

@@ -2,23 +2,29 @@
 # -*- coding: utf-8 -*-
 import logging
 from PyQt4 import QtGui, QtCore
-from PasswdController import PasswdController
-import datetime
 from TransController import tr
-from GroupController import GroupController
 
 class PasswdDialog(QtGui.QDialog):
     # emiting after saving passowrd
     # param: p_id
-    singalPasswdSaved = QtCore.pyqtSignal(int)
+    signalPasswdSaved = QtCore.pyqtSignal(int)
     
-    def __init__(self, db_ctrl):
+    def __init__(self, db_ctrl, edit = True):
+        """
+            COnstructor for password dialog, displys all necessary inputs.
+            
+            @param db_ctrl: database controller
+            @param edit: if it will we edit dialog, show creation and modification date, else do not
+        """
         self.__db_ctrl = db_ctrl
+        self.__edit = edit
         super(PasswdDialog, self).__init__()
         
         self.initUI()
         self.initConections()
         self.center()
+        
+        self._e_date_never.setChecked(True)
         
     def initUI(self):
         """
@@ -34,8 +40,25 @@ class PasswdDialog(QtGui.QDialog):
         username_label = QtGui.QLabel("<b>" + tr("Username:") + "</b>")
         passwd_label = QtGui.QLabel("<b>" + tr("Password:") + "</b>")
         url_label = QtGui.QLabel("<b>" + tr("URL:")  + "</b>")
-        c_date_label = QtGui.QLabel("<b>" + tr("Creation date:") + "</b>")
-        m_date_label = QtGui.QLabel("<b>" + tr("Modification date:") + "</b>")
+        
+        if (self.__edit):
+            # if it is edit dialog display
+            layout_offset = 0
+            
+            c_date_label = QtGui.QLabel("<b>" + tr("Creation date:") + "</b>")
+            m_date_label = QtGui.QLabel("<b>" + tr("Modification date:") + "</b>")
+            
+            layout_gl.addWidget(c_date_label, 4, 0)
+            layout_gl.addWidget(m_date_label, 5, 0)
+            
+            self._c_date = QtGui.QLabel()
+            self._m_date = QtGui.QLabel()
+            
+            layout_gl.addWidget(self._c_date, 4, 1)
+            layout_gl.addWidget(self._m_date, 5, 1)
+        else:
+            layout_offset = -2
+            
         e_date_label = QtGui.QLabel("<b>" + tr("Expiration date:") + "</b>")
         comment_label = QtGui.QLabel("<b>" + tr("Comment:") + "</b>")
         attachment_label = QtGui.QLabel("<b>" + tr("Attachment:") + "</b>")
@@ -45,35 +68,29 @@ class PasswdDialog(QtGui.QDialog):
         layout_gl.addWidget(username_label, 1, 0)
         layout_gl.addWidget(passwd_label, 2, 0)
         layout_gl.addWidget(url_label, 3, 0)
-        layout_gl.addWidget(c_date_label, 4, 0)
-        layout_gl.addWidget(m_date_label, 5, 0)
-        layout_gl.addWidget(e_date_label, 6, 0)
-        layout_gl.addWidget(attachment_label, 7, 0)
-        layout_gl.addWidget(comment_label, 8, 0)
-        layout_gl.addWidget(group_label, 9, 0)
+        layout_gl.addWidget(e_date_label, 6 + layout_offset, 0)
+        layout_gl.addWidget(attachment_label, 7 + layout_offset, 0)
+        layout_gl.addWidget(comment_label, 8 + layout_offset, 0)
+        layout_gl.addWidget(group_label, 9 + layout_offset, 0)
         
         self._title = QtGui.QLineEdit()
         self._username = QtGui.QLineEdit()
         self._passwd = QtGui.QLineEdit()
         self._url = QtGui.QLineEdit()
-        self._c_date = QtGui.QLabel()
-        self._m_date = QtGui.QLabel()
         self._e_date = QtGui.QLineEdit()
         self._comment = QtGui.QTextEdit()
         self._comment.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
         self._comment.setMaximumHeight(200)
         self._group = QtGui.QComboBox()
-        self._attachment = QtGui.QLineEdit()
+        self._att_name = QtGui.QLineEdit()
         
         layout_gl.addWidget(self._title, 0, 1)
         layout_gl.addWidget(self._username, 1, 1)
         layout_gl.addWidget(self._passwd, 2, 1)
         layout_gl.addWidget(self._url, 3, 1)
-        layout_gl.addWidget(self._c_date, 4, 1)
-        layout_gl.addWidget(self._m_date, 5, 1)
-        layout_gl.addWidget(self._attachment, 7, 1)
-        layout_gl.addWidget(self._comment, 8, 1)
-        layout_gl.addWidget(self._group, 9, 1)
+        layout_gl.addWidget(self._att_name, 7 + layout_offset, 1)
+        layout_gl.addWidget(self._comment, 8 + layout_offset, 1)
+        layout_gl.addWidget(self._group, 9 + layout_offset, 1)
         
         # date time edit
         self._e_date_edit = QtGui.QDateTimeEdit()
@@ -91,7 +108,7 @@ class PasswdDialog(QtGui.QDialog):
         e_date_hl.addWidget(self._e_date_never)
         
         # add to main layout
-        layout_gl.addLayout(e_date_hl, 6, 1)
+        layout_gl.addLayout(e_date_hl, 6 + layout_offset, 1)
         
         # create buttons
         self.__button_box = QtGui.QDialogButtonBox()
@@ -104,7 +121,7 @@ class PasswdDialog(QtGui.QDialog):
         self.__button_box.addButton(self.__save_button, QtGui.QDialogButtonBox.AcceptRole)
         self.__button_box.addButton(self.__cancel_button, QtGui.QDialogButtonBox.RejectRole)
         
-        layout_gl.addWidget(self.__button_box, 10, 1)
+        layout_gl.addWidget(self.__button_box, 10 + layout_offset, 1)
         
     def initConections(self):
         """
@@ -122,7 +139,7 @@ class PasswdDialog(QtGui.QDialog):
         self._passwd.textChanged.connect(self.enableSaveButton)
         self._url.textChanged.connect(self.enableSaveButton)
         self._comment.textChanged.connect(self.enableSaveButton)
-        self._attachment.textChanged.connect(self.enableSaveButton)
+        self._att_name.textChanged.connect(self.enableSaveButton)
         self._e_date_edit.dateChanged.connect(self.enableSaveButton)
         self._group.currentIndexChanged.connect(self.enableSaveButton)
         
