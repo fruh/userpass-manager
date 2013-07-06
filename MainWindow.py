@@ -32,6 +32,7 @@ class MainWindow(QtGui.QMainWindow):
         """
 #         self.resize(300, 300)
         self.setWindowTitle("UserPass Manager alpha")
+        self.resize(1000, 600)
         self.center()
         
         # create main splitter, splits passwords table and gorups
@@ -96,10 +97,10 @@ class MainWindow(QtGui.QMainWindow):
         # create connection to update table view
         self._groups_tw.signalGroupSelChanged.connect(self._passwords_table.showPasswords)
         self._groups_tw.signalGroupSelChanged.connect(self._detail_w.handleType)
-        self._passwords_table.signalPasswdClicked.connect(self._detail_w.setPassword)
+        self._passwords_table.signalShowDetailPasswd.connect(self._detail_w.setPassword)
         
         # show edit passwd dialog
-        self._passwords_table.signalPasswdDoubleClicked.connect(self.showEditPasswdDialog)
+        self._passwords_table.signalEditPasswd.connect(self.showEditPasswdDialog)
         self._groups_tw.signalEditPasswd.connect(self.showEditPasswdDialog)
         
     def createActions(self):
@@ -164,10 +165,15 @@ class MainWindow(QtGui.QMainWindow):
             @param p_id: password id to edit
         """
         edit_dialog = EditPasswdDialog(self._db_ctrl, p_id)
+        edit_dialog.singalPasswdSaved.connect(self.reloadItems)
         
         edit_dialog.exec_()
         
+    def reloadItems(self, p_id):
+        """
+            Reload groups, passwords.
+        """
         self._groups_tw.reloadItems()
         self._passwords_table.showAll()
-        
+        self._detail_w.setPassword(p_id)
         

@@ -65,7 +65,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         
     def keyReleaseEvent(self, event):
         """
-            Handle key prealease event, to edit password, when enter pressed.
+            Handle key released event, to edit password, when enter pressed.
         """
         logging.debug("key pressed: %d", event.key())
         

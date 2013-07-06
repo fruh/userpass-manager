@@ -7,8 +7,9 @@ from GroupsWidget import GroupsWidget
 
 class PasswordsWidget(QtGui.QTableWidget):
     # parameters are item ID
-    signalPasswdClicked = QtCore.pyqtSignal(int)
-    signalPasswdDoubleClicked = QtCore.pyqtSignal(int)
+    signalShowDetailPasswd = QtCore.pyqtSignal(int)
+    # when double clicked
+    signalEditPasswd = QtCore.pyqtSignal(int)
     
     def __init__(self, parent = None):
         self.__parent = parent
@@ -16,6 +17,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.__COL_USERNAME = 1
         self.__COL_PASSWORD = 2
         self.__COL_URL = 3
+        self.__COL_ID = 4
         
         super(PasswordsWidget, self).__init__()
         
@@ -30,11 +32,15 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.setColumnCount(len(PasswdController.getTableColumns()))
         
         # set column names
+        self.setColumnCount(5)
         self.setHorizontalHeaderLabels(PasswdController.getTableColumns())
         
+        # hide ID column
+        self.hideColumn(self.__COL_ID)
+        
         # auto resize columns
-        self.resizeColumnsToContents()
         self.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.horizontalHeader().setMovable(True)
         
         # not editable
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -55,8 +61,9 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.itemSelectionChanged.connect(self.callShowDetails)
         
     def keyReleaseEvent(self, event):
-        logging.debug("key pressed: %d", event.key())
-        
+        """
+            Handle release event to edit password, whe enter is pressed.
+        """
         if (event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return):
             if (self.rowCount()):
                 self.callEditPasswd()
@@ -80,7 +87,8 @@ class PasswordsWidget(QtGui.QTableWidget):
             
             @param passwords: passwords list
         """
-        self.__row_id_dic = {}
+        # disable sorting
+        self.setSortingEnabled(False)
             
         # now fill passwords table view
         for passwd in passwords:
@@ -96,9 +104,9 @@ class PasswordsWidget(QtGui.QTableWidget):
             self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
             self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
             self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))
-            
-            # save row id reference
-            self.__row_id_dic[row] = passwd._id
+            self.setItem(row, self.__COL_ID, QtGui.QTableWidgetItem(str(passwd._id)))
+        # enable sorting
+        self.setSortingEnabled(True)
         
     def showPasswords(self, item_type, item_id):
         """
@@ -130,18 +138,22 @@ class PasswordsWidget(QtGui.QTableWidget):
         """
             Remove all items from table.
         """
+        # disable sorting
+        self.setSortingEnabled(False)
+        
         for i in range(0, self.rowCount()):
             self.removeRow(self.rowCount() - 1)
             
     def showDetails(self, row, column):
-        logging.debug("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, self.__row_id_dic[row])
+        p_id = self.item(row, self.__COL_ID).text().toInt()[0]
+        logging.debug("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, p_id)
         
-        self.signalPasswdClicked.emit(self.__row_id_dic[row])
+        self.signalShowDetailPasswd.emit(p_id)
         
     def editPasswd(self, row, column):
         logging.debug("double clicked or enter pressed at item row: %i, column: %i", row, column)
         
-        self.signalPasswdDoubleClicked.emit(self.__row_id_dic[row])
+        self.signalEditPasswd.emit(self.item(row, self.__COL_ID).text().toInt()[0])
         
     def callShowDetails(self):
         self.showDetails(self.currentRow(), self.currentColumn())

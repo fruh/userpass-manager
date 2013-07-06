@@ -8,6 +8,10 @@ from TransController import tr
 from GroupController import GroupController
 
 class EditPasswdDialog(QtGui.QDialog):
+    # emiting after saving passowrd
+    # param: p_id
+    singalPasswdSaved = QtCore.pyqtSignal(int)
+    
     def __init__(self, db_ctrl, p_id):
         self.__db_ctrl = db_ctrl
         self.__p_id = p_id
@@ -16,6 +20,7 @@ class EditPasswdDialog(QtGui.QDialog):
         self.initUI()
         self.setPassword(p_id)
         self.initConections()
+        self.center()
         
     def initUI(self):
         """
@@ -23,8 +28,6 @@ class EditPasswdDialog(QtGui.QDialog):
         """
         # not maximize, minimize buttons
         self.setWindowFlags( QtCore.Qt.Tool);
-        
-        self.center()
         
         layout_gl = QtGui.QGridLayout()
         self.setLayout(layout_gl)
@@ -201,6 +204,12 @@ class EditPasswdDialog(QtGui.QDialog):
         
         return group_id
         
+    def keyReleaseEvent(self, event):
+        """
+            Handle release event.
+        """
+        pass
+        
     def center(self):
         """
             Center window.
@@ -241,5 +250,6 @@ class EditPasswdDialog(QtGui.QDialog):
                                  self.__password._url, self.__password._comment, self.__password._e_date, 
                                  self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
                                  self.__password._att_name)
+        self.singalPasswdSaved.emit(self.__password._id)
         
         self.close()
