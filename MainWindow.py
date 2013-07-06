@@ -148,6 +148,12 @@ class MainWindow(QtGui.QMainWindow):
         
         self._del_passwd.triggered.connect(self.deletePassword)
         
+        self._passwords_table.addAction(self._new_passwd)
+        self._passwords_table.addAction(self._del_passwd)
+        
+        self._groups_tw.addAction(self._new_passwd)
+        self._groups_tw.addAction(self._del_passwd)
+        
     def enDisDeleteAction(self, item_type, item_id):
         """
             Disable delete password action.

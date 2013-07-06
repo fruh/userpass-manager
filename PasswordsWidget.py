@@ -50,6 +50,8 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.setMinimumWidth(460)
         self.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
         
+        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        
     def initConections(self):
         """
             Initialize all connections, handling events.

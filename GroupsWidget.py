@@ -63,6 +63,8 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         self.setMinimumWidth(170)
         
+        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        
     def keyReleaseEvent(self, event):
         """
             Handle key released event, to edit password, when enter pressed.
