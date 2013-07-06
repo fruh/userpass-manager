@@ -4,14 +4,13 @@ import logging
 from PyQt4 import QtGui, QtCore
 from PasswdController import PasswdController
 import datetime
-from TransController import tr
 from GroupController import GroupController
 from PasswdDialog import PasswdDialog
 
 class EditPasswdDialog(PasswdDialog):
-    def __init__(self, db_ctrl, p_id):
-        self.__db_ctrl = db_ctrl
-        super(EditPasswdDialog, self).__init__(db_ctrl)
+    def __init__(self, parent, p_id):
+        self.__parent = parent
+        super(EditPasswdDialog, self).__init__(parent._db_ctrl)
         
         self.setPassword(p_id)
         
@@ -23,7 +22,7 @@ class EditPasswdDialog(PasswdDialog):
         """
         logging.debug("password details ID: %i", p_id)
         
-        passwd_ctrl = PasswdController(self.__db_ctrl, self.__db_ctrl._master)
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         
         # select password
         self.__password = passwd_ctrl.selectById(p_id)[0]
@@ -44,8 +43,14 @@ class EditPasswdDialog(PasswdDialog):
         self._comment.setText(self.__password._comment)
         self._attachment.setText(self.__password._att_name)
         
+        # set expiration button
+        if (self.__password._expire == "true"):
+            self._e_date_never.setChecked(True)
+        else:
+            self._e_date_never.setChecked(False)
+        
         # set groups combobox
-        group_ctrl = GroupController(self.__db_ctrl)
+        group_ctrl = GroupController(self.__parent._db_ctrl)
         
         groups = group_ctrl.selectAll()
         # tmp index
@@ -91,21 +96,27 @@ class EditPasswdDialog(PasswdDialog):
         self.__password._url = str(self._url.text())
         self.__password._comment = str(self._comment.toPlainText())
         self.__password._att_name = str(self._attachment.text())
-         
+        
+        # set expiration
+        if (self._e_date_never.isChecked()):
+            self.__password._expire = "true"
+        else:
+            self.__password._expire = "false"
+        
         # get group
-        group_ctrl = GroupController(self.__db_ctrl)
+        group_ctrl = GroupController(self.__parent._db_ctrl)
         self.__password._grp = group_ctrl.selectById(self.getGroupId())
          
         # set expiration date
         self.__password._e_date = self._e_date_edit.dateTime().toTime_t()
         
         # update password
-        passwd_ctrl = PasswdController(self.__db_ctrl, self.__db_ctrl._master)
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         
         passwd_ctrl.updatePasswd(self.__password._id, self.__password._title, self.__password._username, self.__password._passwd, 
                                  self.__password._url, self.__password._comment, self.__password._e_date, 
                                  self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
-                                 self.__password._att_name)
+                                 self.__password._att_name, self.__password._expire)
         self.singalPasswdSaved.emit(self.__password._id)
         
         self.close()

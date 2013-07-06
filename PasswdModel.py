@@ -11,7 +11,7 @@ class PasswdModel:
     """
     def __init__(self, p_id = None, title = None, username = None, passwd = None, 
                  url = None, comment = None, c_date = None, m_date = None, e_date = None, grp_id = None, 
-                 user_id = None, attachment = None, att_name = None, salt = None, iv = None, db_ctrl = None):
+                 user_id = None, attachment = None, att_name = None, salt = None, iv = None, expire = None, db_ctrl = None):
         """
             Initialize PasswdModel.
             
@@ -29,6 +29,7 @@ class PasswdModel:
             @param att_name: attachment name
             @param salt: password salt
             @param iv: input vector for cipher
+            @param expire: if password expires, should be set to 'true' string
             @param db_ctrl: DB controller
         """
         self._id = p_id
@@ -46,6 +47,7 @@ class PasswdModel:
         self._att_name = att_name
         self._salt = salt
         self._iv = iv
+        self._expire = expire
         
         self.selectGroup(grp_id, db_ctrl)
         self.selectUser(user_id, db_ctrl)

@@ -10,11 +10,10 @@ class DbController:
     """
         Implements basic DB initialitation.
     """
-    def __init__(self, database = None, master = None):
+    def __init__(self, database = None):
         self._cursor = None
         self._database = database
         self._connection = None
-        self._master = master
         
         self._ICONS_ROOT = "." + os.sep + "icons" + os.sep
         
@@ -74,7 +73,7 @@ class DbController:
                     passwd BLOB NOT NULL, url BLOB, comment BLOB, 
                     c_date BLOB NOT NULL, m_date BLOB NOT NULL, e_date BLOB NOT NULL,
                     grp_id INTEGER, user_id INTEGER, attachment BLOB, att_name BLOB,
-                    salt TEXT, iv BLOB,
+                    salt TEXT, iv BLOB, expire TEXT,
                     FOREIGN KEY(grp_id) REFERENCES Groups(id),
                     FOREIGN KEY(user_id) REFERENCES Users(id));
                 """)

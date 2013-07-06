@@ -6,6 +6,8 @@ from GroupsWidget import GroupsWidget
 from PasswordsWidget import PasswordsWidget
 from DetailWidget import DetailWidget
 from EditPasswdDialog import EditPasswdDialog
+from UserModel import UserModel
+from UserController import UserController
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -21,10 +23,12 @@ class MainWindow(QtGui.QMainWindow):
         
         self._close_act = None
         
+        self.loginUser("fero", "heslo")
         self.initUI()
         self.createActions()
         self.createMenu()
         self.initConections()
+        
         
     def initUI(self):
         """
@@ -164,7 +168,7 @@ class MainWindow(QtGui.QMainWindow):
             
             @param p_id: password id to edit
         """
-        edit_dialog = EditPasswdDialog(self._db_ctrl, p_id)
+        edit_dialog = EditPasswdDialog(self, p_id)
         edit_dialog.singalPasswdSaved.connect(self.reloadItems)
         
         edit_dialog.exec_()
@@ -172,8 +176,19 @@ class MainWindow(QtGui.QMainWindow):
     def reloadItems(self, p_id):
         """
             Reload groups, passwords.
+            
+            @param p_id: password id to display, if is < 0, doesn't display
         """
         self._groups_tw.reloadItems()
         self._passwords_table.showAll()
-        self._detail_w.setPassword(p_id)
         
+        if (p_id >= 0):
+            self._detail_w.setPassword(p_id)
+        else:
+            self._detail_w.setHidden(True)
+        
+    def loginUser(self, username, master):
+        """
+            Log in user with master password.
+        """
+        self._user = UserModel(1, username, "heslo", "salt", master)

@@ -101,7 +101,7 @@ class PasswdController:
                 passwords.append(self.createPasswdObj(row))
             return passwords
 
-    def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name):
+    def insertPassword(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, expire):
         """
             Inserts password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             @param title: password title
@@ -115,6 +115,7 @@ class PasswdController:
             @param user_id: user ID, from Users table
             @param attachment: attachment of password
             @param att_name: attachment name
+            @param expire: if password expires, should be set to 'true' string
         """
         salt = CryptoBasics.genKeySalt().decode("utf8")
         iv = CryptoBasics.genIV()
@@ -124,12 +125,13 @@ class PasswdController:
                                                comment, c_date, e_date, 
                                                grp_id, user_id, attachment,
                                                att_name, 
-                                               salt, iv)
+                                               salt, iv, expire)
         
         try:
             self._cursor.execute("""INSERT INTO 
-                Passwords(title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv)
-                VALUES(:title, :username, :passwd, :url, :comment, :c_date, :m_date, :e_date, :grp_id, :user_id, :attachment, :att_name, :salt, :iv)""",
+                Passwords(title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv, expire)
+                VALUES(:title, :username, :passwd, :url, :comment, :c_date, :m_date, :e_date, :grp_id, :user_id, :attachment, :att_name, 
+                :salt, :iv, :expire)""",
                                   encrypted_row)
             self._connection.commit()
             
@@ -144,7 +146,7 @@ class PasswdController:
             self._connection.rollback()
             raise e
             
-    def updatePasswd(self, p_id, title, username, passwd, url, comment, e_date, grp_id, user_id, attachment, att_name):
+    def updatePasswd(self, p_id, title, username, passwd, url, comment, e_date, grp_id, user_id, attachment, att_name, expire):
         """
             Updates password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             @param title: password title
@@ -157,6 +159,7 @@ class PasswdController:
             @param user_id: user ID, from Users table
             @param attachment: attachment of password
             @param att_name: attachment name
+            @param expire: if password expires, should be set to 'true' string
         """
         try:
             # first select old row to get salt and iv
@@ -166,14 +169,15 @@ class PasswdController:
             if old:
                 # encrypt data and prepare for sqlite
                 # creation date doesnt matter, cant be changed
-                row = self.encryptAndPrepRow(title, username, passwd, url, comment, old._c_date, e_date, grp_id, user_id, attachment, att_name, old._salt, old._iv)
+                row = self.encryptAndPrepRow(title, username, passwd, url, comment, old._c_date, 
+                                             e_date, grp_id, user_id, attachment, att_name, old._salt, old._iv, expire)
                 
                 # add password ID to row
                 row["id"] = p_id
                 
                 self._cursor.execute("""UPDATE Passwords SET title = :title, username = :username, passwd = :passwd, url = :url, 
                                     comment = :comment, m_date = :m_date, e_date = :e_date, grp_id = :grp_id,
-                                    attachment = :attachment, att_name = :att_name WHERE id = :id;""", row)
+                                    attachment = :attachment, att_name = :att_name, expire = :expire WHERE id = :id;""", row)
                 self._connection.commit()
                 
                 logging.debug("passwd with ID: %d updated.", p_id)
@@ -196,7 +200,7 @@ class PasswdController:
             @param row: new data
         """
         self.updatePasswd(row["p_id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"], 
-                        row["e_date"], row["grp_id"], row["user_id"], row["attachment"], row["att_name"])
+                        row["e_date"], row["grp_id"], row["user_id"], row["attachment"], row["att_name"], row["expire"])
         
     def deletePassword(self, p_id):
         """
@@ -219,7 +223,7 @@ class PasswdController:
             self._connection.rollback()
             raise e
             
-    def encryptAndPrepRow(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, salt, iv):
+    def encryptAndPrepRow(self, title, username, passwd, url, comment, c_date, e_date, grp_id, user_id, attachment, att_name, salt, iv, expire):
         """
             Encrypts password in table Passwords. Encrypts inserted data. Only grp_id, user_id salt and iv are not encrypted.
             Also change m_date column, modification date, to current timestamp. Encrypted data are inserted as BLOB type.
@@ -238,6 +242,7 @@ class PasswdController:
             @param att_name: attachment name
             @param salt: secret key salt
             @param iv: cipher input vector
+            @param expire: if password expires, should be set to 'true' string
             
             @return: encrypted dictionary data
         """
@@ -263,6 +268,7 @@ class PasswdController:
         e_date = CryptoBasics.encryptDataAutoPad(e_date, secret_key, iv)
         attachment = CryptoBasics.encryptDataAutoPad(attachment, secret_key, iv)
         att_name = CryptoBasics.encryptDataAutoPad(att_name, secret_key, iv)
+        expire = CryptoBasics.encryptDataAutoPad(expire, secret_key, iv)
         
         # prepare binary data
         title = sqlite3.Binary(title)
@@ -278,12 +284,13 @@ class PasswdController:
         attachment = sqlite3.Binary(attachment)
         att_name = sqlite3.Binary(att_name)
         iv = sqlite3.Binary(iv)
+        expire = sqlite3.Binary(expire)
         
         return {'title' : title, 'username' : username, 'passwd' : passwd, 'url' : url, 'comment' : comment, 
             'c_date' : c_date, 'm_date' : m_date, 'e_date' : e_date, 'grp_id' : grp_id, 'user_id' : user_id,
-            'attachment' : attachment, 'att_name' : att_name, 'salt' : salt, 'iv' : iv}
+            'attachment' : attachment, 'att_name' : att_name, 'salt' : salt, 'iv' : iv, 'expire' : expire}
     
-    def decryptRow(self, p_id, title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv):
+    def decryptRow(self, p_id, title, username, passwd, url, comment, c_date, m_date, e_date, grp_id, user_id, attachment, att_name, salt, iv, expire):
         """
             Decrypts password in table Passwords. Decrypts slected data. Only grp_id, user_id salt and iv are not encrypted.
             
@@ -302,6 +309,7 @@ class PasswdController:
             @param att_name: attachment name
             @param salt: secret key salt
             @param iv: cipher input vector
+            @param expire: if password expires, should be set to 'true' string
             
             @return: enrypted dictionary data
         """
@@ -325,10 +333,11 @@ class PasswdController:
       
         attachment = CryptoBasics.decryptDataAutoPad(attachment, secret_key, iv)
         att_name = CryptoBasics.decryptDataAutoPad(att_name, secret_key, iv)
+        expire = CryptoBasics.decryptDataAutoPad(expire, secret_key, iv)
         
         return {"id" :p_id, "title" : title, "username" : username, "passwd" : passwd, "url" : url, "comment" : comment, 
             "c_date" : c_date, "m_date" : m_date, "e_date" : e_date, "grp_id" : grp_id, "user_id" : user_id,
-            "attachment" : attachment, "att_name" : att_name, "salt" : salt, "iv" : iv}
+            "attachment" : attachment, "att_name" : att_name, "salt" : salt, "iv" : iv, "expire" : expire}
         
     def decryptRowDic(self, row):
         """
@@ -340,7 +349,7 @@ class PasswdController:
         """
         return self.decryptRow(row["id"], row["title"], row["username"], row["passwd"], row["url"], row["comment"],
                             row["c_date"], row["m_date"], row["e_date"], row["grp_id"], row["user_id"], 
-                            row["attachment"], row["att_name"], row["salt"], row["iv"])
+                            row["attachment"], row["att_name"], row["salt"], row["iv"], row["expire"])
     
     def createPasswdObj(self, dic):
         """
@@ -352,7 +361,7 @@ class PasswdController:
         """
         return PasswdModel(dic["id"], dic["title"], dic["username"], dic["passwd"], dic["url"], dic["comment"],
                             dic["c_date"], dic["m_date"], dic["e_date"], dic["grp_id"], dic["user_id"], 
-                            dic["attachment"], dic["att_name"], dic["salt"], dic["iv"], self._db_ctrl)
+                            dic["attachment"], dic["att_name"], dic["salt"], dic["iv"], dic["expire"], self._db_ctrl)
         
     @staticmethod
     def getVisibleColumns():
@@ -362,7 +371,7 @@ class PasswdController:
             @return: list of column names
         """
         return [tr("Title"), tr("Username"), tr("Password"), tr("Url"), tr("Comment"), 
-                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Att. Name")]
+                tr("C. Date"), tr("M. Date"), tr("E. Date"), tr("Group"), tr("Att. Name"), tr("Expire")]
         
     @staticmethod
     def getTableColumns():

@@ -76,7 +76,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         """
         self.removeAllRows()
         
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._db_ctrl._master)
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         passwords = passwd_ctrl.selectAll()
         
         self.fillTable(passwords)
@@ -120,7 +120,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.removeAllRows()
 
         logging.debug("signal: type: %i, ID: %i", item_type, item_id)
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._db_ctrl._master)
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         
         # detect type
         if (item_type == GroupsWidget._TYPE_ALL):

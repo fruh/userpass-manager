@@ -82,7 +82,16 @@ class PasswdDialog(QtGui.QDialog):
         # expiration date can't be lower than current date
         self._e_date_edit.setMinimumDateTime(QtCore.QDateTime.currentDateTime())
         
-        layout_gl.addWidget(self._e_date_edit, 6, 1)
+        # create never check box
+        self._e_date_never = QtGui.QCheckBox(tr("Never"))
+        
+        # create horizontal layout for date selector and never check box
+        e_date_hl = QtGui.QHBoxLayout()
+        e_date_hl.addWidget(self._e_date_edit)
+        e_date_hl.addWidget(self._e_date_never)
+        
+        # add to main layout
+        layout_gl.addLayout(e_date_hl, 6, 1)
         
         # create buttons
         self.__button_box = QtGui.QDialogButtonBox()
@@ -116,6 +125,22 @@ class PasswdDialog(QtGui.QDialog):
         self._attachment.textChanged.connect(self.enableSaveButton)
         self._e_date_edit.dateChanged.connect(self.enableSaveButton)
         self._group.currentIndexChanged.connect(self.enableSaveButton)
+        
+        # never checked
+        self._e_date_never.stateChanged.connect(self.enDisExpDate)
+        self._e_date_never.stateChanged.connect(self.enableSaveButton)
+        
+    def enDisExpDate(self, state):
+        """
+            Enable or disable expiration date selector. Depends on checkbox state.
+            
+            @param state: check box state
+        """
+        logging.debug("never checkbox state changed")
+        if (state == QtCore.Qt.Checked):
+            self._e_date_edit.setEnabled(False)
+        else:
+            self._e_date_edit.setEnabled(True)
         
     def enableSaveButton(self):
         """

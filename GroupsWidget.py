@@ -93,7 +93,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         """
         logging.debug("Adding items to tree.")
         group_ctrl = GroupController(self.__parent._db_ctrl)
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._db_ctrl._master)
+        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         icon_ctrl = IconController(self.__parent._db_ctrl)
         
         groups = group_ctrl.selectAll()
