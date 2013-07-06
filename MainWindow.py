@@ -19,12 +19,14 @@ class MainWindow(QtGui.QMainWindow):
     
     def __init__(self, db_ctrl):
         self._db_ctrl = db_ctrl
+        self._user = None
+        
+        self.loginUser("fero", "heslo")
         
         super(MainWindow, self).__init__()
         
         self._close_act = None
         
-        self.loginUser("fero", "heslo")
         self.initUI()
         self.createActions()
         self.createMenu()
@@ -239,4 +241,4 @@ class MainWindow(QtGui.QMainWindow):
         """
             Log in user with master password.
         """
-        self._user = UserModel(2, username, "heslo", "salt", master)
+        self._user = UserModel(1, username, "heslo", "salt", master)

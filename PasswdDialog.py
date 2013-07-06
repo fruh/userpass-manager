@@ -196,7 +196,7 @@ class PasswdDialog(QtGui.QDialog):
         """
             Handle release event.
         """
-        pass
+        logging.debug("key release event")
         
     def center(self):
         """

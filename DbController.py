@@ -116,6 +116,7 @@ class DbController:
         icon_ctrl.insertIcon("key-ssh", self._ICONS_ROOT + "key-ssh.svg")
         icon_ctrl.insertIcon("key", self._ICONS_ROOT + "key.svg")
         icon_ctrl.insertIcon("person", self._ICONS_ROOT + "person.svg")
+        icon_ctrl.insertIcon("git", self._ICONS_ROOT + "git.ico")
         
     def insertDefaultGroups(self):
         """
@@ -130,6 +131,7 @@ class DbController:
         grp_ctrl.insertGroup("SSH", "SSH credentials.", icon_ctrl.selectByName("key-ssh")._id)
         grp_ctrl.insertGroup("E-Mail", "E-Mail credentials.", icon_ctrl.selectByName("key")._id)
         grp_ctrl.insertGroup("PC", "PC credentials.", icon_ctrl.selectByName("person")._id)
+        grp_ctrl.insertGroup("Code revision", "Code revision credentials.", icon_ctrl.selectByName("git")._id)
     
     def getTables(self):
         self._cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")

@@ -14,7 +14,7 @@ from MainWindow import MainWindow
 import os
 
 def dbTest():    
-    db_con = DbController("test.db")
+    db_con = DbController("test2.db")
     
     db_con.connectDB()
     
@@ -69,13 +69,14 @@ def main():
 def main2():
     app = QtGui.QApplication(sys.argv)
     
-    db_con = DbController("db" + os.path.sep + "test.db")
+    db_con = DbController("db" + os.path.sep + "test2.db")
     
     user = UserController(db_con)
     user.insertUser("Ferčšo", "heslo")
     
     w = MainWindow(db_con)
     w.reloadItems()
+    
     w.show()
     
     sys.exit(app.exec_())
