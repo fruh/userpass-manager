@@ -91,7 +91,7 @@ class DetailWidget(QtGui.QWidget):
         self.__c_date.setText(str(datetime.datetime.fromtimestamp(passwd._c_date).strftime("%Y-%m-%d %H:%M:%S")))
         self.__m_date.setText(str(datetime.datetime.fromtimestamp(passwd._m_date).strftime("%Y-%m-%d %H:%M:%S")))
         
-        if (passwd._expire == "true"):
+        if (passwd._expire == "false"):
             self.__e_date.setText(tr("Never"))
         else:
             self.__e_date.setText(str(datetime.datetime.fromtimestamp(passwd._e_date).strftime("%Y-%m-%d %H:%M:%S")))

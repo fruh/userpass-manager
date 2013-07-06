@@ -44,7 +44,7 @@ class EditPasswdDialog(PasswdDialog):
         self._attachment.setText(self.__password._att_name)
         
         # set expiration button
-        if (self.__password._expire == "true"):
+        if (self.__password._expire == "false"):
             self._e_date_never.setChecked(True)
         else:
             self._e_date_never.setChecked(False)
@@ -99,9 +99,9 @@ class EditPasswdDialog(PasswdDialog):
         
         # set expiration
         if (self._e_date_never.isChecked()):
-            self.__password._expire = "true"
-        else:
             self.__password._expire = "false"
+        else:
+            self.__password._expire = "true"
         
         # get group
         group_ctrl = GroupController(self.__parent._db_ctrl)
