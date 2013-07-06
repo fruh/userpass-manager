@@ -172,6 +172,8 @@ class PasswdDialog(QtGui.QDialog):
     def saveChanges(self):
         """
             Save changes to database, read all inputs and save DB entry.
+            
+            @todo: implement saving password, emiting signal singalPasswdSaved, and close dialog
         """
         # TODO: implement saving password, emiting signal singalPasswdSaved, and close dialog
         pass
