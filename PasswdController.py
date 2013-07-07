@@ -240,9 +240,10 @@ class PasswdController:
             else:
                 logging.warning("password with id: %d doesn't exists. Can't be updated.", p_id)
         except sqlite3.IntegrityError as e:
-            logging.warning(e)
+            logging.exception(e)
             
             self._connection.rollback()
+            raise e
         except sqlite3.Error as e:
             logging.exception(e)
             

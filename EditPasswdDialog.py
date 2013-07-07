@@ -43,6 +43,9 @@ class EditPasswdDialog(PasswdDialog):
         self._comment.setText(self.__password._comment)
         self._att_name.setText(self.__password._att_name)
         
+        # set attachment data
+        self._attachment_data = self.__password._attachment
+        
         # set expiration button
         if (self.__password._expire == "false"):
             self._e_date_never.setChecked(True)
@@ -80,12 +83,15 @@ class EditPasswdDialog(PasswdDialog):
         # set expiration date
         self.__password._e_date = self._e_date_edit.dateTime().toTime_t()
         
+        # set attachment data
+        self.__password._attachment = self._attachment_data
+
         # update password
         passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         
         passwd_ctrl.updatePasswd(self.__password._id, self.__password._title, self.__password._username, self.__password._passwd, 
                                  self.__password._url, self.__password._comment, self.__password._e_date, 
-                                 self.__password._grp._id, self.__password._user._id, self.__password._att_name, 
+                                 self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
                                  self.__password._att_name, self.__password._expire)
         self.signalPasswdSaved.emit(self.__password._id)
         

@@ -24,7 +24,7 @@ class NewPasswdDialog(PasswdDialog):
         url = str(self._url.text())
         comment = str(self._comment.toPlainText())
         att_name = str(self._att_name.text())
-        attachment = ""
+        attachment = self._attachment_data
          
         # get group
         grp_id = self.getGroupId()

@@ -28,6 +28,9 @@ class PasswdDialog(QtGui.QDialog):
         
         self._e_date_never.setChecked(True)
         
+        # intialize variables
+        self._attachment_data = ""
+        
     def initUI(self):
         """
             Initilize UI components.
@@ -72,8 +75,8 @@ class PasswdDialog(QtGui.QDialog):
         layout_gl.addWidget(url_label, 3, 0)
         layout_gl.addWidget(e_date_label, 6 + layout_offset, 0)
         layout_gl.addWidget(attachment_label, 7 + layout_offset, 0)
-        layout_gl.addWidget(comment_label, 8 + layout_offset, 0)
-        layout_gl.addWidget(group_label, 9 + layout_offset, 0)
+        layout_gl.addWidget(comment_label, 9 + layout_offset, 0)
+        layout_gl.addWidget(group_label, 10 + layout_offset, 0)
         
         self._title = QtGui.QLineEdit()
         self._username = QtGui.QLineEdit()
@@ -94,15 +97,23 @@ class PasswdDialog(QtGui.QDialog):
         
         # attachment layout
         att_hl = QtGui.QHBoxLayout()
-        att_hl.addWidget(self._att_name)
         
         # open file button
         self._att_button = QtGui.QPushButton(tr("New"))
-        att_hl.addWidget(self._att_button)
+        self._att_del_button = QtGui.QPushButton(tr("Del"))
+        self._att_save_button = QtGui.QPushButton(tr("Save"))
         
-        layout_gl.addLayout(att_hl, 7 + layout_offset, 1)
-        layout_gl.addWidget(self._comment, 8 + layout_offset, 1)
-        layout_gl.addWidget(self._group, 9 + layout_offset, 1)
+        self._att_del_button.setEnabled(False)
+        self._att_save_button.setEnabled(False)
+        
+        att_hl.addWidget(self._att_button)
+        att_hl.addWidget(self._att_del_button)
+        att_hl.addWidget(self._att_save_button)
+        
+        layout_gl.addWidget(self._att_name, 7 + layout_offset, 1)
+        layout_gl.addLayout(att_hl, 8 + layout_offset, 1)
+        layout_gl.addWidget(self._comment, 9 + layout_offset, 1)
+        layout_gl.addWidget(self._group, 10 + layout_offset, 1)
         
         # date time edit
         self._e_date_edit = QtGui.QDateTimeEdit()
@@ -133,7 +144,7 @@ class PasswdDialog(QtGui.QDialog):
         self.__button_box.addButton(self.__save_button, QtGui.QDialogButtonBox.AcceptRole)
         self.__button_box.addButton(self.__cancel_button, QtGui.QDialogButtonBox.RejectRole)
         
-        layout_gl.addWidget(self.__button_box, 10 + layout_offset, 1)
+        layout_gl.addWidget(self.__button_box, 11 + layout_offset, 1)
         
     def initConections(self):
         """
@@ -162,14 +173,39 @@ class PasswdDialog(QtGui.QDialog):
         # open attachment
         self._att_button.clicked.connect(self.loadAttachment)
         
-        # attachment input label
-        self._att_name.textChanged.connect(self.enableAttName)
+        # delete attachment
+        self._att_del_button.clicked.connect(self.delAttachment)
         
-    def enableAttName(self):
+        # save attachment to disk
+        self._att_save_button.clicked.connect(self.saveAttachment)
+        
+        # attachment input label
+        self._att_name.textChanged.connect(self.enableAttEditAndButton)
+        
+    def delAttachment(self):
+        """
+            Delete actual attachment.
+        """
+        logging.debug("deleting attachment")
+        
+        # empty attachment name and disable input
+        self._att_name.clear()
+        self._att_name.setDisabled(True)
+        
+        # empty binary data
+        self._attachment_data = ""
+        
+        # diable del button
+        self._att_del_button.setDisabled(True)
+        self._att_save_button.setDisabled(True)
+        
+    def enableAttEditAndButton(self):
         """
             Enable attachment name input.
         """
         self._att_name.setEnabled(True)
+        self._att_del_button.setEnabled(True)
+        self._att_save_button.setEnabled(True)
         
     def loadGroups(self, g_id = False):
         """
@@ -285,8 +321,86 @@ class PasswdDialog(QtGui.QDialog):
             
             logging.debug("attachment file path: %s", file_path)
             logging.debug("attachment file name: %s", file_name)
+            
+            # set attachment name
+            self._att_name.setText(file_name)
+            
+            # read binary data
+            data = self.readFile(file_path)
+            
+            if (data):
+                self._attachment_data = data
         else:
             logging.debug("file not selected")
+            
+    def saveAttachment(self):
+        """
+            Save attachment to disk.
+        """
+        home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
+        file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Open attachment"), home_loc + os.path.sep + self._att_name.text())
+        
+        logging.debug("save attachment to file: %s", file_path)
+        
+        if (not file_path.isEmpty()):
+            logging.debug("attachment file path: %s", file_path)
+            
+            # write data to disk
+            self.writeFile(file_path)
+        else:
+            logging.debug("file not selected")
+            
+    def writeFile(self, file_path):
+        """
+            Write file to disk.
+            
+            @param file_path: file to write
+        """
+        try:
+            f = open(file_path, "wb")
+            
+            f.write(self._attachment_data)
+        except IOError as e:
+            logging.exception(e)
+            
+            raise e
+        except:
+            logging.exception("exception writing file: %s", file_path)
+            
+            raise e
+        finally:
+            if (f):
+                f.close()
+            
+    def readFile(self, file_path):
+        """
+            Read file binary. Return read data.
+            
+            @param file_path: path to file
+            @return: on succes binary data, else None
+        """
+        data = None
+        
+        try:
+            logging.debug("reading file: %s", file_path)
+            f = open(file_path, "rb")
+            
+            data = f.read()
+            
+            logging.debug("file size: %i", len(data))
+        except IOError as e:
+            logging.exception(e)
+            
+            raise e
+        except:
+            # all other exceptions
+            logging.exception("exception, file: %s", file_path)
+            
+            raise "exception, file: " + file_path
+        finally:
+            if (f):
+                f.close()
+            return data
         
     def saveChanges(self):
         """
