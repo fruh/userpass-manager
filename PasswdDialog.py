@@ -4,6 +4,7 @@ import logging
 from PyQt4 import QtGui, QtCore
 from TransController import tr
 from GroupController import GroupController
+import os
 
 class PasswdDialog(QtGui.QDialog):
     # emiting after saving passowrd
@@ -84,12 +85,22 @@ class PasswdDialog(QtGui.QDialog):
         self._comment.setMaximumHeight(200)
         self._group = QtGui.QComboBox()
         self._att_name = QtGui.QLineEdit()
+        self._att_name.setEnabled(False)
         
         layout_gl.addWidget(self._title, 0, 1)
         layout_gl.addWidget(self._username, 1, 1)
         layout_gl.addWidget(self._passwd, 2, 1)
         layout_gl.addWidget(self._url, 3, 1)
-        layout_gl.addWidget(self._att_name, 7 + layout_offset, 1)
+        
+        # attachment layout
+        att_hl = QtGui.QHBoxLayout()
+        att_hl.addWidget(self._att_name)
+        
+        # open file button
+        self._att_button = QtGui.QPushButton(tr("New"))
+        att_hl.addWidget(self._att_button)
+        
+        layout_gl.addLayout(att_hl, 7 + layout_offset, 1)
         layout_gl.addWidget(self._comment, 8 + layout_offset, 1)
         layout_gl.addWidget(self._group, 9 + layout_offset, 1)
         
@@ -147,6 +158,18 @@ class PasswdDialog(QtGui.QDialog):
         # never checked
         self._e_date_never.stateChanged.connect(self.enDisExpDate)
         self._e_date_never.stateChanged.connect(self.enableSaveButton)
+        
+        # open attachment
+        self._att_button.clicked.connect(self.loadAttachment)
+        
+        # attachment input label
+        self._att_name.textChanged.connect(self.enableAttName)
+        
+    def enableAttName(self):
+        """
+            Enable attachment name input.
+        """
+        self._att_name.setEnabled(True)
         
     def loadGroups(self, g_id = False):
         """
@@ -249,6 +272,21 @@ class PasswdDialog(QtGui.QDialog):
         wg.moveCenter(cs)
         
         self.move(wg.topLeft())
+        
+    def loadAttachment(self):
+        """
+            Exec filedialog, open file and get absolute file path and name.
+        """
+        home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
+        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Open attachment"), home_loc)
+        
+        if (not file_path.isEmpty()):
+            file_name = os.path.basename(str(file_path))
+            
+            logging.debug("attachment file path: %s", file_path)
+            logging.debug("attachment file name: %s", file_name)
+        else:
+            logging.debug("file not selected")
         
     def saveChanges(self):
         """
