@@ -30,6 +30,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         self.__COL_NAME = 1
         self.__COL_ID = 2
         self.__COL_TYPE = 3
+        self.__COL_GRP_ID = 4
         
         super(GroupsWidget, self).__init__(parent)
         
@@ -102,20 +103,20 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         # group, that contains all passwords
         all_group = self.initItemData(icon_ctrl.selectByName("key")._icon, 
-                                      tr("All"), -1, tr("All passwords group."), self._TYPE_ALL)
+                                      tr("All"), -1, tr("All passwords group."), self._TYPE_ALL, -1)
         self.addTopLevelItem(all_group)
         
         # add cildren, all passwords to group all
         passwords = passwd_ctrl.selectByUserId(self.__parent._user._id)
         
         for passwd in passwords:
-            child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)
+            child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS, passwd._grp._id)
             
             all_group.addChild(child)
         
         # insert groups to tree
         for group in groups:
-            item = self.initItemData(group._icon._icon, tr(group._name), group._id, group._description, self._TYPE_GROUP)
+            item = self.initItemData(group._icon._icon, tr(group._name), group._id, group._description, self._TYPE_GROUP, group._id)
             
             self.addTopLevelItem(item)
             
@@ -123,11 +124,11 @@ class GroupsWidget(QtGui.QTreeWidget):
             passwords = passwd_ctrl.selectByUserGrpId(self.__parent._user._id, group._id)
             
             for passwd in passwords:
-                child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS)
+                child = self.initItemData(passwd._grp._icon._icon, passwd._title, passwd._id, passwd._comment, self._TYPE_PASS, passwd._grp._id)
             
                 item.addChild(child)
           
-    def initItemData(self, icon, name, item_id, tooltip, item_type):
+    def initItemData(self, icon, name, item_id, tooltip, item_type, item_grp_id):
         """
             Initialize item data.
             
@@ -150,6 +151,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, tooltip)
         item.setData(self.__COL_ID, QtCore.Qt.DisplayRole, item_id)
         item.setData(self.__COL_TYPE, QtCore.Qt.DisplayRole, item_type)
+        item.setData(self.__COL_GRP_ID, QtCore.Qt.DisplayRole, item_grp_id)
         
         return item
       
@@ -175,24 +177,51 @@ class GroupsWidget(QtGui.QTreeWidget):
             
             @return: current item data col
         """
+        c_item = self.currentItem()
+        
+        if (not c_item):
+            logging.debug("item not selected")
+            
+            return False
+        
         # to int return a tuple
         if (col == self.__COL_ID):
-            ret = self.currentItem().data(self.__COL_ID, QtCore.Qt.DisplayRole).toInt()[0]
+            ret = c_item.data(self.__COL_ID, QtCore.Qt.DisplayRole).toInt()[0]
             #.toInt()[0]
         
             logging.debug("curent item ID: %i", ret)
         elif (col == self.__COL_NAME):
-            ret = self.currentItem().data(self.__COL_NAME, QtCore.Qt.DisplayRole).toString()
+            ret = c_item.data(self.__COL_NAME, QtCore.Qt.DisplayRole).toString()
             #tostring
         
             logging.debug("curent item name: %s", ret)
         elif (col == self.__COL_TYPE):
-            ret = self.currentItem().data(self.__COL_TYPE, QtCore.Qt.DisplayRole).toInt()[0]
+            ret = c_item.data(self.__COL_TYPE, QtCore.Qt.DisplayRole).toInt()[0]
             #.toInt()[0]
         
             logging.debug("curent item type: %i", ret)
+            
+        elif (col == self.__COL_GRP_ID):
+            ret = c_item.data(self.__COL_GRP_ID, QtCore.Qt.DisplayRole).toInt()[0]
+            #.toInt()[0]
+        
+            logging.debug("curent item group ID: %i", ret)
         return ret
     
+    def currentItemGroupID(self):
+        """
+            Get current item group ID (DB ID)
+            
+            @return: if item has ID, return ID, otherwise False
+        """
+        g_id = self.currentItemData(self.__COL_GRP_ID)
+        
+        if (g_id and g_id >= 0):
+            # has group ID
+            return g_id
+        else:
+            return False
+        
     def currentPasswordTitle(self):
         """
             Get current password title.

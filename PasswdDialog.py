@@ -3,6 +3,7 @@
 import logging
 from PyQt4 import QtGui, QtCore
 from TransController import tr
+from GroupController import GroupController
 
 class PasswdDialog(QtGui.QDialog):
     # emiting after saving passowrd
@@ -146,6 +147,44 @@ class PasswdDialog(QtGui.QDialog):
         # never checked
         self._e_date_never.stateChanged.connect(self.enDisExpDate)
         self._e_date_never.stateChanged.connect(self.enableSaveButton)
+        
+    def loadGroups(self, g_id = False):
+        """
+            Load available groups to combobox
+        """
+        # set groups combobox
+        group_ctrl = GroupController(self.__db_ctrl)
+        
+        groups = group_ctrl.selectAll()
+        # tmp index
+        tmp = 0
+        # have to increment tmp
+        inc_tmp = True
+        
+        # fill combobox
+        for group in groups:
+            logging.debug("adding group ID: %d", group._id)
+            
+            # load icon
+            pix = QtGui.QPixmap()
+            pix.loadFromData(group._icon._icon)
+            
+            # add item with icon, name and group ID
+            self._group.addItem(QtGui.QIcon(pix), group._name, group._id)
+            
+            if (g_id):
+                # if a dont have curent group
+                if (group._id != g_id and inc_tmp):
+                    tmp += 1
+                    
+                    logging.debug("temp group index: %d, group._id: %d, g_id: %d", tmp, group._id, g_id)
+                else:
+                    if inc_tmp:
+                        logging.debug("group found")
+                        inc_tmp = False
+        # set current group
+        if (g_id):
+            self._group.setCurrentIndex(tmp)
         
     def enDisExpDate(self, state):
         """

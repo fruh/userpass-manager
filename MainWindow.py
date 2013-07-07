@@ -111,10 +111,10 @@ class MainWindow(QtGui.QMainWindow):
         self._groups_tw.signalEditPasswd.connect(self.showEditPasswdDialog)
         
         # enable/disable delete action, depends on selection type in tree widget
-        self._groups_tw.signalGroupSelChanged.connect(self.enDisDeleteAction)
+        self._groups_tw.signalGroupSelChanged.connect(self.enDisPassGrpActions)
         
         # enable/disable delete action with selection password talbe
-        self._passwords_table.signalSelChangedTypeId.connect(self.enDisDeleteAction)
+        self._passwords_table.signalSelChangedTypeId.connect(self.enDisPassGrpActions)
     def createActions(self):
         """
             Initialize all actions, i.e. Close, Save etc.
@@ -140,7 +140,13 @@ class MainWindow(QtGui.QMainWindow):
         
         self._new_passwd.triggered.connect(self.showNewPasswdDialog)
         
-        # new password action
+        # displayed in groups tree
+        self._new_passwd_g = QtGui.QAction(tr("New password"), self)
+        self._new_passwd_g.setToolTip(tr("Add new password to DB"))
+        
+        self._new_passwd_g.triggered.connect(self.showNewPasswdDialog)
+        
+        # delete password action
         self._del_passwd = QtGui.QAction(tr("Delete"), self)
         self._del_passwd.setShortcuts(QtGui.QKeySequence.Delete)
         self._del_passwd.setToolTip(tr("Delte password from DB"))
@@ -148,20 +154,31 @@ class MainWindow(QtGui.QMainWindow):
         
         self._del_passwd.triggered.connect(self.deletePassword)
         
+        # displayed in groups tree
+        self._del_passwd_g = QtGui.QAction(tr("Delete password"), self)
+        self._del_passwd_g.setToolTip(tr("Delte password from DB"))
+        self._del_passwd_g.setDisabled(True)
+        
+        self._del_passwd_g.triggered.connect(self.deletePassword)
+        
+        # add to table actions
         self._passwords_table.addAction(self._new_passwd)
         self._passwords_table.addAction(self._del_passwd)
         
-        self._groups_tw.addAction(self._new_passwd)
-        self._groups_tw.addAction(self._del_passwd)
+        # add to groups tree actions
+        self._groups_tw.addAction(self._new_passwd_g)
+        self._groups_tw.addAction(self._del_passwd_g)
         
-    def enDisDeleteAction(self, item_type, item_id):
+    def enDisPassGrpActions(self, item_type, item_id):
         """
             Disable delete password action.
         """
         if (item_type == self._groups_tw._TYPE_PASS):
             self._del_passwd.setEnabled(True)
+            self._del_passwd_g.setEnabled(True)
         else:
             self._del_passwd.setEnabled(False)
+            self._del_passwd_g.setEnabled(False)
         
     def createMenu(self):
         """
@@ -217,7 +234,7 @@ class MainWindow(QtGui.QMainWindow):
         """
             Password dialog to add new password.
         """
-        new_pass_dialog = NewPasswdDialog(self)
+        new_pass_dialog = NewPasswdDialog(self, self._groups_tw.currentItemGroupID())
         new_pass_dialog.signalPasswdSaved.connect(self.reloadItems)
         
         new_pass_dialog.exec_()
@@ -226,13 +243,14 @@ class MainWindow(QtGui.QMainWindow):
         """
             Delete password from database.
         """
-        title = self._passwords_table.currentItemTitle()
-        p_id = self._passwords_table.currentItemID()
+        # frist check tree widget
+        title = self._groups_tw.currentPasswordTitle()
+        p_id = self._groups_tw.currentPasswordId()
         
-        # also chck in tree widget
+        # also chck in table widget
         if (not title):
-            title = self._groups_tw.currentPasswordTitle()
-            p_id = self._groups_tw.currentPasswordId()
+            title = self._passwords_table.currentItemTitle()
+            p_id = self._passwords_table.currentItemID()
             
         logging.debug("delete password title: %s, ID: %i", title, p_id)
         

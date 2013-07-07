@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtCore
 from PasswdController import PasswdController
 import datetime
 from GroupController import GroupController
@@ -49,46 +49,10 @@ class EditPasswdDialog(PasswdDialog):
         else:
             self._e_date_never.setChecked(False)
         
-        self.loadGroups()
+        self.loadGroups(self.__password._grp._id)
         
         # disable save button, because nothing changed, just loaded from DB
         self.disableSaveButton()
-        
-    def loadGroups(self):
-        """
-            Load available groups to combobox
-        """
-        # set groups combobox
-        group_ctrl = GroupController(self.__parent._db_ctrl)
-        
-        groups = group_ctrl.selectAll()
-        # tmp index
-        tmp = 0
-        # have to increment tmp
-        inc_tmp = True
-        
-        # fill combobox
-        for group in groups:
-            logging.debug("adding group ID: %d", group._id)
-            
-            # load icon
-            pix = QtGui.QPixmap()
-            pix.loadFromData(group._icon._icon)
-            
-            # add item with icon, name and group ID
-            self._group.addItem(QtGui.QIcon(pix), group._name, group._id)
-            
-            # if a dont have curent group
-            if (group._id != self.__password._grp._id and inc_tmp):
-                tmp += 1
-                
-                logging.debug("temp group index: %d, group._id: %d, __password._grp._id: %d", tmp, group._id, self.__password._grp._id)
-            else:
-                if inc_tmp:
-                    logging.debug("group found")
-                    inc_tmp = False
-        # set current group
-        self._group.setCurrentIndex(tmp)
         
     def saveChanges(self):
         """
