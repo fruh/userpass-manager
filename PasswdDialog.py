@@ -81,6 +81,17 @@ class PasswdDialog(QtGui.QDialog):
         self._title = QtGui.QLineEdit()
         self._username = QtGui.QLineEdit()
         self._passwd = QtGui.QLineEdit()
+        self._passwd.setEchoMode(QtGui.QLineEdit.Password)
+        
+        # password layout
+        passwd_hl = QtGui.QHBoxLayout()
+        passwd_hl.addWidget(self._passwd)
+        
+        # password visibility check box
+        self._show_passwd_check = QtGui.QCheckBox(tr("Show"))
+        self._show_passwd_check.setChecked(False)
+        passwd_hl.addWidget(self._show_passwd_check)
+              
         self._url = QtGui.QLineEdit()
         self._e_date = QtGui.QLineEdit()
         self._comment = QtGui.QTextEdit()
@@ -92,7 +103,7 @@ class PasswdDialog(QtGui.QDialog):
         
         layout_gl.addWidget(self._title, 0, 1)
         layout_gl.addWidget(self._username, 1, 1)
-        layout_gl.addWidget(self._passwd, 2, 1)
+        layout_gl.addLayout(passwd_hl, 2, 1)
         layout_gl.addWidget(self._url, 3, 1)
         
         # attachment layout
@@ -146,6 +157,15 @@ class PasswdDialog(QtGui.QDialog):
         
         layout_gl.addWidget(self.__button_box, 11 + layout_offset, 1)
         
+    def setVisibilityPass(self, state):
+        """
+            Set no visible password and username.
+        """
+        if (state == QtCore.Qt.Checked):
+            self._passwd.setEchoMode(QtGui.QLineEdit.Normal)
+        else:
+            self._passwd.setEchoMode(QtGui.QLineEdit.Password)
+        
     def initConections(self):
         """
             Initialize all connections, handling events.
@@ -181,6 +201,9 @@ class PasswdDialog(QtGui.QDialog):
         
         # attachment input label
         self._att_name.textChanged.connect(self.enableAttEditAndButton)
+        
+        # show/hide password
+        self._show_passwd_check.stateChanged.connect(self.setVisibilityPass)
         
     def delAttachment(self):
         """

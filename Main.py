@@ -14,7 +14,7 @@ from MainWindow import MainWindow
 import os
 
 def dbTest():    
-    db_con = DbController("test2.db")
+    db_con = DbController("test3.db")
     
     db_con.connectDB()
     
