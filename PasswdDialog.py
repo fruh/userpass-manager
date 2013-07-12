@@ -11,21 +11,24 @@ class PasswdDialog(QtGui.QDialog):
     # param: p_id
     signalPasswdSaved = QtCore.pyqtSignal(int)
     
-    def __init__(self, db_ctrl, edit = True):
+    def __init__(self, db_ctrl, show_pass = False, edit = True):
         """
             COnstructor for password dialog, displys all necessary inputs.
             
             @param db_ctrl: database controller
             @param edit: if it will we edit dialog, show creation and modification date, else do not
+            @param show_pass: show password in visible form
         """
         self.__db_ctrl = db_ctrl
         self.__edit = edit
+        self.__show_pass = show_pass
         super(PasswdDialog, self).__init__()
         
         self.initUI()
         self.initConections()
         self.center()
         
+        # dafult never expire password
         self._e_date_never.setChecked(True)
         
         # intialize variables
@@ -81,7 +84,9 @@ class PasswdDialog(QtGui.QDialog):
         self._title = QtGui.QLineEdit()
         self._username = QtGui.QLineEdit()
         self._passwd = QtGui.QLineEdit()
-        self._passwd.setEchoMode(QtGui.QLineEdit.Password)
+        
+        if (not self.__show_pass):
+            self._passwd.setEchoMode(QtGui.QLineEdit.Password)
         
         # password layout
         passwd_hl = QtGui.QHBoxLayout()
@@ -89,7 +94,7 @@ class PasswdDialog(QtGui.QDialog):
         
         # password visibility check box
         self._show_passwd_check = QtGui.QCheckBox(tr("Show"))
-        self._show_passwd_check.setChecked(False)
+        self._show_passwd_check.setChecked(self.__show_pass)
         passwd_hl.addWidget(self._show_passwd_check)
               
         self._url = QtGui.QLineEdit()

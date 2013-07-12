@@ -86,7 +86,7 @@ class MainWindow(QtGui.QMainWindow):
         self._passwords_vl.addWidget(self._passwd_splitter)
         
         # create detail widget
-        self._detail_w = DetailWidget(self)
+        self._detail_w = DetailWidget(self, self._passwords_table._show_pass)
         
         # add widgets to splitter
         self._passwd_splitter.addWidget(self._passwords_table)
@@ -225,7 +225,7 @@ class MainWindow(QtGui.QMainWindow):
             
             @param p_id: password id to edit
         """
-        edit_dialog = EditPasswdDialog(self, p_id)
+        edit_dialog = EditPasswdDialog(self, p_id, self._passwords_table._show_pass)
         edit_dialog.signalPasswdSaved.connect(self.reloadItems)
         
         edit_dialog.exec_()
@@ -234,7 +234,7 @@ class MainWindow(QtGui.QMainWindow):
         """
             Password dialog to add new password.
         """
-        new_pass_dialog = NewPasswdDialog(self, self._groups_tw.currentItemGroupID())
+        new_pass_dialog = NewPasswdDialog(self, self._groups_tw.currentItemGroupID(), self._passwords_table._show_pass)
         new_pass_dialog.signalPasswdSaved.connect(self.reloadItems)
         
         new_pass_dialog.exec_()
@@ -246,15 +246,15 @@ class MainWindow(QtGui.QMainWindow):
         # frist check tree widget
         title = self._groups_tw.currentPasswordTitle()
         p_id = self._groups_tw.currentPasswordId()
-        
+
         # also chck in table widget
         if (not title):
             title = self._passwords_table.currentItemTitle()
             p_id = self._passwords_table.currentItemID()
-            
+        
         logging.debug("delete password title: %s, ID: %i", title, p_id)
         
-        if (title):
+        if (title != False):
             msg = QtGui.QMessageBox(QtGui.QMessageBox.Question, title ,tr("Do you want delete password '") 
                               + title + "'?")
             msg.addButton(QtGui.QMessageBox.Yes)
@@ -266,6 +266,7 @@ class MainWindow(QtGui.QMainWindow):
                 # delete password
                 self._passwords_table.deletePassword(p_id)
                 self.reloadItems()
+        logging.debug("Not password selected title: %s", title)
         
     def reloadItems(self, p_id = -1):
         """

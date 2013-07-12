@@ -8,8 +8,9 @@ from GroupsWidget import GroupsWidget
 import datetime
 
 class DetailWidget(QtGui.QWidget):
-    def __init__(self, parent = None):
+    def __init__(self, parent = None, show_pass = False):
         self.__parent = parent
+        self._show_pass = show_pass
         super(DetailWidget, self).__init__(parent)
         
         self.initUI()
@@ -85,8 +86,13 @@ class DetailWidget(QtGui.QWidget):
         passwd = passwd_ctrl.selectById(p_id)[0]
         
         self.__title.setText(passwd._title)
-        self.__username.setText(passwd._username)
-        self.__passwd.setText(passwd._passwd)
+        
+        if (self._show_pass):
+            self.__username.setText(passwd._username)
+            self.__passwd.setText(passwd._passwd)
+        else:
+            self.__username.setText("******")
+            self.__passwd.setText("******")
         self.__url.setText(passwd._url)
         self.__c_date.setText(str(datetime.datetime.fromtimestamp(passwd._c_date).strftime("%Y-%m-%d %H:%M:%S")))
         self.__m_date.setText(str(datetime.datetime.fromtimestamp(passwd._m_date).strftime("%Y-%m-%d %H:%M:%S")))

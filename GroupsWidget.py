@@ -66,6 +66,12 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         
+#     def keyPressEvent(self, event):
+#         """
+#             Handle key press event.
+#         """
+#         if (event.key() == )
+        
     def keyReleaseEvent(self, event):
         """
             Handle key released event, to edit password, when enter pressed.
@@ -237,6 +243,8 @@ class GroupsWidget(QtGui.QTreeWidget):
             
             return title
         else:
+            logging.debug("current item title: False")
+            
             return False
         
     def currentPasswordId(self):

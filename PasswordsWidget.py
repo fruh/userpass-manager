@@ -21,6 +21,9 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.__COL_URL = 3
         self.__COL_ID = 4
         
+        # how password and username in visible form
+        self._show_pass = False
+        
         super(PasswordsWidget, self).__init__()
         
         self.initUI()
@@ -65,15 +68,88 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.itemSelectionChanged.connect(self.callShowDetails)
         self.itemSelectionChanged.connect(self.emitSelChanged)
         
-    def keyReleaseEvent(self, event):
+    def keyPressEvent(self, event):
         """
-            Handle release event to edit password, whe enter is pressed.
+            Hanlde key press event, move acrros columns and rows.
         """
-        if (event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return):
+        if (event.key() == QtCore.Qt.Key_Left):
+            # move left
+            row = self.currentRow()
+            col = self.currentColumn()
+            
+            # column count -1 beacause there is a one hidden column
+            self.setCurrentCell(row, (col - 1) % (self.columnCount() - 1))
+            
+        elif (event.key() == QtCore.Qt.Key_Right):
+            # move left
+            row = self.currentRow()
+            col = self.currentColumn()
+            
+            # column count -1 beacause there is a one hidden column
+            self.setCurrentCell(row, (col + 1) % (self.columnCount() - 1))
+            
+        elif (event.key() == QtCore.Qt.Key_Up):
+            # move left
+            row = self.currentRow()
+            col = self.currentColumn()
+            
+            # column count -1 beacause there is a one hidden column
+            self.setCurrentCell((row - 1) % self.rowCount(), col)
+            
+        elif (event.key() == QtCore.Qt.Key_Down):
+            # move left
+            row = self.currentRow()
+            col = self.currentColumn()
+            
+            # column count -1 beacause there is a one hidden column
+            self.setCurrentCell((row + 1) % self.rowCount(), col)
+        elif (event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return):
+            # Handle release event to edit password, whe enter is pressed.
             if (self.rowCount()):
                 self.callEditPasswd()
             else:
                 logging.debug("empty table")
+        elif (event.matches(QtGui.QKeySequence.Copy)):
+            # copy data to clipboard
+            logging.debug("copy shorcut pressed")
+            
+            self.copyToClipBoard()
+         
+    def copyToClipBoard(self):
+        """
+            Copy data to clipboard from current cell.
+        """
+        row = self.currentRow()
+        col = self.currentColumn()
+        
+        logging.debug("curent row: %i, column: %i", row, col)
+        
+        data = ""
+        
+        if (row >= 0 and col >= 0):
+            if (col == self.__COL_USERNAME and not self._show_pass):
+                # select username from DB
+                pass_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
+                p_id = self.currentItemID()
+                
+                passwd = pass_ctrl.selectById(p_id)[0]
+                
+                data = passwd._username
+            elif (col == self.__COL_PASSWORD and not self._show_pass):
+                # select password from DB
+                pass_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
+                p_id = self.currentItemID()
+                
+                passwd = pass_ctrl.selectById(p_id)[0]
+                
+                data = passwd._passwd
+            else:
+                item = self.item(row, col)
+                data = item.text()
+            # copy to clipboard
+            QtGui.QApplication.clipboard().setText(data)
+            
+            logging.debug("data to clippboard: '%s'", data)
         
     def showAll(self):
         """
@@ -112,8 +188,15 @@ class PasswordsWidget(QtGui.QTableWidget):
        
             # set data
             self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem((QtGui.QIcon(pix)), passwd._title))
-            self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
-            self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
+            
+            if (self._show_pass):
+                # have to show pass username in visible form
+                self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
+                self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
+            else:
+                # show as stars
+                self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem("******"))
+                self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem("******"))
             self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))
             self.setItem(row, self.__COL_ID, QtGui.QTableWidgetItem(str(passwd._id)))
         # enable sorting
@@ -205,7 +288,11 @@ class PasswordsWidget(QtGui.QTableWidget):
         item = self.item(row, self.__COL_TITLE)
         
         if (item):
+            logging.debug("curent item title: %s", item.text())
+            
             return str(item.text())
+        
+        logging.debug("item: %s", item)
         return False
     
     def currentItemID(self):

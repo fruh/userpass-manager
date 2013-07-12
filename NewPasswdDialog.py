@@ -6,9 +6,9 @@ import time
 from PasswdDialog import PasswdDialog
 
 class NewPasswdDialog(PasswdDialog):
-    def __init__(self, parent, g_id = False):
+    def __init__(self, parent, g_id = False, show_pass = False):
         self.__parent = parent
-        super(NewPasswdDialog, self).__init__(parent._db_ctrl, False)
+        super(NewPasswdDialog, self).__init__(parent._db_ctrl, show_pass, False)
 
         self.loadGroups(g_id)
 

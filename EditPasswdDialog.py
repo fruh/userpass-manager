@@ -8,9 +8,9 @@ from GroupController import GroupController
 from PasswdDialog import PasswdDialog
 
 class EditPasswdDialog(PasswdDialog):
-    def __init__(self, parent, p_id):
+    def __init__(self, parent, p_id, show_pass = False):
         self.__parent = parent
-        super(EditPasswdDialog, self).__init__(parent._db_ctrl)
+        super(EditPasswdDialog, self).__init__(parent._db_ctrl, show_pass)
         
         self.setPassword(p_id)
         
