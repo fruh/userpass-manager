@@ -39,7 +39,7 @@ class PasswdDialog(QtGui.QDialog):
             Initilize UI components.
         """
         # not maximize, minimize buttons
-        self.setWindowFlags( QtCore.Qt.Tool);
+        self.setWindowFlags(QtCore.Qt.Tool);
         
         layout_gl = QtGui.QGridLayout()
         self.setLayout(layout_gl)

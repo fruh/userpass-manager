@@ -4,6 +4,7 @@ import logging
 from PyQt4 import QtGui, QtCore
 from PasswdController import PasswdController
 from GroupsWidget import GroupsWidget
+import AppSettings
 
 class PasswordsWidget(QtGui.QTableWidget):
     # parameters are item ID
@@ -117,7 +118,7 @@ class PasswordsWidget(QtGui.QTableWidget):
          
     def copyToClipBoard(self):
         """
-            Copy data to clipboard from current cell.
+            Copy data to clipboard from current cell. And clear clipboard after few seconds, AppSetting.CLIPBOARD_LIVE_MSEC
         """
         row = self.currentRow()
         col = self.currentColumn()
@@ -148,9 +149,19 @@ class PasswordsWidget(QtGui.QTableWidget):
                 data = item.text()
             # copy to clipboard
             QtGui.QApplication.clipboard().setText(data)
+            logging.debug("data to clipboard: '%s'", data)
             
-            logging.debug("data to clippboard: '%s'", data)
+            # delete clipboard after time
+            self._del_clipboard = QtCore.QTimer.singleShot(AppSettings.CLIPBOARD_LIVE_MSEC, self.deleteClipboard)
+            logging.debug("clipboard will be cleared after %i seconds", AppSettings.CLIPBOARD_LIVE_MSEC / 1000)
+    
+    def deleteClipboard(self):
+        """
+            Security meaning. Delete clipboart after few seconds.
+        """
+        logging.debug("deleting clipboard")
         
+        QtGui.QApplication.clipboard().clear()
     def showAll(self):
         """
             Show all passwords.

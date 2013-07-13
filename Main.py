@@ -12,6 +12,8 @@ from PyQt4 import QtGui
 import sys
 from MainWindow import MainWindow
 import os
+from LoginController import LoginController
+from LoginDialog import LoginDialog
 
 def dbTest():    
     db_con = DbController("test3.db")
@@ -71,13 +73,13 @@ def main2():
     
     db_con = DbController("db" + os.path.sep + "test3.db")
     
-    user = UserController(db_con)
-    user.insertUser("Ferčšo", "heslo")
+    login_dialog = LoginDialog(db_con)
+
+    login_dialog.show()
     
     w = MainWindow(db_con)
-    w.reloadItems()
-    
-    w.show()
+
+    login_dialog.signalSuccessfullyLogged.connect(w.setUserReloadShow)
     
     sys.exit(app.exec_())
     

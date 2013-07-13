@@ -35,7 +35,8 @@ class GroupsWidget(QtGui.QTreeWidget):
         super(GroupsWidget, self).__init__(parent)
         
         self.initUI()
-        self.initItems()
+        if (self.__parent._user):
+            self.initItems()
         self.initConections()
         
     def initConections(self):

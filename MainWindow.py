@@ -9,6 +9,7 @@ from EditPasswdDialog import EditPasswdDialog
 from UserModel import UserModel
 from NewPasswdDialog import NewPasswdDialog
 import logging
+from UserController import UserController
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -17,11 +18,9 @@ class MainWindow(QtGui.QMainWindow):
     # public attr:
     _db_ctrl = None
     
-    def __init__(self, db_ctrl):
+    def __init__(self, db_ctrl, user = None):
         self._db_ctrl = db_ctrl
-        self._user = None
-        
-        self.loginUser("fero", "heslo")
+        self._user = user
         
         super(MainWindow, self).__init__()
         
@@ -32,6 +31,12 @@ class MainWindow(QtGui.QMainWindow):
         self.createMenu()
         self.initConections()
         
+    def closeEvent(self, event):
+        """
+            Do matters on close event. In example delete clipboard.
+        """
+        logging.debug("deleting clipboard")
+        QtGui.QApplication.clipboard().clear()
         
     def initUI(self):
         """
@@ -94,6 +99,22 @@ class MainWindow(QtGui.QMainWindow):
         
         # set stretch factor for password table
         self._passwd_splitter.setStretchFactor(0, 1)
+        
+    def setUserReloadShow(self, username, master):
+        """
+            Load user from database and reload items.
+        """
+        user_ctrl = UserController(self._db_ctrl)
+        
+        username = str(username)
+        master = str(master)
+        
+        logging.debug("username %s, master %s", username, master)
+        
+        self._user = user_ctrl.selectByNameMaster(username, master)
+        
+        self.reloadItems()
+        self.show()
         
     def initConections(self):
         """
@@ -281,9 +302,3 @@ class MainWindow(QtGui.QMainWindow):
             self._detail_w.setPassword(p_id)
         else:
             self._detail_w.setHidden(True)
-        
-    def loginUser(self, username, master):
-        """
-            Log in user with master password.
-        """
-        self._user = UserModel(1, username, "heslo", "salt", master)

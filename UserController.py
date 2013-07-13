@@ -62,7 +62,7 @@ class UserController:
         """
             Search user by name.
             @param name: user name
-            @return: UserModel object
+            @return: UserModel object, other None
         """
         name = name.decode('utf-8')
         try:
@@ -80,6 +80,45 @@ class UserController:
             raise e
         finally:
             return self.createUserObj(row)
+
+    def selectByNameMaster(self, name, master):
+        """
+            Select user from database by username and password.
+            
+            @param name: username
+            @param master: plain text password
+            
+            @return: UserModel object, or None
+        """
+        name = name.decode('utf-8')
+        master = master.decode('utf-8')
+        user = None
+        try:
+            user = self.selectByName(name)
+            
+            if (not user):
+                logging.debug("username doesn't exist, %s", name)
+                
+                return None
+            
+            # prepare hash
+            passwd = user._salt + master
+            passwd = CryptoBasics.getSha512(passwd)
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            raise e
+        finally:
+            if (user and user._passwd == passwd):
+                logging.debug("user with username %s selected", name)
+                
+                user._master = master
+                
+                return user
+            else:
+                logging.debug("user password not correct, %s", master)
+                
+                return None
 
     def insertUser(self, name, passwd):
         """
@@ -136,6 +175,12 @@ class UserController:
             
             @param dic: user returned from db
             
-            @return: UserModel object
+            @return: UserModel object, or None
         """
-        return UserModel(dic["id"], dic["name"], dic["passwd"], dic["salt_p"])
+        user = None
+        try:
+            user = UserModel(dic["id"], dic["name"], dic["passwd"], dic["salt_p"])
+        except Exception as e:
+            logging.exception(e)
+        finally:
+            return user
