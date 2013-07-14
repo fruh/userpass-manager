@@ -61,7 +61,7 @@ TRANS_SUFFIX = ".txt"
 BACKUP_PATH = "backup" + os.sep
 
 # app icon path
-APP_ICON_PATH = ICONS_PATH + "userpass.png"
+APP_ICON_PATH = ICONS_PATH + "userpass.ico"
 
 """
     Settings keys.
