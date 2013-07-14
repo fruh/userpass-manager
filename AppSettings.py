@@ -57,6 +57,9 @@ TRANS_PATH = "translation" + os.sep
 # translation suffix
 TRANS_SUFFIX = ".txt"
 
+# backup path
+BACKUP_PATH = "backup" + os.sep
+
 """
     Settings keys.
 """

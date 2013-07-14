@@ -55,7 +55,7 @@ Zavrieť aplikáciu
 About
 O aplikácii
 About UserPass Manager
-O UserPass Správcovi
+O UserPass Manager
 New
 Nový
 Add new password to DB

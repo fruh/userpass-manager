@@ -27,6 +27,7 @@ import os
 from LoginDialog import LoginDialog
 import AppSettings
 import TransController
+import shutil
     
 def main():
     app = QtGui.QApplication(sys.argv)
@@ -40,6 +41,12 @@ def main():
     TransController.loadTranslation("en")
     
     # create neccessary paths if missing
+    if (not os.path.exists(AppSettings.BACKUP_PATH)):
+        # missing data dir
+        logging.debug("creating dir: '%s'", AppSettings.BACKUP_PATH)
+        
+        os.makedirs(AppSettings.BACKUP_PATH)
+    
     if (not os.path.exists(AppSettings.DATA_PATH)):
         # missing data dir
         logging.debug("creating dir: '%s'", AppSettings.DATA_PATH)
@@ -64,9 +71,17 @@ def main():
     # login dialog instance
     login_dialog = LoginDialog(db_con)
 
-    if (not os.path.exists(AppSettings.readDbFilePath())):
-        # id default DB file doesnt exists, run create DB dialog
+    db_path = AppSettings.readDbFilePath()
+    
+    if (not os.path.exists(db_path)):
+        # if default DB file doesnt exists, run create DB dialog
         login_dialog.enLogIn(False)
+    else:
+        # first backup database
+        backup_file = AppSettings.BACKUP_PATH + os.path.basename(db_path)
+        logging.debug("backup file: '%s'", backup_file)
+        
+        shutil.copyfile(db_path, backup_file)
 
     login_dialog.show()
     w = MainWindow(db_con)

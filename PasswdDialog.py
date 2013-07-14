@@ -274,7 +274,7 @@ class PasswdDialog(QtGui.QDialog):
             pix.loadFromData(group._icon._icon)
             
             # add item with icon, name and group ID
-            self._group.addItem(QtGui.QIcon(pix), group._name, group._id)
+            self._group.addItem(QtGui.QIcon(pix), tr(group._name), group._id)
             
             if (g_id):
                 # if a dont have curent group
