@@ -110,13 +110,13 @@ class UserController:
             raise e
         finally:
             if (user and user._passwd == passwd):
-                logging.debug("user with username %s selected", name)
+                logging.debug("user with username '%s' selected", name)
                 
                 user._master = master
                 
                 return user
             else:
-                logging.debug("user password not correct, %s", master)
+                logging.debug("user password not correct, '%s'", master)
                 
                 return None
 

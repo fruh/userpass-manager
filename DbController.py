@@ -5,6 +5,7 @@ import logging
 from GroupController import GroupController
 from IconController import IconController
 import os
+import AppSettings
 
 class DbController:
     """
@@ -20,8 +21,6 @@ class DbController:
         
         # whether DB file existed
         self._existed = False
-        
-        self._ICONS_ROOT = "." + os.sep + "icons" + os.sep
         
         if (database):
             self.connectDB()
@@ -112,12 +111,12 @@ class DbController:
         """
         icon_ctrl = IconController(self)
         
-        icon_ctrl.insertIcon("key-personal", self._ICONS_ROOT + "key-personal.svg")
-        icon_ctrl.insertIcon("key-ssh", self._ICONS_ROOT + "key-ssh.svg")
-        icon_ctrl.insertIcon("key", self._ICONS_ROOT + "key.svg")
-        icon_ctrl.insertIcon("person", self._ICONS_ROOT + "person.svg")
-        icon_ctrl.insertIcon("git", self._ICONS_ROOT + "git.ico")
-        icon_ctrl.insertIcon("bank", self._ICONS_ROOT + "bank.ico")
+        icon_ctrl.insertIcon("key-personal", AppSettings.ICONS_PATH + "key-personal.svg")
+        icon_ctrl.insertIcon("key-ssh", AppSettings.ICONS_PATH+ "key-ssh.svg")
+        icon_ctrl.insertIcon("key", AppSettings.ICONS_PATH + "key.svg")
+        icon_ctrl.insertIcon("person", AppSettings.ICONS_PATH + "person.svg")
+        icon_ctrl.insertIcon("git", AppSettings.ICONS_PATH + "git.ico")
+        icon_ctrl.insertIcon("bank", AppSettings.ICONS_PATH + "bank.ico")
         
     def insertDefaultGroups(self):
         """

@@ -4,6 +4,7 @@ from PyQt4 import QtGui, QtCore
 from TransController import tr
 import logging
 from LoginController import LoginController
+import AppSettings
 
 class LoginDialog(QtGui.QDialog):
     """
@@ -37,15 +38,15 @@ class LoginDialog(QtGui.QDialog):
         self.setLayout(layout_gl)
         
         # labels
-        username_label = QtGui.QLabel("<b>" + tr("Username:") + "</b>")
+#         username_label = QtGui.QLabel("<b>" + tr("Username:") + "</b>")
         passwd_label = QtGui.QLabel("<b>" + tr("Password:") + "</b>")
         
         # add to layout
-        layout_gl.addWidget(username_label, 0, 0)
-        layout_gl.addWidget(passwd_label, 1, 0)
+#         layout_gl.addWidget(username_label, 0, 0)
+        layout_gl.addWidget(passwd_label, 0, 0)
         
-        self._username = QtGui.QLineEdit()
-        layout_gl.addWidget(self._username, 0, 1)
+#         self._username = QtGui.QLineEdit()
+#         layout_gl.addWidget(self._username, 0, 1)
         
         self._passwd = QtGui.QLineEdit()
         
@@ -63,7 +64,7 @@ class LoginDialog(QtGui.QDialog):
         self._show_passwd_check.setChecked(False)
         passwd_hl.addWidget(self._show_passwd_check)
         
-        layout_gl.addLayout(passwd_hl, 1, 1)
+        layout_gl.addLayout(passwd_hl, 0, 1)
         
         # create buttons
         self._button_box = QtGui.QDialogButtonBox()
@@ -75,8 +76,15 @@ class LoginDialog(QtGui.QDialog):
         
         self._button_box.addButton(self.__login_button, QtGui.QDialogButtonBox.AcceptRole)
         self._button_box.addButton(self.__close_button, QtGui.QDialogButtonBox.RejectRole)
+        
+        layout_gl.addWidget(self._button_box, 1, 1)
+        
+        # db button box
+        self._db_button_box = QtGui.QDialogButtonBox()
     
-        layout_gl.addWidget(self._button_box, 2, 1)
+        self.__open_db = QtGui.QPushButton(tr("Open Database"))
+        self.__create_db = QtGui.QPushButton(tr("Create Database"))
+        
     def initConnections(self):
         """
             Init connections, reaction on signals.
@@ -85,7 +93,7 @@ class LoginDialog(QtGui.QDialog):
         self._show_passwd_check.stateChanged.connect(self.setVisibilityPass)
         
         # enable loggin button
-        self._username.textChanged.connect(self.enableLogInButton)
+#         self._username.textChanged.connect(self.enableLogInButton)
         self._passwd.textChanged.connect(self.enableLogInButton)
         
         # button connections
@@ -98,9 +106,10 @@ class LoginDialog(QtGui.QDialog):
         """
         logging.debug("logging user ...")
         
+        self.__db_ctrl.connectDB(AppSettings.readDbFilePath())
         login_ctrl = LoginController(self.__db_ctrl)
         
-        username = str(self._username.text()).decode('utf-8')
+        username = AppSettings.USER_NAME
         master = str(self._passwd.text()).decode('utf-8')
         
         logged_user = login_ctrl.logInUser(username, master)
@@ -123,7 +132,7 @@ class LoginDialog(QtGui.QDialog):
         """
             Enable login button. If is empty one of username or password, then disable.
         """
-        if (self._username.text().isEmpty() or self._passwd.text().isEmpty()):
+        if (self._passwd.text().isEmpty()):
             if (self.__login_button.isEnabled()):
                 logging.debug("disabling login button")
                 

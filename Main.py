@@ -71,8 +71,10 @@ def main():
 def main2():
     app = QtGui.QApplication(sys.argv)
     
-    db_con = DbController("db" + os.path.sep + "test3.db")
-    
+    db_con = DbController()
+#     user = UserController(db_con)
+#     
+#     user.insertUser("user", "heslo")
     login_dialog = LoginDialog(db_con)
 
     login_dialog.show()
