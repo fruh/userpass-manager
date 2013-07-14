@@ -416,9 +416,11 @@ class PasswdController:
             
             @return: GroupModel object
         """
-        return PasswdModel(dic["id"], dic["title"], dic["username"], dic["passwd"], dic["url"], dic["comment"],
+        if (dic):
+            return PasswdModel(dic["id"], dic["title"], dic["username"], dic["passwd"], dic["url"], dic["comment"],
                             dic["c_date"], dic["m_date"], dic["e_date"], dic["grp_id"], dic["user_id"], 
                             dic["attachment"], dic["att_name"], dic["salt"], dic["iv"], dic["expire"], self._db_ctrl)
+        return None
         
     @staticmethod
     def getVisibleColumns():

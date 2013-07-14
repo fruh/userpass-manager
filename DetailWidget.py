@@ -85,6 +85,9 @@ class DetailWidget(QtGui.QWidget):
         # select password
         passwd = passwd_ctrl.selectById(p_id)[0]
         
+        if (not passwd):
+            return
+        
         self.__title.setText(passwd._title)
         
         if (self._show_pass):

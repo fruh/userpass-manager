@@ -190,6 +190,8 @@ class PasswordsWidget(QtGui.QTableWidget):
             
         # now fill passwords table view
         for passwd in passwords:
+            if (not passwd):
+                continue
             row = self.rowCount()
             logging.debug("adding password: %s , at row: %i", passwd, row)
             self.insertRow(row)

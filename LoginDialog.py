@@ -5,6 +5,8 @@ from TransController import tr
 import logging
 from LoginController import LoginController
 import AppSettings
+from CreateDbDialog import CreateDbDialog
+import os
 
 class LoginDialog(QtGui.QDialog):
     """
@@ -27,11 +29,8 @@ class LoginDialog(QtGui.QDialog):
         """
             Initialize UI components.
         """
-        self.setWindowTitle(tr("Log In"))
-        self.setFixedWidth(500)
-        
-        # not maximize, minimize buttons
-        self.setWindowFlags(QtCore.Qt.Tool);
+        self.setWindowTitle(tr("Log in: ") + os.path.basename(AppSettings.readDbFilePath()))
+        self.setFixedSize(500, 100)
         
         # create main grid layout
         layout_gl = QtGui.QGridLayout()
@@ -77,13 +76,19 @@ class LoginDialog(QtGui.QDialog):
         self._button_box.addButton(self.__login_button, QtGui.QDialogButtonBox.AcceptRole)
         self._button_box.addButton(self.__close_button, QtGui.QDialogButtonBox.RejectRole)
         
-        layout_gl.addWidget(self._button_box, 1, 1)
+#         layout_gl.addWidget(self._button_box, 1, 1)
         
-        # db button box
-        self._db_button_box = QtGui.QDialogButtonBox()
+        # db button layout
+        db_buttons_hl = QtGui.QHBoxLayout()
     
         self.__open_db = QtGui.QPushButton(tr("Open Database"))
         self.__create_db = QtGui.QPushButton(tr("Create Database"))
+        
+        db_buttons_hl.addWidget(self.__open_db)
+        db_buttons_hl.addWidget(self.__create_db)
+        db_buttons_hl.addWidget(self._button_box)
+        
+        layout_gl.addLayout(db_buttons_hl, 1, 0, 1, 2)
         
     def initConnections(self):
         """
@@ -93,12 +98,61 @@ class LoginDialog(QtGui.QDialog):
         self._show_passwd_check.stateChanged.connect(self.setVisibilityPass)
         
         # enable loggin button
-#         self._username.textChanged.connect(self.enableLogInButton)
-        self._passwd.textChanged.connect(self.enableLogInButton)
+#         self._username.textChanged.connect(self.enableCreateButton)
+        self._passwd.textChanged.connect(self.enableCreateButton)
         
         # button connections
         self._button_box.rejected.connect(QtGui.QApplication.exit)
         self._button_box.accepted.connect(self.logIn)
+        
+        # db buttons connections
+        self.__open_db.clicked.connect(self.selectDB)
+        self.__create_db.clicked.connect(self.createDB)
+        
+    def enLogIn(self, b = True):
+        """
+            Enable or disable password input, show checkbox and login button.
+        """
+        logging.debug("enabling login: %s", b)
+        
+        self._passwd.setEnabled(b)
+        self._show_passwd_check.setEnabled(b)
+        self.__login_button.setEnabled(b)
+        
+        if (not b):
+            self.setWindowTitle(tr("Database not selected."))
+        else:
+            self.setWindowTitle(tr("Log in: ") + os.path.basename(AppSettings.readDbFilePath()))
+        
+    def selectDB(self):
+        """
+            Select database file.
+        """
+        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Select database"), AppSettings.DB_PATH)
+        
+        if (not file_path.isEmpty()):
+            db_path = str(file_path)
+            
+            logging.debug("database file path: %s", db_path)
+            
+            # write to setting file
+            AppSettings.writeDbFilePath(db_path)
+            
+            self.enLogIn()
+        else:
+            logging.debug("database not selected")
+        
+    def createDB(self):
+        """
+            Create database.
+        """
+        logging.debug("create DB clicked")
+        create_dialog = CreateDbDialog(self.__db_ctrl)
+        
+        # when created enable buttons
+        create_dialog.signalDbCreated.connect(self.enLogIn)
+        
+        create_dialog.exec_()
         
     def logIn(self):
         """
@@ -118,6 +172,8 @@ class LoginDialog(QtGui.QDialog):
             self.signalSuccessfullyLogged.emit(username, master)
             
             self.close()
+        else:
+            QtGui.QMessageBox( QtGui.QMessageBox.Critical, "Wrong credentials!", "Username or password are wrong.").exec_()
         
     def setVisibilityPass(self, state):
         """
@@ -128,7 +184,7 @@ class LoginDialog(QtGui.QDialog):
         else:
             self._passwd.setEchoMode(QtGui.QLineEdit.Password)
         
-    def enableLogInButton(self):
+    def enableCreateButton(self):
         """
             Enable login button. If is empty one of username or password, then disable.
         """
