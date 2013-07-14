@@ -114,3 +114,9 @@ Att. Name
 Názov príl.
 Expire
 Skončí
+Page
+Stránka
+Bank account
+Bankový účet
+Code revision
+Revízia kódu
