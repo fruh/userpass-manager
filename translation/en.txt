@@ -1,0 +1,2 @@
+ABOUT_TEXT
+UserPass Manager v0.0.1 alpha, safely backup your credentials.

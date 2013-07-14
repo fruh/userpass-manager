@@ -1,5 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+    This file is part of UserPass Manager
+    Copyright (C) 2013  Frantisek Uhrecky <frantisek.uhrecky[at]gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 from PyQt4 import QtGui, QtCore
 from TransController import tr
 from GroupsWidget import GroupsWidget
@@ -170,14 +187,14 @@ class MainWindow(QtGui.QMainWindow):
         # delete password action
         self._del_passwd = QtGui.QAction(tr("Delete"), self)
         self._del_passwd.setShortcuts(QtGui.QKeySequence.Delete)
-        self._del_passwd.setToolTip(tr("Delte password from DB"))
+        self._del_passwd.setToolTip(tr("Delete password from DB"))
         self._del_passwd.setDisabled(True)
         
         self._del_passwd.triggered.connect(self.deletePassword)
         
         # displayed in groups tree
         self._del_passwd_g = QtGui.QAction(tr("Delete password"), self)
-        self._del_passwd_g.setToolTip(tr("Delte password from DB"))
+        self._del_passwd_g.setToolTip(tr("Delete password from DB"))
         self._del_passwd_g.setDisabled(True)
         
         self._del_passwd_g.triggered.connect(self.deletePassword)
@@ -238,7 +255,26 @@ class MainWindow(QtGui.QMainWindow):
         self.move(wg.topLeft())
         
     def aboutDialog(self):
-        QtGui.QMessageBox( QtGui.QMessageBox.Information, "About", "UserPass Manager v0.0.1 alpha\n\nSafely backup your credentials.").exec_()
+        QtGui.QMessageBox(QtGui.QMessageBox.Information, tr("About"), tr("ABOUT_TEXT") + """
+        
+        Copyright (C) 2013  Frantisek Uhrecky 
+                            <frantisek.uhrecky[at]gmail.com>
+
+        This program is free software: you can redistribute it 
+        and/or modify it under the terms of the GNU General
+        Public License as published by the Free Software
+        Foundation, either version 3 of the License, or
+        (at your option) any later version.
+    
+        This program is distributed in the hope that it will 
+        be useful, but WITHOUT ANY WARRANTY; without even
+        the implied warranty of MERCHANTABILITY or FITNESS 
+        FOR A PARTICULAR PURPOSE.  
+        See the GNU General Public License for more details.
+    
+        You should have received a copy of the GNU General 
+        Public License along with this program.  
+        If not, see <http://www.gnu.org/licenses/>.""").exec_()
         
     def showEditPasswdDialog(self, p_id):
         """

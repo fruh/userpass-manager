@@ -1,0 +1,116 @@
+Create Database
+Vytvoriť databázu
+DB file path:
+Cesta k databáze:
+New master password:
+Nové hlavné heslo:
+Select file
+Vyber súbor
+Show
+Zobraz
+Open Database
+Otvoriť databázu
+Save DB file
+Uložiť DB súbor
+Title:
+Názov:
+Username:
+Užív. meno:
+Password:
+Heslo:
+URL:
+URL:
+Creation date:
+Dátum vytvorenia:
+Modification date:
+Dátum modifikácie:
+Expiration date:
+Dátum expirácie:
+Comment:
+Komentár:
+Attachment:
+Príloha:
+Never
+Nikdy
+All
+Všetky
+All passwords group.
+Skupina pre všetky heslá.
+Log in: 
+Prihlásiť: 
+Database not selected.
+Nie je vybraná databáza.
+Select database
+Vybrať databázu
+Wrong credentials!
+Zlé prihlasovacie údaje!
+Username or password are wrong.
+Prihlasovacie meno alebo heslo je nesprávne.
+Groups
+Skupiny
+Passwords
+Heslá
+Close application
+Zavrieť aplikáciu
+About
+O aplikácii
+About UserPass Manager
+O UserPass Správcovi
+New
+Nový
+Add new password to DB
+Pridať nové heslo do databázy
+New password
+Nové heslo
+Delete
+Vymazať
+Delete password from DB
+Vymazať heslo z databázy
+Delete password
+Vymazať heslo
+Password
+Heslo
+Group
+Skupina
+Settings
+Nastavenia
+ABOUT_TEXT
+UserPass Manager v0.0.1 alpha slúži na bezpečné ukladanie prihlasovacích údajov.
+Do you want delete password '
+Želáte si vymazať heslo '
+Groups:
+Skupiny:
+Del
+Vym
+Save
+Uložiť
+&Save
+&Uložiť
+&Cancel
+&Zrušiť
+Open attachment
+Otvoriť prílohu
+&Close
+&Zavrieť
+&File
+&Súbor
+&Log In
+&Prihlásiť sa
+Title
+Názov
+Username
+Užívateľ
+Url
+Url
+Comment
+Komentár
+C. Date
+Dátum v.
+M. Date
+Dátum m.
+E. Date
+Dátum e.
+Att. Name
+Názov príl.
+Expire
+Skončí

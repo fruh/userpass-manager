@@ -1,5 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+    This file is part of UserPass Manager
+    Copyright (C) 2013  Frantisek Uhrecky <frantisek.uhrecky[at]gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import logging
 from DbController import DbController
 from PyQt4 import QtGui
@@ -8,9 +26,18 @@ from MainWindow import MainWindow
 import os
 from LoginDialog import LoginDialog
 import AppSettings
+import TransController
     
 def main():
     app = QtGui.QApplication(sys.argv)
+    
+    # preapare languages
+    AppSettings.writeLanguage("en")
+    
+    AppSettings.LANG = AppSettings.readLanguage()
+    
+    TransController.loadTranslation("sk")
+    TransController.loadTranslation("en")
     
     # create neccessary paths if missing
     if (not os.path.exists(AppSettings.DATA_PATH)):
@@ -50,6 +77,6 @@ def main():
     sys.exit(app.exec_())
     
 if (__name__ == "__main__"):
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.CRITICAL)
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
     
     main()
