@@ -23,7 +23,6 @@ from GroupsWidget import GroupsWidget
 from PasswordsWidget import PasswordsWidget
 from DetailWidget import DetailWidget
 from EditPasswdDialog import EditPasswdDialog
-from UserModel import UserModel
 from NewPasswdDialog import NewPasswdDialog
 import logging
 from UserController import UserController
@@ -58,7 +57,7 @@ class MainWindow(QtGui.QMainWindow):
     def initUI(self):
         """
             Initialize gui components. Create dock widgets.
-        """
+        """        
 #         self.resize(300, 300)
         self.setWindowTitle("UserPass Manager alpha")
         self.resize(1000, 600)

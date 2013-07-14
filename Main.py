@@ -32,8 +32,11 @@ import shutil
 def main():
     app = QtGui.QApplication(sys.argv)
     
+    # set application icon
+    app.setWindowIcon(QtGui.QIcon(AppSettings.APP_ICON_PATH))
+    
     # preapare languages
-    AppSettings.writeLanguage("en")
+    AppSettings.writeLanguage("sk")
     
     AppSettings.LANG = AppSettings.readLanguage()
     
@@ -92,6 +95,6 @@ def main():
     sys.exit(app.exec_())
     
 if (__name__ == "__main__"):
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.CRITICAL)
     
     main()

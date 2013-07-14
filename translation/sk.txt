@@ -57,7 +57,7 @@ O aplikácii
 About UserPass Manager
 O UserPass Manager
 New
-Nový
+Pridaj
 Add new password to DB
 Pridať nové heslo do databázy
 New password
