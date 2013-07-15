@@ -136,10 +136,10 @@ class CreateDbDialog(QtGui.QDialog):
         logging.debug("save db to file: %s", file_path)
         
         if (not file_path.isEmpty()):
-            file_path = str(file_path)
+            file_path = str(file_path.toUtf8())
             logging.debug("db file path: %s", file_path)
             
-            self._db_file_path.setText(file_path)
+            self._db_file_path.setText(QtCore.QString.fromUtf8(file_path))
             
             if (os.path.exists(file_path)):
                 logging.debug("removing existing file: '%s'", file_path)
@@ -151,7 +151,7 @@ class CreateDbDialog(QtGui.QDialog):
         """
             Create DB file and new user with master password.
         """
-        db_path = str(self._db_file_path.text())
+        db_path = str(self._db_file_path.text().toUtf8())
         
         logging.debug("creating new DB: '%s'", db_path)
         

@@ -65,7 +65,7 @@ DB_PATH = APP_ABS_ROOT + "db" + os.path.sep
 DB_FILE_NAME = "userpass.db"
 
 # default DB
-DEFAULT_DB = DB_PATH + DB_FILE_NAME
+DEFAULT_DB = "db" + os.path.sep + DB_FILE_NAME
 
 # icons path
 ICONS_PATH = APP_ABS_ROOT + "icons" + os.sep
@@ -103,8 +103,8 @@ def readDbFilePath():
         @return: DB file path
     """
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    data = str(settings.value(SET_KEY_DB, DEFAULT_DB).toString())
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    data = str(settings.value(SET_KEY_DB, DEFAULT_DB).toString().toUtf8())
     
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, data)
     
@@ -124,8 +124,8 @@ def writeDbFilePath(db_path):
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, rel_path)
         
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    settings.setValue(SET_KEY_DB, rel_path)
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    settings.setValue(SET_KEY_DB, QtCore.QString.fromUtf8(rel_path))
     
 def readLanguage():
     """
@@ -134,8 +134,8 @@ def readLanguage():
         @return: language
     """
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    data = str(settings.value(SET_KEY_LANG, LANG).toString())
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    data = str(settings.value(SET_KEY_LANG, LANG).toString().toUtf8())
     
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_LANG, data) 
     
@@ -151,5 +151,5 @@ def writeLanguage(lang):
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_LANG, lang)
         
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    settings.setValue(SET_KEY_LANG, lang)
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    settings.setValue(SET_KEY_LANG, QtCore.QString.fromUtf8(lang))

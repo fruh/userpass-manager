@@ -177,7 +177,8 @@ class LoginDialog(QtGui.QDialog):
         """
         logging.debug("logging user ...")
         
-        self.__db_ctrl.connectDB(AppSettings.readDbFilePath())
+        path = AppSettings.readDbFilePath()
+        self.__db_ctrl.connectDB(path)
         login_ctrl = LoginController(self.__db_ctrl)
         
         username = AppSettings.USER_NAME
@@ -190,7 +191,7 @@ class LoginDialog(QtGui.QDialog):
             
             self.close()
         else:
-            QtGui.QMessageBox( QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
+            QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
         
     def setVisibilityPass(self, state):
         """
