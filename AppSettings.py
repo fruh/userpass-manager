@@ -20,6 +20,22 @@
 import os
 import logging
 from PyQt4 import QtCore
+import sys
+
+def getAbsAppRoot():
+    """
+        Return absolute root dir.
+    """
+    root_dir = os.path.dirname(sys.argv[0])
+    
+    if (len(root_dir) > 0):
+        # if is not empty add dir separator at the end
+        root_dir = root_dir + os.sep
+    
+    return root_dir
+
+# application abs path
+APP_ABS_ROOT = getAbsAppRoot()
 
 # language
 LANG = "en"
@@ -31,7 +47,7 @@ CLIPBOARD_LIVE_MSEC = 60000
 USER_NAME = "user"
 
 # default data path
-DATA_PATH = "data" + os.path.sep
+DATA_PATH = APP_ABS_ROOT + "data" + os.path.sep
 
 # default settings file name
 SETTINGS_FILE_NAME = "settings.ini"
@@ -40,7 +56,7 @@ SETTINGS_FILE_NAME = "settings.ini"
 SETTINGS_FILE_PATH = DATA_PATH + SETTINGS_FILE_NAME
 
 # default DB path
-DB_PATH = "db" + os.path.sep
+DB_PATH = APP_ABS_ROOT + "db" + os.path.sep
 
 # default DB file name
 DB_FILE_NAME = "userpass.db"
@@ -49,16 +65,16 @@ DB_FILE_NAME = "userpass.db"
 DEFAULT_DB = DB_PATH + DB_FILE_NAME
 
 # icons path
-ICONS_PATH = "icons" + os.sep
+ICONS_PATH = APP_ABS_ROOT + "icons" + os.sep
 
 # translations path
-TRANS_PATH = "translation" + os.sep
+TRANS_PATH = APP_ABS_ROOT + "translation" + os.sep
 
 # translation suffix
 TRANS_SUFFIX = ".txt"
 
 # backup path
-BACKUP_PATH = "backup" + os.sep
+BACKUP_PATH = APP_ABS_ROOT + "backup" + os.sep
 
 # app icon path
 APP_ICON_PATH = ICONS_PATH + "userpass.ico"
@@ -90,17 +106,17 @@ def readDbFilePath():
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, data)
     
     # read DB file path
-    return data
+    return APP_ABS_ROOT + data
 
 def writeDbFilePath(db_path):
     """
-        Write DB file name and path to settings file. Write just relative path.
+        Write DB file name and path to settings file. Write just relative path from App root dir.
         
         @param db_path: DB file path
     """
-    rel_path = os.path.relpath(db_path, os.getcwd())
+    rel_path = os.path.relpath(db_path, APP_ABS_ROOT)
     
-    logging.debug("current working dir: '%s'", os.getcwd())
+    logging.debug("current working dir: '%s'", APP_ABS_ROOT)
     logging.debug("abs. path: '%s', rel. path: '%s'", db_path, rel_path)
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, rel_path)
         

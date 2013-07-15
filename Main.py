@@ -32,6 +32,8 @@ import shutil
 def main():
     app = QtGui.QApplication(sys.argv)
     
+    logging.debug("absolute app root: '%s'", AppSettings.getAbsAppRoot())
+    
     # set application icon
     app.setWindowIcon(QtGui.QIcon(AppSettings.APP_ICON_PATH))
     
@@ -75,6 +77,7 @@ def main():
     login_dialog = LoginDialog(db_con)
 
     db_path = AppSettings.readDbFilePath()
+    logging.debug("DB path: '%s'", db_path)
     
     if (not os.path.exists(db_path)):
         # if default DB file doesnt exists, run create DB dialog
