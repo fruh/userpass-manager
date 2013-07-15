@@ -125,7 +125,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         groups = group_ctrl.selectAll()
         
         # group, that contains all passwords
-        all_group = self.initItemData(icon_ctrl.selectByName("key")._icon, 
+        all_group = self.initItemData(icon_ctrl.selectByName("userpass")._icon, 
                                       tr("All"), -1, tr("All passwords group."), self._TYPE_ALL, -1)
         self.addTopLevelItem(all_group)
         

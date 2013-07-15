@@ -124,21 +124,22 @@ class DbController:
     def insertDefaultIcons(self):
         """
             Creates default icons for groups.
-            Page, SSH, E-Mail, PC
+            Page, SSH, E-Mail, PC, Code Revision, UserPass icon
         """
         icon_ctrl = IconController(self)
         
-        icon_ctrl.insertIcon("key-personal", AppSettings.ICONS_PATH + "key-personal.svg")
-        icon_ctrl.insertIcon("key-ssh", AppSettings.ICONS_PATH+ "key-ssh.svg")
-        icon_ctrl.insertIcon("key", AppSettings.ICONS_PATH + "key.svg")
-        icon_ctrl.insertIcon("person", AppSettings.ICONS_PATH + "person.svg")
+        icon_ctrl.insertIcon("key-personal", AppSettings.ICONS_PATH + "key-personal.ico")
+        icon_ctrl.insertIcon("key-ssh", AppSettings.ICONS_PATH+ "key-ssh.ico")
+        icon_ctrl.insertIcon("key", AppSettings.ICONS_PATH + "key.ico")
+        icon_ctrl.insertIcon("person", AppSettings.ICONS_PATH + "person.ico")
         icon_ctrl.insertIcon("git", AppSettings.ICONS_PATH + "git.ico")
         icon_ctrl.insertIcon("bank", AppSettings.ICONS_PATH + "bank.ico")
+        icon_ctrl.insertIcon("userpass", AppSettings.ICONS_PATH + "userpass.ico")
         
     def insertDefaultGroups(self):
         """
             Creates default password groups.
-            Page, SSH, E-Mail, PC
+            Page, SSH, E-Mail, PC, Code Revision
         """
         grp_ctrl = GroupController(self)
         icon_ctrl = IconController(self)
