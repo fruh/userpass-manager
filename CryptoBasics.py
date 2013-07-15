@@ -80,6 +80,22 @@ def getSha512(string):
     
     return hash_str
 
+def getUserPassHash(salt, passwd):
+    """
+        Calculates user password hash from password and salt. Now user sha512.
+        
+        @param passwd: plain text password
+        @param salt: password salt
+        
+        @return sha512 hexa string
+    """
+    tmp = salt + passwd
+    hash_str = getSha512(tmp)
+    
+    logging.debug("salt + password: '%s', hash: '%s'", tmp, hash_str)
+    
+    return hash_str
+
 def genIV():
     """
         Generates random salt using cryptographic safe random generator, but depends on OS implementation.
@@ -97,9 +113,11 @@ def genCipherKey(passwd, salt):
         @param passwd: user password string
         @param salt: secret key salt string
     """
+    tmp = salt + passwd
     logging.info("generating symetric key")
+    logging.debug("salt + passord: '%s'", tmp)
     
-    return binascii.unhexlify(getSha256(salt + passwd))
+    return binascii.unhexlify(getSha256(tmp))
 
 def encryptData(plaintext, key, iv):
     """
@@ -159,7 +177,7 @@ def addPadding(data):
     padding = AES.block_size - (data_len % 16)
     data += chr(padding) * padding
     
-    logging.debug("data len: %s, padding: %i, padded data len: %s", data_len, padding, len(data))
+    logging.info("data len: %s, padding: %i, padded data len: %s", data_len, padding, len(data))
     
     return data
 
@@ -170,10 +188,10 @@ def remPadding(data):
         @return: data without padding
     """
     padding = ord(data[-1])
-    logging.debug("data with padding len: %s, padding: %i", len(data), padding)
+    logging.info("data with padding len: %s, padding: %i", len(data), padding)
     
     data_np = data[:-padding]
     
-    logging.debug("data without padding len: %s", len(data_np))
+    logging.info("data without padding len: %s", len(data_np))
     
     return data_np

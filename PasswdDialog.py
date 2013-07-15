@@ -117,7 +117,7 @@ class PasswdDialog(QtGui.QDialog):
         self._url = QtGui.QLineEdit()
         self._e_date = QtGui.QLineEdit()
         self._comment = QtGui.QTextEdit()
-        self._comment.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
+        self._comment.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         self._comment.setMaximumHeight(200)
         self._group = QtGui.QComboBox()
         self._att_name = QtGui.QLineEdit()
@@ -231,7 +231,7 @@ class PasswdDialog(QtGui.QDialog):
         """
             Delete actual attachment.
         """
-        logging.debug("deleting attachment")
+        logging.info("deleting attachment")
         
         # empty attachment name and disable input
         self._att_name.clear()
@@ -267,7 +267,7 @@ class PasswdDialog(QtGui.QDialog):
         
         # fill combobox
         for group in groups:
-            logging.debug("adding group ID: %d", group._id)
+            logging.info("adding group ID: %d", group._id)
             
             # load icon
             pix = QtGui.QPixmap()
@@ -281,10 +281,10 @@ class PasswdDialog(QtGui.QDialog):
                 if (group._id != g_id and inc_tmp):
                     tmp += 1
                     
-                    logging.debug("temp group index: %d, group._id: %d, g_id: %d", tmp, group._id, g_id)
+                    logging.info("temp group index: %d, group._id: %d, g_id: %d", tmp, group._id, g_id)
                 else:
                     if inc_tmp:
-                        logging.debug("group found")
+                        logging.info("group found")
                         inc_tmp = False
         # set current group
         if (g_id):
@@ -307,7 +307,7 @@ class PasswdDialog(QtGui.QDialog):
             Enable save button.
         """
         if (not self.__save_button.isEnabled()):
-            logging.debug("enabling save button")
+            logging.info("enabling save button")
             
             self.__save_button.setEnabled(True)
             
@@ -316,7 +316,7 @@ class PasswdDialog(QtGui.QDialog):
             Enable save button.
         """
         if (self.__save_button.isEnabled()):
-            logging.debug("disabling save button")
+            logging.info("disabling save button")
             
             self.__save_button.setEnabled(False)
         
@@ -331,7 +331,7 @@ class PasswdDialog(QtGui.QDialog):
         # return a touple
         group_id = self._group.itemData(index).toInt()[0]
         
-        logging.debug("current item index: %d group: %d", index, group_id)
+        logging.info("current item index: %d group: %d", index, group_id)
         
         return group_id
         
@@ -339,7 +339,7 @@ class PasswdDialog(QtGui.QDialog):
         """
             Handle release event.
         """
-        logging.debug("key release event")
+        logging.info("key release event")
         
     def center(self):
         """
@@ -364,11 +364,11 @@ class PasswdDialog(QtGui.QDialog):
         if (not file_path.isEmpty()):
             file_name = os.path.basename(str(file_path))
             
-            logging.debug("attachment file path: %s", file_path)
-            logging.debug("attachment file name: %s", file_name)
+            logging.info("attachment file path: %s", file_path)
+            logging.info("attachment file name: %s", file_name)
             
             # set attachment name
-            self._att_name.setText(file_name)
+            self._att_name.setText(QtCore.QString.fromUtf8(file_name))
             
             # read binary data
             data = self.readFile(file_path)
@@ -385,15 +385,15 @@ class PasswdDialog(QtGui.QDialog):
         home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
         file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Open attachment"), home_loc + os.path.sep + self._att_name.text())
         
-        logging.debug("save attachment to file: %s", file_path)
+        logging.info("save attachment to file: %s", file_path)
         
         if (not file_path.isEmpty()):
-            logging.debug("attachment file path: %s", file_path)
+            logging.info("attachment file path: %s", file_path)
             
             # write data to disk
             self.writeFile(file_path)
         else:
-            logging.debug("file not selected")
+            logging.info("file not selected")
             
     def writeFile(self, file_path):
         """
@@ -410,7 +410,7 @@ class PasswdDialog(QtGui.QDialog):
             
             raise e
         except:
-            logging.exception("exception writing file: %s", file_path)
+            logging.exception("exception writting file: %s", file_path)
             
             raise e
         finally:
@@ -427,12 +427,12 @@ class PasswdDialog(QtGui.QDialog):
         data = None
         
         try:
-            logging.debug("reading file: %s", file_path)
+            logging.info("reading file: %s", file_path)
             f = open(file_path, "rb")
             
             data = f.read()
             
-            logging.debug("file size: %i", len(data))
+            logging.info("file size: %i", len(data))
         except IOError as e:
             logging.exception(e)
             

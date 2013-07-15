@@ -45,20 +45,20 @@ class EditPasswdDialog(PasswdDialog):
         self.__password = passwd_ctrl.selectById(p_id)[0]
         
         # set window title
-        self.setWindowTitle(self.__password._title)
+        self.setWindowTitle(QtCore.QString.fromUtf8(self.__password._title))
         
         date_time_str = str(datetime.datetime.fromtimestamp(self.__password._e_date).strftime("%Y-%m-%d %H:%M:%S"))
         logging.debug("date time string: %s", date_time_str)
         
-        self._title.setText(self.__password._title)
-        self._username.setText(self.__password._username)
-        self._passwd.setText(self.__password._passwd)
-        self._url.setText(self.__password._url)
+        self._title.setText(QtCore.QString.fromUtf8(self.__password._title))
+        self._username.setText(QtCore.QString.fromUtf8(self.__password._username))
+        self._passwd.setText(QtCore.QString.fromUtf8(self.__password._passwd))
+        self._url.setText(QtCore.QString.fromUtf8(self.__password._url))
         self._c_date.setText(str(datetime.datetime.fromtimestamp(self.__password._c_date).strftime("%Y-%m-%d %H:%M:%S")))
         self._m_date.setText(str(datetime.datetime.fromtimestamp(self.__password._m_date).strftime("%Y-%m-%d %H:%M:%S")))
         self._e_date_edit.setDateTime(QtCore.QDateTime.fromString(date_time_str, "yyyy-MM-dd HH:mm:ss"))
-        self._comment.setText(self.__password._comment)
-        self._att_name.setText(self.__password._att_name)
+        self._comment.setText(QtCore.QString.fromUtf8(self.__password._comment))
+        self._att_name.setText(QtCore.QString.fromUtf8(self.__password._att_name))
         
         # set attachment data
         self._attachment_data = self.__password._attachment

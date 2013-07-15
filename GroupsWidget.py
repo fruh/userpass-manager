@@ -170,7 +170,7 @@ class GroupsWidget(QtGui.QTreeWidget):
         pix.loadFromData(icon)
   
         item.setIcon(self.__COL_ICON, QtGui.QIcon(pix))
-        item.setText(self.__COL_NAME, tr(name))
+        item.setText(self.__COL_NAME, QtCore.QString.fromUtf8(tr(name)))
         item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, tooltip)
         item.setData(self.__COL_ID, QtCore.Qt.DisplayRole, item_id)
         item.setData(self.__COL_TYPE, QtCore.Qt.DisplayRole, item_type)

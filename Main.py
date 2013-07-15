@@ -32,7 +32,7 @@ import shutil
 def main():
     app = QtGui.QApplication(sys.argv)
     
-    logging.debug("absolute app root: '%s'", AppSettings.getAbsAppRoot())
+    logging.info("absolute app root: '%s'", AppSettings.getAbsAppRoot())
     
     # set application icon
     app.setWindowIcon(QtGui.QIcon(AppSettings.APP_ICON_PATH))
@@ -48,25 +48,25 @@ def main():
     # create neccessary paths if missing
     if (not os.path.exists(AppSettings.BACKUP_PATH)):
         # missing data dir
-        logging.debug("creating dir: '%s'", AppSettings.BACKUP_PATH)
+        logging.info("creating dir: '%s'", AppSettings.BACKUP_PATH)
         
         os.makedirs(AppSettings.BACKUP_PATH)
     
     if (not os.path.exists(AppSettings.DATA_PATH)):
         # missing data dir
-        logging.debug("creating dir: '%s'", AppSettings.DATA_PATH)
+        logging.info("creating dir: '%s'", AppSettings.DATA_PATH)
         
         os.makedirs(AppSettings.DATA_PATH)
         
     if (not os.path.exists(AppSettings.DB_PATH)):
         # missing db dir
-        logging.debug("creating dir: '%s'", AppSettings.DB_PATH)
+        logging.info("creating dir: '%s'", AppSettings.DB_PATH)
         
         os.makedirs(AppSettings.DB_PATH)
         
     if (not os.path.exists(AppSettings.ICONS_PATH)):
         # missing db dir
-        logging.debug("creating dir: '%s'", AppSettings.ICONS_PATH)
+        logging.info("creating dir: '%s'", AppSettings.ICONS_PATH)
         
         os.makedirs(AppSettings.ICONS_PATH)
     
@@ -77,7 +77,7 @@ def main():
     login_dialog = LoginDialog(db_con)
 
     db_path = AppSettings.readDbFilePath()
-    logging.debug("DB path: '%s'", db_path)
+    logging.info("DB path: '%s'", db_path)
     
     if (not os.path.exists(db_path)):
         # if default DB file doesnt exists, run create DB dialog
@@ -85,7 +85,7 @@ def main():
     else:
         # first backup database
         backup_file = AppSettings.BACKUP_PATH + os.path.basename(db_path)
-        logging.debug("backup file: '%s'", backup_file)
+        logging.info("backup file: '%s'", backup_file)
         
         shutil.copyfile(db_path, backup_file)
 
@@ -98,6 +98,6 @@ def main():
     sys.exit(app.exec_())
     
 if (__name__ == "__main__"):
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.CRITICAL)
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.INFO)
     
     main()

@@ -67,7 +67,7 @@ class DetailWidget(QtGui.QWidget):
         self.__m_date = QtGui.QLabel()
         self.__e_date = QtGui.QLabel()
         self.__comment = QtGui.QTextEdit()
-        self.__comment.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
+        self.__comment.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         self.__comment.setMaximumHeight(100)
         self.__comment.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
         
@@ -105,15 +105,15 @@ class DetailWidget(QtGui.QWidget):
         if (not passwd):
             return
         
-        self.__title.setText(passwd._title)
+        self.__title.setText(QtCore.QString.fromUtf8(passwd._title))
         
         if (self._show_pass):
-            self.__username.setText(passwd._username)
-            self.__passwd.setText(passwd._passwd)
+            self.__username.setText(QtCore.QString.fromUtf8(passwd._username))
+            self.__passwd.setText(QtCore.QString.fromUtf8(passwd._passwd))
         else:
             self.__username.setText("******")
             self.__passwd.setText("******")
-        self.__url.setText(passwd._url)
+        self.__url.setText(QtCore.QString.fromUtf8(passwd._url))
         self.__c_date.setText(str(datetime.datetime.fromtimestamp(passwd._c_date).strftime("%Y-%m-%d %H:%M:%S")))
         self.__m_date.setText(str(datetime.datetime.fromtimestamp(passwd._m_date).strftime("%Y-%m-%d %H:%M:%S")))
         
@@ -121,8 +121,8 @@ class DetailWidget(QtGui.QWidget):
             self.__e_date.setText(tr("Never"))
         else:
             self.__e_date.setText(str(datetime.datetime.fromtimestamp(passwd._e_date).strftime("%Y-%m-%d %H:%M:%S")))
-        self.__comment.setText(passwd._comment)
-        self.__attachment.setText(passwd._att_name)
+        self.__comment.setText(QtCore.QString.fromUtf8(passwd._comment))
+        self.__attachment.setText(QtCore.QString.fromUtf8(passwd._att_name))
         
         # now show details
         self.setHidden(False)
