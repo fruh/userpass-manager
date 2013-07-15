@@ -74,8 +74,10 @@ Group
 Skupina
 Settings
 Nastavenia
-ABOUT_TEXT
-UserPass Manager v0.0.3 alpha slúži na bezpečné ukladanie prihlasovacích údajov.
+ABOUT_TEXT_1
+UserPass Manager 
+ABOUT_TEXT_2
+Slúži na bezpečné ukladanie prihlasovacích údajov.
 Do you want delete password '
 Želáte si vymazať heslo '
 Groups:

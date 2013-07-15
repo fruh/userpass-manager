@@ -37,6 +37,9 @@ def getAbsAppRoot():
 # application abs path
 APP_ABS_ROOT = getAbsAppRoot()
 
+# App version
+APP_VERSION = "v0.0.4-alpha"
+
 # language
 LANG = "en"
 

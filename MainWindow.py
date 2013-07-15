@@ -26,6 +26,7 @@ from EditPasswdDialog import EditPasswdDialog
 from NewPasswdDialog import NewPasswdDialog
 import logging
 from UserController import UserController
+import AppSettings
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -59,7 +60,7 @@ class MainWindow(QtGui.QMainWindow):
             Initialize gui components. Create dock widgets.
         """        
 #         self.resize(300, 300)
-        self.setWindowTitle("UserPass Manager alpha")
+        self.setWindowTitle("UserPass Manager " + AppSettings.APP_VERSION)
         self.resize(1000, 600)
         self.center()
         
@@ -254,7 +255,7 @@ class MainWindow(QtGui.QMainWindow):
         self.move(wg.topLeft())
         
     def aboutDialog(self):
-        QtGui.QMessageBox(QtGui.QMessageBox.Information, tr("About"), tr("ABOUT_TEXT") + """
+        QtGui.QMessageBox(QtGui.QMessageBox.Information, tr("About"), tr("ABOUT_TEXT_1") + " " + AppSettings.APP_VERSION + "\n" + tr("ABOUT_TEXT_2") + """
         
         Copyright (C) 2013  Frantisek Uhrecky 
                             <frantisek.uhrecky[at]gmail.com>
