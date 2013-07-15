@@ -41,8 +41,13 @@ class PasswordsWidget(QtGui.QTableWidget):
         
         # how password and username in visible form
         self._show_pass = False
+        self._del_clipboard = None
         
         super(PasswordsWidget, self).__init__()
+        
+        self._del_clipboard = QtCore.QTimer(self)
+        self._del_clipboard.setInterval(AppSettings.CLIPBOARD_LIVE_MSEC)
+        self._del_clipboard.setSingleShot(True)
         
         self.initUI()
         self.initConections()
@@ -85,6 +90,9 @@ class PasswordsWidget(QtGui.QTableWidget):
         # emits when slection cganged so (clicked, arrow move)
         self.itemSelectionChanged.connect(self.callShowDetails)
         self.itemSelectionChanged.connect(self.emitSelChanged)
+        
+        # connect timer del clipboard
+        self._del_clipboard.timeout.connect(self.deleteClipboard)
         
     def keyPressEvent(self, event):
         """
@@ -144,6 +152,12 @@ class PasswordsWidget(QtGui.QTableWidget):
         
         data = ""
         
+        # first stop old timer to clear clipboard
+        if (self._del_clipboard and self._del_clipboard.isActive()):
+            logging.debug("stopping old timer to delete clipboard")
+            
+            self._del_clipboard.stop()
+        
         if (row >= 0 and col >= 0):
             if (col == self.__COL_USERNAME and not self._show_pass):
                 # select username from DB
@@ -169,7 +183,8 @@ class PasswordsWidget(QtGui.QTableWidget):
             logging.debug("data to clipboard: '%s'", data)
             
             # delete clipboard after time
-            self._del_clipboard = QtCore.QTimer.singleShot(AppSettings.CLIPBOARD_LIVE_MSEC, self.deleteClipboard)
+            self._del_clipboard.start()
+            
             logging.debug("clipboard will be cleared after %i seconds", AppSettings.CLIPBOARD_LIVE_MSEC / 1000)
     
     def deleteClipboard(self):
