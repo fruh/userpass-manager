@@ -80,12 +80,12 @@ class EditPasswdDialog(PasswdDialog):
         """
         logging.debug("save button clicked.")
         
-        self.__password._title = str(self._title.text())
-        self.__password._username = str(self._username.text())
-        self.__password._passwd = str(self._passwd.text())
-        self.__password._url = str(self._url.text())
-        self.__password._comment = str(self._comment.toPlainText())
-        self.__password._att_name = str(self._att_name.text())
+        self.__password._title = str(self._title.text().toUtf8())
+        self.__password._username = str(self._username.text().toUtf8())
+        self.__password._passwd = str(self._passwd.text().toUtf8())
+        self.__password._url = str(self._url.text().toUtf8())
+        self.__password._comment = str(self._comment.toPlainText().toUtf8())
+        self.__password._att_name = str(self._att_name.text().toUtf8())
         
         # set expiration
         if (self._e_date_never.isChecked()):

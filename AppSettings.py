@@ -22,20 +22,24 @@ import logging
 from PyQt4 import QtCore
 import sys
 
+# file ssytem encoding
+FILE_SYS_ENCODING = sys.getfilesystemencoding()
+
 def getAbsAppRoot():
     """
         Return absolute root dir.
     """
-    root_dir = os.path.dirname(sys.argv[0])
+    
+    root_dir = os.path.dirname((str(sys.argv[0]).decode(FILE_SYS_ENCODING)).encode("utf-8"))
     
     if (len(root_dir) > 0):
         # if is not empty add dir separator at the end
         root_dir = root_dir + os.sep
     
-    return root_dir
+    return str(root_dir)
 
-# application abs path
-APP_ABS_ROOT = getAbsAppRoot()
+# application relative path path
+APP_REL_ROOT = getAbsAppRoot()
 
 # App version
 APP_VERSION = "v0.0.4-alpha"
@@ -50,7 +54,7 @@ CLIPBOARD_LIVE_MSEC = 60000
 USER_NAME = "user"
 
 # default data path
-DATA_PATH = APP_ABS_ROOT + "data" + os.path.sep
+DATA_PATH = APP_REL_ROOT + "data" + os.path.sep
 
 # default settings file name
 SETTINGS_FILE_NAME = "settings.ini"
@@ -59,7 +63,7 @@ SETTINGS_FILE_NAME = "settings.ini"
 SETTINGS_FILE_PATH = DATA_PATH + SETTINGS_FILE_NAME
 
 # default DB path
-DB_PATH = APP_ABS_ROOT + "db" + os.path.sep
+DB_PATH = APP_REL_ROOT + "db" + os.path.sep
 
 # default DB file name
 DB_FILE_NAME = "userpass.db"
@@ -68,16 +72,16 @@ DB_FILE_NAME = "userpass.db"
 DEFAULT_DB = "db" + os.path.sep + DB_FILE_NAME
 
 # icons path
-ICONS_PATH = APP_ABS_ROOT + "icons" + os.sep
+ICONS_PATH = APP_REL_ROOT + "icons" + os.sep
 
 # translations path
-TRANS_PATH = APP_ABS_ROOT + "translation" + os.sep
+TRANS_PATH = APP_REL_ROOT + "translation" + os.sep
 
 # translation suffix
 TRANS_SUFFIX = ".txt"
 
 # backup path
-BACKUP_PATH = APP_ABS_ROOT + "backup" + os.sep
+BACKUP_PATH = APP_REL_ROOT + "backup" + os.sep
 
 # app icon path
 APP_ICON_PATH = ICONS_PATH + "userpass.ico"
@@ -109,7 +113,7 @@ def readDbFilePath():
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, data)
     
     # read DB file path
-    return APP_ABS_ROOT + data
+    return APP_REL_ROOT + data
 
 def writeDbFilePath(db_path):
     """
@@ -117,9 +121,9 @@ def writeDbFilePath(db_path):
         
         @param db_path: DB file path
     """
-    rel_path = os.path.relpath(db_path, APP_ABS_ROOT)
+    rel_path = str(os.path.relpath(db_path, APP_REL_ROOT))
     
-    logging.debug("current working dir: '%s'", APP_ABS_ROOT)
+    logging.debug("current working dir: '%s'", APP_REL_ROOT)
     logging.debug("abs. path: '%s', rel. path: '%s'", db_path, rel_path)
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, rel_path)
         
@@ -153,3 +157,17 @@ def writeLanguage(lang):
     # open settings
     settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
     settings.setValue(SET_KEY_LANG, QtCore.QString.fromUtf8(lang))
+    
+def decodePath(path):
+    """
+        Decode path from utf-8 to system encoding.
+        
+        @param path: path in utf-8 encoding
+        
+        @return: encoded path in system encoding
+    """
+    out = str(path).decode("utf-8").encode(FILE_SYS_ENCODING)
+    
+    logging.info("in: '%s', out: '%s'", path, out)
+    
+    return out

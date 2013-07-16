@@ -20,6 +20,7 @@
 import sqlite3
 import logging
 from IconModel import IconModel
+import AppSettings
 
 class IconController:
     """
@@ -183,7 +184,7 @@ class IconController:
         # open and read icon
         try:
             logging.debug("reading icon image from path: %s", path)
-            img = open(path, "rb")
+            img = open(AppSettings.decodePath(path), "rb")
             
             icon = img.read()
             icon = sqlite3.Binary(icon)

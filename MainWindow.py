@@ -123,14 +123,18 @@ class MainWindow(QtGui.QMainWindow):
         """
         user_ctrl = UserController(self._db_ctrl)
         
-        username = str(username)
-        master = str(master)
+        username = str(username.toUtf8())
+        master = str(master.toUtf8())
         
         logging.debug("username %s, master %s", username, master)
         
         self._user = user_ctrl.selectByNameMaster(username, master)
         
-        self.reloadItems()
+        if (self._user):
+            self.reloadItems()
+        else:
+            logging.error("something wrong, can't log in user.")
+            logging.debug("username: '%s', password: '%s'", username, master)
         self.show()
         
     def initConections(self):

@@ -35,12 +35,12 @@ class NewPasswdDialog(PasswdDialog):
         """
         logging.debug("save button clicked.")
         
-        title = str(self._title.text())
-        username = str(self._username.text())
-        passwd = str(self._passwd.text())
-        url = str(self._url.text())
-        comment = str(self._comment.toPlainText())
-        att_name = str(self._att_name.text())
+        title = str(self._title.text().toUtf8())
+        username = str(self._username.text().toUtf8())
+        passwd = str(self._passwd.text().toUtf8())
+        url = str(self._url.text().toUtf8())
+        comment = str(self._comment.toPlainText().toUtf8())
+        att_name = str(self._att_name.text().toUtf8())
         attachment = self._attachment_data
          
         # get group

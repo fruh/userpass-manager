@@ -46,7 +46,7 @@ class LoginDialog(QtGui.QDialog):
         """
             Initialize UI components.
         """
-        self.setWindowTitle(tr("Log in: ") + os.path.basename(AppSettings.readDbFilePath()))
+        self.setWindowTitle(tr("Log in: ") + QtCore.QString.fromUtf8(os.path.basename(AppSettings.readDbFilePath())))
         self.setFixedSize(500, 100)
         
         # create main grid layout
@@ -139,16 +139,17 @@ class LoginDialog(QtGui.QDialog):
         if (not b):
             self.setWindowTitle(tr("Database not selected."))
         else:
-            self.setWindowTitle(tr("Log in: ") + os.path.basename(AppSettings.readDbFilePath()))
+            self.setWindowTitle(tr("Log in: ") + QtCore.QString.fromUtf8(os.path.basename(AppSettings.readDbFilePath())))
         
     def selectDB(self):
         """
             Select database file.
         """
-        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Select database"), AppSettings.DB_PATH)
+        dir_path = AppSettings.APP_REL_ROOT + AppSettings.DEFAULT_DB
+        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Select database"), QtCore.QString.fromUtf8(dir_path))
         
         if (not file_path.isEmpty()):
-            db_path = str(file_path)
+            db_path = str(file_path.toUtf8())
             
             logging.debug("database file path: %s", db_path)
             
@@ -182,12 +183,12 @@ class LoginDialog(QtGui.QDialog):
         login_ctrl = LoginController(self.__db_ctrl)
         
         username = AppSettings.USER_NAME
-        master = str(self._passwd.text()).decode('utf-8')
+        master = str(self._passwd.text().toUtf8())
         
         logged_user = login_ctrl.logInUser(username, master)
         
         if (logged_user):
-            self.signalSuccessfullyLogged.emit(username, master)
+            self.signalSuccessfullyLogged.emit(QtCore.QString.fromUtf8(username), QtCore.QString.fromUtf8(master))
             
             self.close()
         else:

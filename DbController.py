@@ -53,6 +53,8 @@ class DbController:
         try:
             if (database):
                 self._database = database
+            logging.info("database: '%s'", self._database)
+                
             # check if file exists    
             self._existed = os.path.exists(self._database)
             

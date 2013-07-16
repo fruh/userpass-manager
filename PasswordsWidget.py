@@ -177,9 +177,9 @@ class PasswordsWidget(QtGui.QTableWidget):
                 data = passwd._passwd
             else:
                 item = self.item(row, col)
-                data = item.text()
+                data = str(item.text().toUtf8())
             # copy to clipboard
-            QtGui.QApplication.clipboard().setText(data)
+            QtGui.QApplication.clipboard().setText(QtCore.QString.fromUtf8(data))
             logging.debug("data to clipboard: '%s'", data)
             
             # delete clipboard after time
@@ -333,9 +333,10 @@ class PasswordsWidget(QtGui.QTableWidget):
         item = self.item(row, self.__COL_TITLE)
         
         if (item):
-            logging.info("curent item title: %s", item.text())
+            item_text = str(item.text().toUtf8())
+            logging.info("curent item title: %s", item_text)
             
-            return str(item.text())
+            return str(item_text)
         
         logging.info("item: %s", item)
         return False

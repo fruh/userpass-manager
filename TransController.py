@@ -29,7 +29,7 @@ def loadTranslation(lang):
     f = None
     
     try:
-        f = open(AppSettings.TRANS_PATH + lang + AppSettings.TRANS_SUFFIX)
+        f = open(AppSettings.decodePath(AppSettings.TRANS_PATH + lang + AppSettings.TRANS_SUFFIX))
         
         lines = f.readlines()
         

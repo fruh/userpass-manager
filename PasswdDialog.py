@@ -22,6 +22,7 @@ from PyQt4 import QtGui, QtCore
 from TransController import tr
 from GroupController import GroupController
 import os
+import AppSettings
 
 class PasswdDialog(QtGui.QDialog):
     # emiting after saving passowrd
@@ -362,7 +363,8 @@ class PasswdDialog(QtGui.QDialog):
         file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Open attachment"), home_loc)
         
         if (not file_path.isEmpty()):
-            file_name = os.path.basename(str(file_path))
+            file_path = str(file_path.toUtf8())
+            file_name = os.path.basename(file_path)
             
             logging.info("attachment file path: %s", file_path)
             logging.info("attachment file name: %s", file_name)
@@ -383,11 +385,14 @@ class PasswdDialog(QtGui.QDialog):
             Save attachment to disk.
         """
         home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
-        file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Open attachment"), home_loc + os.path.sep + self._att_name.text())
+        home_loc = QtCore.QString.fromUtf8(home_loc + os.path.sep)
+        home_loc.append(self._att_name.text())
+        file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Open attachment"), home_loc)
         
         logging.info("save attachment to file: %s", file_path)
         
         if (not file_path.isEmpty()):
+            file_path = str(file_path.toUtf8())
             logging.info("attachment file path: %s", file_path)
             
             # write data to disk
@@ -401,8 +406,9 @@ class PasswdDialog(QtGui.QDialog):
             
             @param file_path: file to write
         """
+        f = None
         try:
-            f = open(file_path, "wb")
+            f = open(AppSettings.decodePath(file_path), "wb")
             
             f.write(self._attachment_data)
         except IOError as e:
@@ -425,10 +431,11 @@ class PasswdDialog(QtGui.QDialog):
             @return: on succes binary data, else None
         """
         data = None
+        f = None
         
         try:
             logging.info("reading file: %s", file_path)
-            f = open(file_path, "rb")
+            f = open(AppSettings.decodePath(file_path), "rb")
             
             data = f.read()
             
