@@ -29,7 +29,10 @@ def getAbsAppRoot():
     """
         Return absolute root dir.
     """
+    global FILE_SYS_ENCODING
     
+    if (not FILE_SYS_ENCODING):
+        FILE_SYS_ENCODING = "utf-8"
     root_dir = os.path.dirname((str(sys.argv[0]).decode(FILE_SYS_ENCODING)).encode("utf-8"))
     
     if (len(root_dir) > 0):
