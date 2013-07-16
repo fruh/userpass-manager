@@ -42,7 +42,7 @@ def getAbsAppRoot():
 APP_REL_ROOT = getAbsAppRoot()
 
 # App version
-APP_VERSION = "v0.0.4-alpha"
+APP_VERSION = "v0.0.5-alpha"
 
 # language
 LANG = "en"
