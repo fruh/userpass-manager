@@ -66,6 +66,8 @@ class DbController:
                 self._cursor = self._connection.cursor()
             logging.info("'%s' successfully opened.", self._database)
             logging.info("SQLite version %s", self.getDBVersion())
+            
+            self.enForeignKey()
         except sqlite3.Error as e:
             logging.exception(e)
             raise e
@@ -89,7 +91,8 @@ class DbController:
     
     def createTables(self):      
         """
-            Creates neccessery tables. 
+            Creates neccessery tables. Contains foreign key constrains.
+            
             Users table: users of UserPass manager application.
             Icons table: contains icons for groups
             Groups table: groups of passwords i.e. (Page, SSH, E-Mail, PC and user defined)
@@ -106,17 +109,17 @@ class DbController:
                 
                 DROP TABLE IF EXISTS Groups;
                 CREATE TABLE Groups(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, 
-                    description TEXT, icon_id INTEGER,
-                    FOREIGN KEY(icon_id) REFERENCES Icons(id));
+                    description TEXT, 
+                    icon_id INTEGER DEFAULT 0 REFERENCES Icons(id) ON DELETE SET DEFAULT);
                 
                 DROP TABLE IF EXISTS Passwords;
                 CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title BLOB NOT NULL, username BLOB NOT NULL,
                     passwd BLOB NOT NULL, url BLOB, comment BLOB, 
                     c_date BLOB NOT NULL, m_date BLOB NOT NULL, e_date BLOB NOT NULL,
-                    grp_id INTEGER, user_id INTEGER, attachment BLOB, att_name BLOB,
-                    salt TEXT, iv BLOB, expire TEXT,
-                    FOREIGN KEY(grp_id) REFERENCES Groups(id),
-                    FOREIGN KEY(user_id) REFERENCES Users(id));
+                    grp_id INTEGER REFERENCES Groups(id) ON DELETE CASCADE, 
+                    user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE, 
+                    attachment BLOB, att_name BLOB,
+                    salt TEXT, iv BLOB, expire TEXT);
                 """)
             self._connection.commit()
             

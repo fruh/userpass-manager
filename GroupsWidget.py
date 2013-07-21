@@ -245,6 +245,29 @@ class GroupsWidget(QtGui.QTreeWidget):
         else:
             return False
         
+    def currentItemGroupName(self):
+        """
+            Return current item group name.
+        """
+        g_id = self.currentItemGroupID()
+        
+        if (g_id):
+            group_ctrl = GroupController(self.__parent._db_ctrl)
+            
+            return group_ctrl.selectById(g_id)._name
+        return False
+        
+    def deleteGroup(self, g_id):
+        """
+            Delete group with id. Delete cascade implemented on passwords.
+            
+            @param g_id: group id
+        """
+        logging.info("deleting group and chlidren password with ID: '%i'", g_id)
+        
+        group_ctrl = GroupController(self.__parent._db_ctrl)
+        group_ctrl.deleteGroup(g_id)
+        
     def currentPasswordTitle(self):
         """
             Get current password title.

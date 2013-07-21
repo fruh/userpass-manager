@@ -55,7 +55,7 @@ class GroupController:
         """
             Search group by id.
             @param id: group id
-            @return: row
+            @return: row, group model object
         """
         try:
             self._cursor.execute("SELECT * FROM Groups WHERE id = :id;", {"id" : g_id})
