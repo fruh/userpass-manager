@@ -20,6 +20,7 @@
 import logging
 from PyQt4 import QtGui, QtCore
 from IconController import IconController
+from GroupController import GroupController
 from TransController import tr
 
 class GroupDialog(QtGui.QDialog):
@@ -142,7 +143,7 @@ class GroupDialog(QtGui.QDialog):
                         inc_tmp = False
         # set current group
         if (i_id):
-            self.__icons.setCurrentIndex(tmp)
+            self._icons.setCurrentIndex(tmp)
             
     def enableSaveButton(self):
         """
@@ -152,6 +153,15 @@ class GroupDialog(QtGui.QDialog):
             logging.info("enabling save button")
             
             self.__save_button.setEnabled(True)
+            
+    def disableSaveButton(self):
+        """
+            Disable save button.
+        """
+        if (self.__save_button.isEnabled()):
+            logging.info("disabling save button")
+            
+            self.__save_button.setEnabled(False)
             
     def getIconId(self):
         """
@@ -167,9 +177,3 @@ class GroupDialog(QtGui.QDialog):
         logging.info("current item index: %d group: %d", index, icon_id)
         
         return icon_id
-    
-    def saveChanges(self):
-        """
-            Abstract method for saving changes into db.
-        """
-        pass

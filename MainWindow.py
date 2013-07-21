@@ -28,6 +28,7 @@ from NewGroupDialog import NewGroupDialog
 import logging
 from UserController import UserController
 import AppSettings
+from EditGroupDialog import EditGroupDialog
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -190,18 +191,6 @@ class MainWindow(QtGui.QMainWindow):
         
         self._new_passwd_g.triggered.connect(self.showNewPasswdDialog)
         
-        # new group action
-        self._new_group = QtGui.QAction(tr("New"), self)
-        self._new_group.setToolTip(tr("Add new group to DB"))
-        
-        self._new_group.triggered.connect(self.showNewGroupDialog)
-        
-        # new group action in groups tree right click menu
-        self._new_group_g = QtGui.QAction(tr("New group"), self)
-        self._new_group_g.setToolTip(tr("Add new group to DB"))
-        
-        self._new_group_g.triggered.connect(self.showNewGroupDialog)
-        
         # delete password action
         self._del_passwd = QtGui.QAction(tr("Delete"), self)
         self._del_passwd.setShortcuts(QtGui.QKeySequence.Delete)
@@ -216,6 +205,30 @@ class MainWindow(QtGui.QMainWindow):
         self._del_passwd_g.setDisabled(True)
         
         self._del_passwd_g.triggered.connect(self.deletePassword)
+        
+        # new group action
+        self._new_group = QtGui.QAction(tr("New"), self)
+        self._new_group.setToolTip(tr("Add new group to DB"))
+        
+        self._new_group.triggered.connect(self.showNewGroupDialog)
+        
+        # new group action in groups tree right click menu
+        self._new_group_g = QtGui.QAction(tr("New group"), self)
+        self._new_group_g.setToolTip(tr("Add new group to DB"))
+        
+        self._new_group_g.triggered.connect(self.showNewGroupDialog)
+        
+        # edit group action
+        self._edit_group = QtGui.QAction(tr("Edit"), self)
+        self._edit_group.setToolTip(tr("Edit selected group"))
+        
+        self._edit_group.triggered.connect(self.showEditGroupDialog)
+        
+        # edit group action in groups tree right click menu
+        self._edit_group_g = QtGui.QAction(tr("Edit group"), self)
+        self._edit_group_g.setToolTip(tr("Edit selected group"))
+        
+        self._edit_group_g.triggered.connect(self.showEditGroupDialog)
         
         # delete group in groups tree
         self._del_group = QtGui.QAction(tr("Delete"), self)
@@ -239,6 +252,7 @@ class MainWindow(QtGui.QMainWindow):
         self._groups_tw.addAction(self._new_passwd_g)
         self._groups_tw.addAction(self._del_passwd_g)
         self._groups_tw.addAction(self._new_group_g)
+        self._groups_tw.addAction(self._edit_group_g)
         self._groups_tw.addAction(self._del_group_g)
         
     def enDisPassGrpActions(self, item_type, item_id):
@@ -255,9 +269,13 @@ class MainWindow(QtGui.QMainWindow):
         if (item_type == self._groups_tw._TYPE_GROUP):
             self._del_group.setEnabled(True)
             self._del_group_g.setEnabled(True)
+            self._edit_group.setEnabled(True)
+            self._edit_group_g.setEnabled(True)
         else:
             self._del_group.setEnabled(False)
             self._del_group_g.setEnabled(False)
+            self._edit_group.setEnabled(False)
+            self._edit_group_g.setEnabled(False)
         
     def createMenu(self):
         """
@@ -277,6 +295,7 @@ class MainWindow(QtGui.QMainWindow):
         
         group_menu = self.menuBar().addMenu(tr("Group"))
         group_menu.addAction(self._new_group)
+        group_menu.addAction(self._edit_group)
         group_menu.addAction(self._del_group)
         
         settings_menu = self.menuBar().addMenu(tr("Settings"))
@@ -400,6 +419,19 @@ class MainWindow(QtGui.QMainWindow):
                 self._groups_tw.deleteGroup(g_id)
                 self.reloadItems()
         logging.debug("Not group selected title: %s", title)
+        
+    def showEditGroupDialog(self):
+        """
+            Edit selected group.
+        """
+        g_id = self._groups_tw.currentItemGroupID()
+        
+        if (g_id):
+            # is group selected
+            edit_group_dialog = EditGroupDialog(self, g_id)
+            
+            edit_group_dialog.exec_()
+            self.reloadItems(-1)
         
     def reloadItems(self, p_id = -1):
         """
