@@ -51,6 +51,8 @@ class DbController:
             @param database: db file path with name
         """
         try:
+            self.disconnect()
+            
             if (database):
                 self._database = database
             logging.info("database: '%s'", self._database)
@@ -67,6 +69,15 @@ class DbController:
         except sqlite3.Error as e:
             logging.exception(e)
             raise e
+    
+    def disconnect(self):
+        """
+            Disconnect connected database.
+        """
+        if (self._connection):
+            logging.info("disconnecting DB: '%s'", self._database)
+            
+            self._connection.close()
     
     def getDBVersion(self):
         """ 
@@ -158,3 +169,19 @@ class DbController:
         self._cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         
         return self._cursor.fetchall()
+    
+    def enForeignKey(self):
+        """
+            Enable foreign key. Default disbaled. On every connection need to enable foreign keys.
+        """
+        try:
+            logging.info("Enabling foreign keys.")
+            
+            self._cursor.execute("PRAGMA foreign_keys = ON;")
+            self._connection.commit()
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            # rollback changes
+            self._connection.rollback()
+            raise e
