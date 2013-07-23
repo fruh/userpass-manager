@@ -29,6 +29,18 @@ import AppSettings
 import TransController
 import shutil
     
+def ifNotExCreate(directory):
+    """
+        If does not exists dir, create it.
+        
+        @param directory: directory to check and create
+    """
+    if (not os.path.exists(AppSettings.decodePath(directory))):
+        # missing data dir
+        logging.info("creating dir: '%s'", directory)
+        
+        os.makedirs(AppSettings.decodePath(directory))
+    
 def main():
     app = QtGui.QApplication(sys.argv)
     
@@ -38,29 +50,11 @@ def main():
     app.setWindowIcon(QtGui.QIcon(AppSettings.APP_ICON_PATH))
     
     # create neccessary paths if missing
-    if (not os.path.exists(AppSettings.decodePath(AppSettings.BACKUP_PATH))):
-        # missing data dir
-        logging.info("creating dir: '%s'", AppSettings.BACKUP_PATH)
-        
-        os.makedirs(AppSettings.decodePath(AppSettings.BACKUP_PATH))
-    
-    if (not os.path.exists(AppSettings.decodePath(AppSettings.DATA_PATH))):
-        # missing data dir
-        logging.info("creating dir: '%s'", AppSettings.DATA_PATH)
-        
-        os.makedirs(AppSettings.decodePath(AppSettings.DATA_PATH))
-        
-    if (not os.path.exists(AppSettings.decodePath(AppSettings.DB_PATH))):
-        # missing db dir
-        logging.info("creating dir: '%s'", AppSettings.DB_PATH)
-        
-        os.makedirs(AppSettings.decodePath(AppSettings.DB_PATH))
-        
-    if (not os.path.exists(AppSettings.decodePath(AppSettings.ICONS_PATH))):
-        # missing db dir
-        logging.info("creating dir: '%s'", AppSettings.ICONS_PATH)
-        
-        os.makedirs(AppSettings.decodePath(AppSettings.ICONS_PATH))
+    ifNotExCreate(AppSettings.TMP_PATH)
+    ifNotExCreate(AppSettings.BACKUP_PATH)
+    ifNotExCreate(AppSettings.DATA_PATH)
+    ifNotExCreate(AppSettings.DB_PATH)
+    ifNotExCreate(AppSettings.ICONS_PATH)
     
     # preapare languages
     AppSettings.writeLanguage("sk")
@@ -72,7 +66,7 @@ def main():
     
     # DB controller instance
     db_con = DbController()
-    
+
     # login dialog instance
     login_dialog = LoginDialog(db_con)
 

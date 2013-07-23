@@ -44,8 +44,14 @@ def getAbsAppRoot():
 # application relative path path
 APP_REL_ROOT = getAbsAppRoot()
 
+# tmp directory
+TMP_PATH = APP_REL_ROOT + "tmp" + os.sep
+
 # App version
 APP_VERSION = "v0.0.5-alpha"
+
+# App version
+APP_DB_VERSION = 1
 
 # language
 LANG = "en"

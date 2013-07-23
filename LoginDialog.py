@@ -180,6 +180,7 @@ class LoginDialog(QtGui.QDialog):
         
         path = AppSettings.readDbFilePath()
         self.__db_ctrl.connectDB(path)
+        
         login_ctrl = LoginController(self.__db_ctrl)
         
         username = AppSettings.USER_NAME

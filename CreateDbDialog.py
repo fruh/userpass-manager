@@ -162,6 +162,7 @@ class CreateDbDialog(QtGui.QDialog):
         
         self.__db_ctrl.connectDB(db_path)
         self.__db_ctrl.createTables()
+        self.__db_ctrl.insertDefRows()
         
         logging.debug("inserting user to DB: '%s'", AppSettings.USER_NAME)
         
