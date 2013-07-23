@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui
 from IconController import IconController
 from TransController import tr
 from SaveDialog import SaveDialog

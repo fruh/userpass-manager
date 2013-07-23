@@ -24,7 +24,8 @@ from LoginController import LoginController
 import AppSettings
 from CreateDbDialog import CreateDbDialog
 import os
-from MainWindow import MainWindow
+import InfoMsgBoxes
+import time
 
 class LoginDialog(QtGui.QDialog):
     """
@@ -146,7 +147,7 @@ class LoginDialog(QtGui.QDialog):
         """
             Select database file.
         """
-        dir_path = AppSettings.APP_REL_ROOT + AppSettings.DEFAULT_DB
+        dir_path = AppSettings.APP_ABS_ROOT + AppSettings.DEFAULT_DB
         file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Select database"), QtCore.QString.fromUtf8(dir_path))
         
         if (not file_path.isEmpty()):
@@ -195,9 +196,13 @@ class LoginDialog(QtGui.QDialog):
                 
                 self.close()
             else:
+                # sleep for a while
+                time.sleep(AppSettings.WRONG_PASWD_SLEEP)
+                
+                # show message
                 QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
         except Exception as e:
-            MainWindow.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)
         
     def setVisibilityPass(self, state):
         """

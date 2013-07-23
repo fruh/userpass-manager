@@ -23,6 +23,7 @@ from PasswdController import PasswdController
 import datetime
 from GroupController import GroupController
 from PasswdDialog import PasswdDialog
+import InfoMsgBoxes
 
 class EditPasswdDialog(PasswdDialog):
     def __init__(self, parent, p_id, show_pass = False):
@@ -114,4 +115,4 @@ class EditPasswdDialog(PasswdDialog):
             self.signalPasswdSaved.emit(self.__password._id)
             self.accept()
         except Exception as e:
-            self.__parent.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)

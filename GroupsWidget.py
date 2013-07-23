@@ -83,12 +83,6 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         
-#     def keyPressEvent(self, event):
-#         """
-#             Handle key press event.
-#         """
-#         if (event.key() == )
-        
     def keyReleaseEvent(self, event):
         """
             Handle key released event, to edit password, when enter pressed.
@@ -171,7 +165,7 @@ class GroupsWidget(QtGui.QTreeWidget):
   
         item.setIcon(self.__COL_ICON, QtGui.QIcon(pix))
         item.setText(self.__COL_NAME, QtCore.QString.fromUtf8(tr(name)))
-        item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, tooltip)
+        item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, QtCore.QString.fromUtf8(tr(tooltip)))
         item.setData(self.__COL_ID, QtCore.Qt.DisplayRole, item_id)
         item.setData(self.__COL_TYPE, QtCore.Qt.DisplayRole, item_type)
         item.setData(self.__COL_GRP_ID, QtCore.Qt.DisplayRole, item_grp_id)

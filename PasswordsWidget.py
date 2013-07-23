@@ -281,6 +281,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.setSortingEnabled(False)
         
         for i in range(0, self.rowCount()):
+            i
             self.removeRow(self.rowCount() - 1)
             
     def showDetails(self, row, column):

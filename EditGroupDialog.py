@@ -22,6 +22,7 @@ from PyQt4 import QtCore
 from TransController import tr
 from GroupController import GroupController
 import logging
+import InfoMsgBoxes
 
 class EditGroupDialog(GroupDialog):
     def __init__(self, parent, g_id):
@@ -68,7 +69,7 @@ class EditGroupDialog(GroupDialog):
         """
         GroupDialog.initUi(self)
         
-        self.setWindowTitle(tr("Edit group: ") + QtCore.QString.fromUtf8(tr(self.__group._name)))
+        self.setWindowTitle(QtCore.QString.fromUtf8(tr("Edit group")) + ": " + QtCore.QString.fromUtf8(tr(self.__group._name)))
         
     def saveChanges(self):
         """
@@ -89,4 +90,4 @@ class EditGroupDialog(GroupDialog):
         except Exception as e:
             logging.exception(e)
             
-            self.__parent.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)

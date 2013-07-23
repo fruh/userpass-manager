@@ -29,7 +29,8 @@ import logging
 from UserController import UserController
 import AppSettings
 from EditGroupDialog import EditGroupDialog
-from SaveDialog import SaveDialog
+import shutil
+import InfoMsgBoxes
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -57,6 +58,16 @@ class MainWindow(QtGui.QMainWindow):
         """
         logging.debug("deleting clipboard")
         QtGui.QApplication.clipboard().clear()
+        
+        try:
+            logging.info("removing tmp dir: '%s'", AppSettings.TMP_PATH)
+            
+            # remove tmp files
+            shutil.rmtree(AppSettings.decodePath(AppSettings.TMP_PATH))
+        except Exception as e:
+            logging.exception(e)
+            
+            InfoMsgBoxes.showErrorMsg(e)
         
     def initUI(self):
         """
@@ -455,12 +466,4 @@ class MainWindow(QtGui.QMainWindow):
         except Exception as e:
             logging.exception(e)
             
-            self.showErrorMsg(e)
-      
-    @staticmethod      
-    def showErrorMsg(msg):
-        """
-            Display error message box.
-        """
-        QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Something wrong!"), tr("Something worng in program. Sorry.") + 
-                "\n\n" + QtCore.QString.fromUtf8(str(msg))).exec_()
+            InfoMsgBoxes.showErrorMsg(e)

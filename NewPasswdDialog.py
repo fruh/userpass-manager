@@ -21,6 +21,7 @@ import logging
 from PasswdController import PasswdController
 import time
 from PasswdDialog import PasswdDialog
+import InfoMsgBoxes
 
 class NewPasswdDialog(PasswdDialog):
     def __init__(self, parent, g_id = False, show_pass = False):
@@ -70,4 +71,4 @@ class NewPasswdDialog(PasswdDialog):
         except Exception as e:
             logging.exception(e)
             
-            self.__parent.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)

@@ -24,7 +24,7 @@ from GroupController import GroupController
 import os
 import AppSettings
 from SaveDialog import SaveDialog
-import MainWindow
+import InfoMsgBoxes
 
 class PasswdDialog(SaveDialog):
     # emiting after saving passowrd
@@ -43,7 +43,6 @@ class PasswdDialog(SaveDialog):
         self.__edit = edit
         self.__show_pass = show_pass
         super(PasswdDialog, self).__init__()
-#         SaveDialog.__init__(self)
         
         self.initUi()
         self.initConections()
@@ -128,23 +127,33 @@ class PasswdDialog(SaveDialog):
         self._layout_gl.addLayout(passwd_hl, 2, 1)
         self._layout_gl.addWidget(self._url, 3, 1)
         
+        # attachment vertical layout
+        att_vl = QtGui.QVBoxLayout()
+        
         # attachment layout
-        att_hl = QtGui.QHBoxLayout()
+        att_hl_1 = QtGui.QHBoxLayout()
+        att_hl_2 = QtGui.QHBoxLayout()
+        
+        att_vl.addLayout(att_hl_1)
+        att_vl.addLayout(att_hl_2)
         
         # open file button
-        self._att_button = QtGui.QPushButton(tr("New"))
-        self._att_del_button = QtGui.QPushButton(tr("Del"))
-        self._att_save_button = QtGui.QPushButton(tr("Save"))
+        self._att_button = QtGui.QPushButton(tr("Load"))
+        self._att_del_button = QtGui.QPushButton(tr("Delete"))
+        self._att_save_button = QtGui.QPushButton(tr("Download"))
+        self._att_open_button = QtGui.QPushButton(tr("Open"))
         
         self._att_del_button.setEnabled(False)
         self._att_save_button.setEnabled(False)
+        self._att_open_button.setEnabled(False)
         
-        att_hl.addWidget(self._att_button)
-        att_hl.addWidget(self._att_del_button)
-        att_hl.addWidget(self._att_save_button)
+        att_hl_1.addWidget(self._att_button)
+        att_hl_1.addWidget(self._att_del_button)
+        att_hl_2.addWidget(self._att_save_button)
+        att_hl_2.addWidget(self._att_open_button)
         
         self._layout_gl.addWidget(self._att_name, 7 + layout_offset, 1)
-        self._layout_gl.addLayout(att_hl, 8 + layout_offset, 1)
+        self._layout_gl.addLayout(att_vl, 8 + layout_offset, 1)
         self._layout_gl.addWidget(self._comment, 9 + layout_offset, 1)
         self._layout_gl.addWidget(self._group, 10 + layout_offset, 1)
         
@@ -206,6 +215,9 @@ class PasswdDialog(SaveDialog):
         # save attachment to disk
         self._att_save_button.clicked.connect(self.saveAttachment)
         
+        # open attachment file
+        self._att_open_button.clicked.connect(self.openAttachment)
+        
         # attachment input label
         self._att_name.textChanged.connect(self.enableAttEditAndButton)
         
@@ -228,6 +240,7 @@ class PasswdDialog(SaveDialog):
         # diable del button
         self._att_del_button.setDisabled(True)
         self._att_save_button.setDisabled(True)
+        self._att_open_button.setDisabled(True)
         
     def enableAttEditAndButton(self):
         """
@@ -236,6 +249,7 @@ class PasswdDialog(SaveDialog):
         self._att_name.setEnabled(True)
         self._att_del_button.setEnabled(True)
         self._att_save_button.setEnabled(True)
+        self._att_open_button.setEnabled(True)
         
     def loadGroups(self, g_id = False):
         """
@@ -331,12 +345,13 @@ class PasswdDialog(SaveDialog):
                 
                 if (data):
                     self._attachment_data = data
+                    self.enableSaveButton()
             else:
                 logging.debug("file not selected")
         except Exception as e:
             logging.exception(e)
             
-            MainWindow.MainWindow.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)
             
     def saveAttachment(self):
         """
@@ -361,7 +376,26 @@ class PasswdDialog(SaveDialog):
         except Exception as e:
             logging.exception(e)
             
-            MainWindow.MainWindow.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)
+            
+    def openAttachment(self):
+        """
+            Open attachment using desktop services.
+        """
+        try:
+            tmp_file = AppSettings.TMP_PATH + str(self._att_name.text().toUtf8())
+            logging.info("saving attachment to tmp file: '%s'", tmp_file)
+            
+            self.writeFile(tmp_file)
+            
+            if (not QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(QtCore.QString.fromUtf8(tmp_file)))):
+                # not succesfully opened
+                QtGui.QMessageBox(QtGui.QMessageBox.Information, tr("Something wrong!"), tr("Can't open file '") + QtCore.QString.fromUtf8(tmp_file) + "\n" + 
+                                  tr("Save it to disk and open with selected program.")).exec_()
+        except Exception as e:
+            logging.exception(e)
+            
+            InfoMsgBoxes.showErrorMsg(e)
             
     def writeFile(self, file_path):
         """

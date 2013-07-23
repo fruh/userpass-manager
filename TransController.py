@@ -37,6 +37,8 @@ def loadTranslation(lang):
         
         for i in range(0, len(lines) - 1):
             if (i % 2 == 0):
+                logging.info(lines[i])
+                
                 # create key and value, remove last \n character and decode to utf8
                 key = str(lines[i][:len(lines[i]) - 1]).decode('utf-8')
                 value = str(lines[i + 1][:len(lines[i + 1]) - 1]).decode('utf-8')

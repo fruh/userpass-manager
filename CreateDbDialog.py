@@ -131,7 +131,7 @@ class CreateDbDialog(QtGui.QDialog):
         """
             Select DB file.
         """
-        dir_path = AppSettings.APP_REL_ROOT + AppSettings.DEFAULT_DB
+        dir_path = AppSettings.APP_ABS_ROOT + AppSettings.DEFAULT_DB
         
         file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Save DB file"), QtCore.QString.fromUtf8(dir_path))
         

@@ -44,7 +44,7 @@ def ifNotExCreate(directory):
 def main():
     app = QtGui.QApplication(sys.argv)
     
-    logging.info("absolute app root: '%s'", AppSettings.getAbsAppRoot())
+    logging.info("Absolute app root: '%s'", AppSettings.APP_ABS_ROOT)
     
     # set application icon
     app.setWindowIcon(QtGui.QIcon(AppSettings.APP_ICON_PATH))

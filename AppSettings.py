@@ -41,14 +41,17 @@ def getAbsAppRoot():
     
     return str(root_dir)
 
+# when inserted worng password, sleep for seconds
+WRONG_PASWD_SLEEP = 3
+
 # application relative path path
-APP_REL_ROOT = getAbsAppRoot()
+APP_ABS_ROOT = getAbsAppRoot()
 
 # tmp directory
-TMP_PATH = APP_REL_ROOT + "tmp" + os.sep
+TMP_PATH = APP_ABS_ROOT + "tmp" + os.sep
 
 # App version
-APP_VERSION = "v0.0.5-alpha"
+APP_VERSION = "v0.0.6-alpha"
 
 # App version
 APP_DB_VERSION = 1
@@ -63,7 +66,7 @@ CLIPBOARD_LIVE_MSEC = 60000
 USER_NAME = "user"
 
 # default data path
-DATA_PATH = APP_REL_ROOT + "data" + os.path.sep
+DATA_PATH = APP_ABS_ROOT + "data" + os.path.sep
 
 # default settings file name
 SETTINGS_FILE_NAME = "settings.ini"
@@ -72,7 +75,7 @@ SETTINGS_FILE_NAME = "settings.ini"
 SETTINGS_FILE_PATH = DATA_PATH + SETTINGS_FILE_NAME
 
 # default DB path
-DB_PATH = APP_REL_ROOT + "db" + os.path.sep
+DB_PATH = APP_ABS_ROOT + "db" + os.path.sep
 
 # default DB file name
 DB_FILE_NAME = "userpass.db"
@@ -81,16 +84,16 @@ DB_FILE_NAME = "userpass.db"
 DEFAULT_DB = "db" + os.path.sep + DB_FILE_NAME
 
 # icons path
-ICONS_PATH = APP_REL_ROOT + "icons" + os.sep
+ICONS_PATH = APP_ABS_ROOT + "icons" + os.sep
 
 # translations path
-TRANS_PATH = APP_REL_ROOT + "translation" + os.sep
+TRANS_PATH = APP_ABS_ROOT + "translation" + os.sep
 
 # translation suffix
 TRANS_SUFFIX = ".txt"
 
 # backup path
-BACKUP_PATH = APP_REL_ROOT + "backup" + os.sep
+BACKUP_PATH = APP_ABS_ROOT + "backup" + os.sep
 
 # app icon path
 APP_ICON_PATH = ICONS_PATH + "userpass.ico"
@@ -122,7 +125,7 @@ def readDbFilePath():
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, data)
     
     # read DB file path
-    return APP_REL_ROOT + data
+    return APP_ABS_ROOT + data
 
 def writeDbFilePath(db_path):
     """
@@ -130,9 +133,9 @@ def writeDbFilePath(db_path):
         
         @param db_path: DB file path
     """
-    rel_path = str(os.path.relpath(db_path, APP_REL_ROOT))
+    rel_path = str(os.path.relpath(db_path, APP_ABS_ROOT))
     
-    logging.debug("current working dir: '%s'", APP_REL_ROOT)
+    logging.debug("current working dir: '%s'", APP_ABS_ROOT)
     logging.debug("abs. path: '%s', rel. path: '%s'", db_path, rel_path)
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, rel_path)
         

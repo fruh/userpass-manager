@@ -24,6 +24,8 @@ from IconController import IconController
 import os
 import AppSettings
 from ConvertDb import ConvertDb
+import InfoMsgBoxes
+from TransController import tr
 
 class DbController:
     """
@@ -93,6 +95,8 @@ class DbController:
             converter = ConvertDb(self)
             
             converter.convertDbToV1(self._database)
+            
+            InfoMsgBoxes.showInfoMsg(tr("Database successfully converted to new version."))
     
     def disconnect(self):
         """

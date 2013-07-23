@@ -31,6 +31,7 @@ class ConvertDb():
     __ENABLED_KEY_WORDS = ["INSERT"]
     __DUMP_FILE_NAME = "dump.sql"
     __DUMP_FILE_PATH = AppSettings.TMP_PATH + __DUMP_FILE_NAME
+    __LINES_COUNT = 0
     
     def __init__(self, db_ctrl):
         """
@@ -74,8 +75,12 @@ class ConvertDb():
         try:
             fr = open(AppSettings.decodePath(self.__DUMP_FILE_PATH), "r")
             
+            # temp line count
+            tmp_count = 0.0
             # read every line
             for line in fr:
+                tmp_count += 1
+                
                 logging.info("line: '%s'", line)
                 
                 self.__db_ctrl._cursor.execute(line)
@@ -114,9 +119,15 @@ class ConvertDb():
             f = open(AppSettings.decodePath(self.__DUMP_FILE_PATH), 'w')
             logging.info("creating data dump for database: '%s', dump file: '%s'", old, self.__DUMP_FILE_PATH)
             
+            self.__LINES_COUNT = 0
+            
             for line in con.iterdump():
                 if (self.containsKeyWords(line)):
+                    # count every line
+                    self.__LINES_COUNT += 1
+                    
                     f.write('%s\n' % line)
+            logging.info("dump lines count: %i", self.__LINES_COUNT)
         except IOError as e:
             logging.exception(e)
             

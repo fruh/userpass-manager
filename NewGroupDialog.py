@@ -21,6 +21,7 @@ from GroupDialog import GroupDialog
 from TransController import tr
 from GroupController import GroupController
 import logging
+import InfoMsgBoxes
 
 class NewGroupDialog(GroupDialog):
     def __init__(self, parent):
@@ -60,4 +61,4 @@ class NewGroupDialog(GroupDialog):
         except Exception as e:
             logging.exception(e)
             
-            self.__parent.showErrorMsg(e)
+            InfoMsgBoxes.showErrorMsg(e)
