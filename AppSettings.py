@@ -41,9 +41,6 @@ def getAbsAppRoot():
     
     return str(root_dir)
 
-# when inserted worng password, sleep for seconds
-WRONG_PASWD_SLEEP = 3
-
 # application relative path path
 APP_ABS_ROOT = getAbsAppRoot()
 
@@ -58,6 +55,9 @@ APP_DB_VERSION = 1
 
 # language
 LANG = "en"
+
+# when inserted worng password, sleep for seconds
+WRONG_PASWD_SLEEP = 3
 
 # clipboard 'live' in miliseconds
 CLIPBOARD_LIVE_MSEC = 60000
