@@ -47,7 +47,6 @@ class DbController:
             
             if (not self._existed):
                 self.createTables()
-                
         
     def connectDB(self, database = None):
         """
