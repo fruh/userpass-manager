@@ -95,8 +95,13 @@ class ConvertDb():
             raise e
         finally:
             if (fr):
-                fr.close
+                logging.info("closing dump file")
+                fr.close()
+            logging.info("removing dump file")
             os.remove(AppSettings.decodePath(self.__DUMP_FILE_PATH))
+        # first disconnect from DB
+        self.__db_ctrl.disconnectDB()
+        
         # copy copy new db to old
         logging.info("coppying converted DB")
         shutil.copyfile(AppSettings.decodePath(db_tmp), AppSettings.decodePath(old))
