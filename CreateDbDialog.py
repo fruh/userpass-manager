@@ -131,7 +131,7 @@ class CreateDbDialog(QtGui.QDialog):
         """
             Select DB file.
         """
-        dir_path = AppSettings.APP_REL_ROOT + AppSettings.DEFAULT_DB
+        dir_path = AppSettings.APP_ABS_ROOT + AppSettings.DEFAULT_DB
         
         file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Save DB file"), QtCore.QString.fromUtf8(dir_path))
         
@@ -162,6 +162,7 @@ class CreateDbDialog(QtGui.QDialog):
         
         self.__db_ctrl.connectDB(db_path)
         self.__db_ctrl.createTables()
+        self.__db_ctrl.insertDefRows()
         
         logging.debug("inserting user to DB: '%s'", AppSettings.USER_NAME)
         

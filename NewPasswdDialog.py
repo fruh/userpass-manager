@@ -21,6 +21,7 @@ import logging
 from PasswdController import PasswdController
 import time
 from PasswdDialog import PasswdDialog
+import InfoMsgBoxes
 
 class NewPasswdDialog(PasswdDialog):
     def __init__(self, parent, g_id = False, show_pass = False):
@@ -35,36 +36,39 @@ class NewPasswdDialog(PasswdDialog):
         """
         logging.debug("save button clicked.")
         
-        title = str(self._title.text().toUtf8())
-        username = str(self._username.text().toUtf8())
-        passwd = str(self._passwd.text().toUtf8())
-        url = str(self._url.text().toUtf8())
-        comment = str(self._comment.toPlainText().toUtf8())
-        att_name = str(self._att_name.text().toUtf8())
-        attachment = self._attachment_data
-         
-        # get group
-        grp_id = self.getGroupId()
-         
-        # creation date now
-        c_date = time.time()
-         
-        # set expiration date
-        e_date = self._e_date_edit.dateTime().toTime_t()
-        
-        # set expiration
-        if (self._e_date_never.isChecked()):
-            expire = "false"
-        else:
-            expire = "true"
-        
-        # update password
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
-        
-        passwd_ctrl.insertPassword(title, username, passwd, 
-                                 url, comment, c_date, e_date, 
-                                 grp_id, self.__parent._user._id, attachment, 
-                                 att_name, expire)
-        self.signalPasswdSaved.emit(-1)
-        
-        self.close()
+        try:
+            title = str(self._title.text().toUtf8())
+            username = str(self._username.text().toUtf8())
+            passwd = str(self._passwd.text().toUtf8())
+            url = str(self._url.text().toUtf8())
+            comment = str(self._comment.toPlainText().toUtf8())
+            att_name = str(self._att_name.text().toUtf8())
+            attachment = self._attachment_data
+             
+            # get group
+            grp_id = self.getGroupId()
+             
+            # creation date now
+            c_date = time.time()
+             
+            # set expiration date
+            e_date = self._e_date_edit.dateTime().toTime_t()
+            
+            # set expiration
+            if (self._e_date_never.isChecked()):
+                expire = "false"
+            else:
+                expire = "true"
+            
+            # update password
+            passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
+            
+            passwd_ctrl.insertPassword(title, username, passwd, 
+                                     url, comment, c_date, e_date, 
+                                     grp_id, self.__parent._user._id, attachment, 
+                                     att_name, expire)
+            self.accept()
+        except Exception as e:
+            logging.exception(e)
+            
+            InfoMsgBoxes.showErrorMsg(e)

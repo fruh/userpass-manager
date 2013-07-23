@@ -122,3 +122,33 @@ Bank account
 Bankový účet
 Code revision
 Revízia kódu
+Something is wrong!
+Niečo sa pokazilo!
+Something is wrong in program. Sorry.
+Niečo je zlé v programe. Prepáč.
+Information
+Informácia
+Edit
+Upraviť
+Edit group
+Upraviť skupinu
+New group
+Pridať skupinu
+Delete group
+Vymazať skupinu
+Load
+Načítať
+Download
+Stiahnuť
+Open
+Otvoriť
+Bank account credentials.
+Prihlasovacie údaje bankového účtu.
+Code revision credentials.
+Prihlasovacie údaje systémov pre revíziu kódu.
+E-Mail credentials.
+Prihlasovacie údaje mailových účtov.
+SSH credentials.
+Prihlasovacie údaje pre vzdialené pripojenie sa k počítaču.
+Web page credentials.
+Prihlasovacie údaje k webovým stránkam.

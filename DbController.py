@@ -23,6 +23,9 @@ from GroupController import GroupController
 from IconController import IconController
 import os
 import AppSettings
+from ConvertDb import ConvertDb
+import InfoMsgBoxes
+from TransController import tr
 
 class DbController:
     """
@@ -44,6 +47,7 @@ class DbController:
             
             if (not self._existed):
                 self.createTables()
+                
         
     def connectDB(self, database = None):
         """
@@ -51,6 +55,8 @@ class DbController:
             @param database: db file path with name
         """
         try:
+            self.disconnect()
+            
             if (database):
                 self._database = database
             logging.info("database: '%s'", self._database)
@@ -64,9 +70,44 @@ class DbController:
                 self._cursor = self._connection.cursor()
             logging.info("'%s' successfully opened.", self._database)
             logging.info("SQLite version %s", self.getDBVersion())
+            
+            # if is old, check for conversion
+            if (self._existed):
+                # check version 
+                logging.info("App DB version %s", self.getAppDBVersion())
+                
+                self.checkVersion()
+            
+            self.enForeignKey()
         except sqlite3.Error as e:
             logging.exception(e)
             raise e
+    
+    def checkVersion(self):
+        """
+            Check opened database version, if neccessaary and posible, then convert to current.
+        """
+        version = self.getAppDBVersion()
+        
+        if ((version == False) or (version < AppSettings.APP_DB_VERSION)):
+            # need to be converted
+            logging.info("need to convert from version: '%s'", version)
+            converter = ConvertDb(self)
+            
+            converter.convertDbToV1(self._database)
+            
+            InfoMsgBoxes.showInfoMsg(tr("Database successfully converted to new version."))
+    
+    def disconnect(self):
+        """
+            Disconnect connected database.
+        """
+        if (self._connection):
+            logging.info("disconnecting DB: '%s'", self._database)
+            
+            self._connection.close()
+            self._connection = False
+            
     
     def getDBVersion(self):
         """ 
@@ -76,9 +117,30 @@ class DbController:
     
         return self._cursor.fetchone()[0]
     
+    def getAppDBVersion(self):
+        """
+            Return current connected database application vesrion.
+        """
+        if (self._connection):
+            try:
+                self._cursor.execute("SELECT version FROM Version;")
+                
+                row = self._cursor.fetchone()
+                
+                if (row):
+                    return int(row["version"])
+                return False
+            except sqlite3.Error as e:
+                logging.exception(e)
+                
+                return False
+        logging.info("not connected to DB")
+        return False
+    
     def createTables(self):      
         """
-            Creates neccessery tables. 
+            Creates neccessery tables. Contains foreign key constrains.
+            
             Users table: users of UserPass manager application.
             Icons table: contains icons for groups
             Groups table: groups of passwords i.e. (Page, SSH, E-Mail, PC and user defined)
@@ -93,33 +155,63 @@ class DbController:
                 DROP TABLE IF EXISTS Icons;
                 CREATE TABLE Icons(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, icon BLOB);
                 
+                DROP TABLE IF EXISTS Version;
+                CREATE TABLE Version(id INTEGER PRIMARY KEY, version INTEGER UNIQUE NOT NULL);
+                
                 DROP TABLE IF EXISTS Groups;
                 CREATE TABLE Groups(id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, 
-                    description TEXT, icon_id INTEGER,
-                    FOREIGN KEY(icon_id) REFERENCES Icons(id));
+                    description TEXT, 
+                    icon_id INTEGER DEFAULT 0 REFERENCES Icons(id) ON DELETE SET DEFAULT);
                 
                 DROP TABLE IF EXISTS Passwords;
                 CREATE TABLE Passwords(id INTEGER PRIMARY KEY, title BLOB NOT NULL, username BLOB NOT NULL,
                     passwd BLOB NOT NULL, url BLOB, comment BLOB, 
                     c_date BLOB NOT NULL, m_date BLOB NOT NULL, e_date BLOB NOT NULL,
-                    grp_id INTEGER, user_id INTEGER, attachment BLOB, att_name BLOB,
-                    salt TEXT, iv BLOB, expire TEXT,
-                    FOREIGN KEY(grp_id) REFERENCES Groups(id),
-                    FOREIGN KEY(user_id) REFERENCES Users(id));
+                    grp_id INTEGER REFERENCES Groups(id) ON DELETE CASCADE, 
+                    user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE, 
+                    attachment BLOB, att_name BLOB,
+                    salt TEXT, iv BLOB, expire TEXT);
                 """)
             self._connection.commit()
-            
-            # insert default icons
-            self.insertDefaultIcons()
-            
-            # insert default groups
-            self.insertDefaultGroups()
             
             logging.info("%i tables created.", self._cursor.rowcount)
         except sqlite3.Error as e:
             logging.exception(e)
             
             # rollback changes
+            self._connection.rollback()
+            raise e
+    
+    def insertDefRows(self):
+        """
+            Insert default values to rows.
+        """
+        # insert default icons
+        self.insertDefaultIcons()
+        
+        # insert default groups
+        self.insertDefaultGroups()
+        
+        # insert App DB version
+        self.insertAppDBVersion()
+    
+    def insertAppDBVersion(self):
+        """
+            Insert into DB app version DB.
+        """
+        try:
+            self._cursor.execute("INSERT INTO Version(version) VALUES(:version)",
+                                  {"version" : AppSettings.APP_DB_VERSION})
+            self._connection.commit()
+            
+            logging.info("Version with ID: %d, inserted: %s", self._cursor.lastrowid, AppSettings.APP_DB_VERSION)
+        except sqlite3.IntegrityError as e:
+            logging.warning(e)
+            
+            self._connection.rollback()
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
             self._connection.rollback()
             raise e
     
@@ -158,3 +250,27 @@ class DbController:
         self._cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         
         return self._cursor.fetchall()
+    
+    def enForeignKey(self, b = True):
+        """
+            Enable/disable foreign key. Default disbaled. On every connection need to enable foreign keys.
+            
+            @param b: booleane parameter, enable true, disable false
+        """
+        try:
+            if (b):
+                logging.info("Enabling foreign keys.")
+                
+                self._cursor.execute("PRAGMA foreign_keys = ON;")
+            else:
+                logging.info("Disabling foreign keys.")
+                
+                self._cursor.execute("PRAGMA foreign_keys = OFF;")
+            self._connection.commit()
+        except sqlite3.Error as e:
+            logging.exception(e)
+            
+            # rollback changes
+            self._connection.rollback()
+            raise e
+        
