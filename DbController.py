@@ -55,7 +55,7 @@ class DbController:
             @param database: db file path with name
         """
         try:
-            self.disconnect()
+            self.disconnectDB()
             
             if (database):
                 self._database = database
@@ -98,7 +98,7 @@ class DbController:
             
             InfoMsgBoxes.showInfoMsg(tr("Database successfully converted to new version."))
     
-    def disconnect(self):
+    def disconnectDB(self):
         """
             Disconnect connected database.
         """
@@ -106,7 +106,8 @@ class DbController:
             logging.info("disconnecting DB: '%s'", self._database)
             
             self._connection.close()
-            self._connection = False
+            del self._connection
+            self._connection = None
             
     
     def getDBVersion(self):
