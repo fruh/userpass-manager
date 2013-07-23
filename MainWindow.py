@@ -29,6 +29,7 @@ import logging
 from UserController import UserController
 import AppSettings
 from EditGroupDialog import EditGroupDialog
+from SaveDialog import SaveDialog
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -221,12 +222,14 @@ class MainWindow(QtGui.QMainWindow):
         # edit group action
         self._edit_group = QtGui.QAction(tr("Edit"), self)
         self._edit_group.setToolTip(tr("Edit selected group"))
+        self._edit_group.setDisabled(True)
         
         self._edit_group.triggered.connect(self.showEditGroupDialog)
         
         # edit group action in groups tree right click menu
         self._edit_group_g = QtGui.QAction(tr("Edit group"), self)
         self._edit_group_g.setToolTip(tr("Edit selected group"))
+        self._edit_group_g.setDisabled(True)
         
         self._edit_group_g.triggered.connect(self.showEditGroupDialog)
         
@@ -354,18 +357,19 @@ class MainWindow(QtGui.QMainWindow):
             Password dialog to add new password.
         """
         new_pass_dialog = NewPasswdDialog(self, self._groups_tw.currentItemGroupID(), self._passwords_table._show_pass)
-        new_pass_dialog.signalPasswdSaved.connect(self.reloadItems)
         
-        new_pass_dialog.exec_()
+        if (new_pass_dialog.exec_() == QtGui.QDialog.Accepted):
+            # all done
+            self.reloadItems()
         
     def showNewGroupDialog(self):
         """
             Group dialog to add new password.
         """
         new_group_dialog = NewGroupDialog(self)
-        new_group_dialog.signalSaveClicked.connect(self.reloadItems)
-        
-        new_group_dialog.exec_()
+        if (new_group_dialog.exec_() == QtGui.QDialog.Accepted):
+            # all done
+            self.reloadItems()
         
     def deletePassword(self):
         """
@@ -430,19 +434,33 @@ class MainWindow(QtGui.QMainWindow):
             # is group selected
             edit_group_dialog = EditGroupDialog(self, g_id)
             
-            edit_group_dialog.exec_()
-            self.reloadItems(-1)
-        
+            if (edit_group_dialog.exec_() == QtGui.QDialog.Accepted):
+                # all done
+                self.reloadItems()
+            
     def reloadItems(self, p_id = -1):
         """
             Reload groups, passwords.
             
             @param p_id: password id to display, if is < 0, doesn't display
         """
-        self._groups_tw.reloadItems()
-        self._passwords_table.reloadItems()
-        
-        if (p_id >= 0):
-            self._detail_w.setPassword(p_id)
-        else:
-            self._detail_w.setHidden(True)
+        try:
+            self._groups_tw.reloadItems()
+            self._passwords_table.reloadItems()
+
+            if (p_id >= 0):
+                self._detail_w.setPassword(p_id)
+            else:
+                self._detail_w.setHidden(True)
+        except Exception as e:
+            logging.exception(e)
+            
+            self.showErrorMsg(e)
+      
+    @staticmethod      
+    def showErrorMsg(msg):
+        """
+            Display error message box.
+        """
+        QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Something wrong!"), tr("Something worng in program. Sorry.") + 
+                "\n\n" + QtCore.QString.fromUtf8(str(msg))).exec_()

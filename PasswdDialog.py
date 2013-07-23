@@ -23,8 +23,10 @@ from TransController import tr
 from GroupController import GroupController
 import os
 import AppSettings
+from SaveDialog import SaveDialog
+import MainWindow
 
-class PasswdDialog(QtGui.QDialog):
+class PasswdDialog(SaveDialog):
     # emiting after saving passowrd
     # param: p_id
     signalPasswdSaved = QtCore.pyqtSignal(int)
@@ -41,8 +43,9 @@ class PasswdDialog(QtGui.QDialog):
         self.__edit = edit
         self.__show_pass = show_pass
         super(PasswdDialog, self).__init__()
+#         SaveDialog.__init__(self)
         
-        self.initUI()
+        self.initUi()
         self.initConections()
         self.center()
         
@@ -52,16 +55,12 @@ class PasswdDialog(QtGui.QDialog):
         # intialize variables
         self._attachment_data = ""
         
-    def initUI(self):
+    def initUi(self):
         """
             Initilize UI components.
         """
-        # not maximize, minimize buttons
-        self.setWindowFlags(QtCore.Qt.Tool);
-        
-        layout_gl = QtGui.QGridLayout()
-        self.setLayout(layout_gl)
-        
+        SaveDialog.initUi(self)
+
         title_label = QtGui.QLabel("<b>" + tr("Title:") + "</b>")
         username_label = QtGui.QLabel("<b>" + tr("Username:") + "</b>")
         passwd_label = QtGui.QLabel("<b>" + tr("Password:") + "</b>")
@@ -74,14 +73,14 @@ class PasswdDialog(QtGui.QDialog):
             c_date_label = QtGui.QLabel("<b>" + tr("Creation date:") + "</b>")
             m_date_label = QtGui.QLabel("<b>" + tr("Modification date:") + "</b>")
             
-            layout_gl.addWidget(c_date_label, 4, 0)
-            layout_gl.addWidget(m_date_label, 5, 0)
+            self._layout_gl.addWidget(c_date_label, 4, 0)
+            self._layout_gl.addWidget(m_date_label, 5, 0)
             
             self._c_date = QtGui.QLabel()
             self._m_date = QtGui.QLabel()
             
-            layout_gl.addWidget(self._c_date, 4, 1)
-            layout_gl.addWidget(self._m_date, 5, 1)
+            self._layout_gl.addWidget(self._c_date, 4, 1)
+            self._layout_gl.addWidget(self._m_date, 5, 1)
         else:
             layout_offset = -2
             
@@ -90,14 +89,14 @@ class PasswdDialog(QtGui.QDialog):
         attachment_label = QtGui.QLabel("<b>" + tr("Attachment:") + "</b>")
         group_label = QtGui.QLabel("<b>" + tr("Groups:") + "</b>")
         
-        layout_gl.addWidget(title_label, 0, 0)
-        layout_gl.addWidget(username_label, 1, 0)
-        layout_gl.addWidget(passwd_label, 2, 0)
-        layout_gl.addWidget(url_label, 3, 0)
-        layout_gl.addWidget(e_date_label, 6 + layout_offset, 0)
-        layout_gl.addWidget(attachment_label, 7 + layout_offset, 0)
-        layout_gl.addWidget(comment_label, 9 + layout_offset, 0)
-        layout_gl.addWidget(group_label, 10 + layout_offset, 0)
+        self._layout_gl.addWidget(title_label, 0, 0)
+        self._layout_gl.addWidget(username_label, 1, 0)
+        self._layout_gl.addWidget(passwd_label, 2, 0)
+        self._layout_gl.addWidget(url_label, 3, 0)
+        self._layout_gl.addWidget(e_date_label, 6 + layout_offset, 0)
+        self._layout_gl.addWidget(attachment_label, 7 + layout_offset, 0)
+        self._layout_gl.addWidget(comment_label, 9 + layout_offset, 0)
+        self._layout_gl.addWidget(group_label, 10 + layout_offset, 0)
         
         self._title = QtGui.QLineEdit()
         self._username = QtGui.QLineEdit()
@@ -124,10 +123,10 @@ class PasswdDialog(QtGui.QDialog):
         self._att_name = QtGui.QLineEdit()
         self._att_name.setEnabled(False)
         
-        layout_gl.addWidget(self._title, 0, 1)
-        layout_gl.addWidget(self._username, 1, 1)
-        layout_gl.addLayout(passwd_hl, 2, 1)
-        layout_gl.addWidget(self._url, 3, 1)
+        self._layout_gl.addWidget(self._title, 0, 1)
+        self._layout_gl.addWidget(self._username, 1, 1)
+        self._layout_gl.addLayout(passwd_hl, 2, 1)
+        self._layout_gl.addWidget(self._url, 3, 1)
         
         # attachment layout
         att_hl = QtGui.QHBoxLayout()
@@ -144,10 +143,10 @@ class PasswdDialog(QtGui.QDialog):
         att_hl.addWidget(self._att_del_button)
         att_hl.addWidget(self._att_save_button)
         
-        layout_gl.addWidget(self._att_name, 7 + layout_offset, 1)
-        layout_gl.addLayout(att_hl, 8 + layout_offset, 1)
-        layout_gl.addWidget(self._comment, 9 + layout_offset, 1)
-        layout_gl.addWidget(self._group, 10 + layout_offset, 1)
+        self._layout_gl.addWidget(self._att_name, 7 + layout_offset, 1)
+        self._layout_gl.addLayout(att_hl, 8 + layout_offset, 1)
+        self._layout_gl.addWidget(self._comment, 9 + layout_offset, 1)
+        self._layout_gl.addWidget(self._group, 10 + layout_offset, 1)
         
         # date time edit
         self._e_date_edit = QtGui.QDateTimeEdit()
@@ -165,20 +164,7 @@ class PasswdDialog(QtGui.QDialog):
         e_date_hl.addWidget(self._e_date_never)
         
         # add to main layout
-        layout_gl.addLayout(e_date_hl, 6 + layout_offset, 1)
-        
-        # create buttons
-        self.__button_box = QtGui.QDialogButtonBox()
-        
-        self.__save_button = QtGui.QPushButton(tr("&Save"))
-        self.__save_button.setEnabled(False)
-        
-        self.__cancel_button = QtGui.QPushButton(tr("&Cancel"))
-        
-        self.__button_box.addButton(self.__save_button, QtGui.QDialogButtonBox.AcceptRole)
-        self.__button_box.addButton(self.__cancel_button, QtGui.QDialogButtonBox.RejectRole)
-        
-        layout_gl.addWidget(self.__button_box, 11 + layout_offset, 1)
+        self._layout_gl.addLayout(e_date_hl, 6 + layout_offset, 1)
         
     def setVisibilityPass(self, state):
         """
@@ -195,9 +181,7 @@ class PasswdDialog(QtGui.QDialog):
             
             @requires: initUI(), setPassword() first
         """
-        # connections to buttons
-        self.__button_box.accepted.connect(self.saveChanges)
-        self.__button_box.rejected.connect(self.close)
+        SaveDialog.initConections(self)
         
         # when something changed, enable save button
         self._title.textChanged.connect(self.enableSaveButton)
@@ -303,24 +287,6 @@ class PasswdDialog(QtGui.QDialog):
         else:
             self._e_date_edit.setEnabled(True)
         
-    def enableSaveButton(self):
-        """
-            Enable save button.
-        """
-        if (not self.__save_button.isEnabled()):
-            logging.info("enabling save button")
-            
-            self.__save_button.setEnabled(True)
-            
-    def disableSaveButton(self):
-        """
-            Enable save button.
-        """
-        if (self.__save_button.isEnabled()):
-            logging.info("disabling save button")
-            
-            self.__save_button.setEnabled(False)
-        
     def getGroupId(self):
         """
             Get group ID from combobox item.
@@ -342,63 +308,60 @@ class PasswdDialog(QtGui.QDialog):
         """
         logging.info("key release event")
         
-    def center(self):
-        """
-            Center window.
-        """
-        # get frame geometry
-        wg = self.frameGeometry()
-        
-        # get screen center
-        cs = QtGui.QDesktopWidget().availableGeometry().center()
-        wg.moveCenter(cs)
-        
-        self.move(wg.topLeft())
-        
     def loadAttachment(self):
         """
             Exec filedialog, open file and get absolute file path and name.
         """
-        home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
-        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Open attachment"), home_loc)
-        
-        if (not file_path.isEmpty()):
-            file_path = str(file_path.toUtf8())
-            file_name = os.path.basename(file_path)
+        try:
+            home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
+            file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Open attachment"), home_loc)
             
-            logging.info("attachment file path: %s", file_path)
-            logging.info("attachment file name: %s", file_name)
+            if (not file_path.isEmpty()):
+                file_path = str(file_path.toUtf8())
+                file_name = os.path.basename(file_path)
+                
+                logging.info("attachment file path: %s", file_path)
+                logging.info("attachment file name: %s", file_name)
+                
+                # set attachment name
+                self._att_name.setText(QtCore.QString.fromUtf8(file_name))
+                
+                # read binary data
+                data = self.readFile(file_path)
+                
+                if (data):
+                    self._attachment_data = data
+            else:
+                logging.debug("file not selected")
+        except Exception as e:
+            logging.exception(e)
             
-            # set attachment name
-            self._att_name.setText(QtCore.QString.fromUtf8(file_name))
-            
-            # read binary data
-            data = self.readFile(file_path)
-            
-            if (data):
-                self._attachment_data = data
-        else:
-            logging.debug("file not selected")
+            MainWindow.MainWindow.showErrorMsg(e)
             
     def saveAttachment(self):
         """
             Save attachment to disk.
         """
-        home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
-        home_loc = QtCore.QString.fromUtf8(home_loc + os.path.sep)
-        home_loc.append(self._att_name.text())
-        file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Open attachment"), home_loc)
-        
-        logging.info("save attachment to file: %s", file_path)
-        
-        if (not file_path.isEmpty()):
-            file_path = str(file_path.toUtf8())
-            logging.info("attachment file path: %s", file_path)
+        try:
+            home_loc = QtGui.QDesktopServices.storageLocation(QtGui.QDesktopServices.HomeLocation)
+            home_loc = QtCore.QString.fromUtf8(home_loc + os.path.sep)
+            home_loc.append(self._att_name.text())
+            file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Open attachment"), home_loc)
             
-            # write data to disk
-            self.writeFile(file_path)
-        else:
-            logging.info("file not selected")
+            logging.info("save attachment to file: %s", file_path)
+            
+            if (not file_path.isEmpty()):
+                file_path = str(file_path.toUtf8())
+                logging.info("attachment file path: %s", file_path)
+                
+                # write data to disk
+                self.writeFile(file_path)
+            else:
+                logging.info("file not selected")
+        except Exception as e:
+            logging.exception(e)
+            
+            MainWindow.MainWindow.showErrorMsg(e)
             
     def writeFile(self, file_path):
         """

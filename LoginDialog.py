@@ -24,6 +24,7 @@ from LoginController import LoginController
 import AppSettings
 from CreateDbDialog import CreateDbDialog
 import os
+from MainWindow import MainWindow
 
 class LoginDialog(QtGui.QDialog):
     """
@@ -178,22 +179,25 @@ class LoginDialog(QtGui.QDialog):
         """
         logging.debug("logging user ...")
         
-        path = AppSettings.readDbFilePath()
-        self.__db_ctrl.connectDB(path)
-        
-        login_ctrl = LoginController(self.__db_ctrl)
-        
-        username = AppSettings.USER_NAME
-        master = str(self._passwd.text().toUtf8())
-        
-        logged_user = login_ctrl.logInUser(username, master)
-        
-        if (logged_user):
-            self.signalSuccessfullyLogged.emit(QtCore.QString.fromUtf8(username), QtCore.QString.fromUtf8(master))
+        try:
+            path = AppSettings.readDbFilePath()
+            self.__db_ctrl.connectDB(path)
             
-            self.close()
-        else:
-            QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
+            login_ctrl = LoginController(self.__db_ctrl)
+            
+            username = AppSettings.USER_NAME
+            master = str(self._passwd.text().toUtf8())
+            
+            logged_user = login_ctrl.logInUser(username, master)
+            
+            if (logged_user):
+                self.signalSuccessfullyLogged.emit(QtCore.QString.fromUtf8(username), QtCore.QString.fromUtf8(master))
+                
+                self.close()
+            else:
+                QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
+        except Exception as e:
+            MainWindow.showErrorMsg(e)
         
     def setVisibilityPass(self, state):
         """

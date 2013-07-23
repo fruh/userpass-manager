@@ -46,20 +46,18 @@ class NewGroupDialog(GroupDialog):
         """
             Method for saving changes into db.
         """
-        group_ctrl = GroupController(self.__parent._db_ctrl)
-        
-        # prepare data
-        name = str(self._name.text().toUtf8())
-        desc = str(self._desc.text().toUtf8())
-        icon_id = self.getIconId()
-        
         try:
+            group_ctrl = GroupController(self.__parent._db_ctrl)
+            
+            # prepare data
+            name = str(self._name.text().toUtf8())
+            desc = str(self._desc.text().toUtf8())
+            icon_id = self.getIconId()
+        
             group_ctrl.insertGroup(name, desc, icon_id)
             
-            self.signalSaveClicked.emit()
-            self.close()
-            
+            self.accept()
         except Exception as e:
             logging.exception(e)
             
-            raise e
+            self.__parent.showErrorMsg(e)

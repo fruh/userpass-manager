@@ -74,20 +74,19 @@ class EditGroupDialog(GroupDialog):
         """
             Method for saving changes into db.
         """
-        group_ctrl = GroupController(self.__parent._db_ctrl)
-        
-        # prepare data
-        self.__group._name = str(self._name.text().toUtf8())
-        self.__group._description = str(self._desc.text().toUtf8())
-        icon_id = self.getIconId()
-        
         try:
+            group_ctrl = GroupController(self.__parent._db_ctrl)
+            
+            # prepare data
+            self.__group._name = str(self._name.text().toUtf8())
+            self.__group._description = str(self._desc.text().toUtf8())
+            icon_id = self.getIconId()
+        
             group_ctrl.updateGroup(self.__group._id, self.__group._name, self.__group._description, icon_id)
             
-            self.signalSaveClicked.emit()
-            self.close()
+            self.accept()
             
         except Exception as e:
             logging.exception(e)
             
-            raise e
+            self.__parent.showErrorMsg(e)

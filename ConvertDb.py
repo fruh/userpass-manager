@@ -41,7 +41,7 @@ class ConvertDb():
        
     def convertDbToV1(self, old):
         """
-            Convert database to version 1.
+            Convert database to version 1. Create dump, create new db, read and insert dump, set version, rewrite old DB and connect.
             
             @param old: old database
         """
@@ -95,6 +95,7 @@ class ConvertDb():
         # copy copy new db to old
         logging.info("coppying converted DB")
         shutil.copyfile(AppSettings.decodePath(db_tmp), AppSettings.decodePath(old))
+        os.remove(AppSettings.decodePath(db_tmp))
         
         # reconnect to new DB
         self.__db_ctrl.connectDB(old)

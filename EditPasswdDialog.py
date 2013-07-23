@@ -80,36 +80,38 @@ class EditPasswdDialog(PasswdDialog):
         """
         logging.debug("save button clicked.")
         
-        self.__password._title = str(self._title.text().toUtf8())
-        self.__password._username = str(self._username.text().toUtf8())
-        self.__password._passwd = str(self._passwd.text().toUtf8())
-        self.__password._url = str(self._url.text().toUtf8())
-        self.__password._comment = str(self._comment.toPlainText().toUtf8())
-        self.__password._att_name = str(self._att_name.text().toUtf8())
-        
-        # set expiration
-        if (self._e_date_never.isChecked()):
-            self.__password._expire = "false"
-        else:
-            self.__password._expire = "true"
-        
-        # get group
-        group_ctrl = GroupController(self.__parent._db_ctrl)
-        self.__password._grp = group_ctrl.selectById(self.getGroupId())
-         
-        # set expiration date
-        self.__password._e_date = self._e_date_edit.dateTime().toTime_t()
-        
-        # set attachment data
-        self.__password._attachment = self._attachment_data
-
-        # update password
-        passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
-        
-        passwd_ctrl.updatePasswd(self.__password._id, self.__password._title, self.__password._username, self.__password._passwd, 
-                                 self.__password._url, self.__password._comment, self.__password._e_date, 
-                                 self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
-                                 self.__password._att_name, self.__password._expire)
-        self.signalPasswdSaved.emit(self.__password._id)
-        
-        self.close()
+        try:
+            self.__password._title = str(self._title.text().toUtf8())
+            self.__password._username = str(self._username.text().toUtf8())
+            self.__password._passwd = str(self._passwd.text().toUtf8())
+            self.__password._url = str(self._url.text().toUtf8())
+            self.__password._comment = str(self._comment.toPlainText().toUtf8())
+            self.__password._att_name = str(self._att_name.text().toUtf8())
+            
+            # set expiration
+            if (self._e_date_never.isChecked()):
+                self.__password._expire = "false"
+            else:
+                self.__password._expire = "true"
+            
+            # get group
+            group_ctrl = GroupController(self.__parent._db_ctrl)
+            self.__password._grp = group_ctrl.selectById(self.getGroupId())
+             
+            # set expiration date
+            self.__password._e_date = self._e_date_edit.dateTime().toTime_t()
+            
+            # set attachment data
+            self.__password._attachment = self._attachment_data
+    
+            # update password
+            passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
+            
+            passwd_ctrl.updatePasswd(self.__password._id, self.__password._title, self.__password._username, self.__password._passwd, 
+                                     self.__password._url, self.__password._comment, self.__password._e_date, 
+                                     self.__password._grp._id, self.__password._user._id, self.__password._attachment, 
+                                     self.__password._att_name, self.__password._expire)
+            self.signalPasswdSaved.emit(self.__password._id)
+            self.accept()
+        except Exception as e:
+            self.__parent.showErrorMsg(e)

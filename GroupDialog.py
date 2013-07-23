@@ -20,13 +20,10 @@
 import logging
 from PyQt4 import QtGui, QtCore
 from IconController import IconController
-from GroupController import GroupController
 from TransController import tr
+from SaveDialog import SaveDialog
 
-class GroupDialog(QtGui.QDialog):
-    # signal emits when save button clicked
-    signalSaveClicked = QtCore.pyqtSignal()
-    
+class GroupDialog(SaveDialog):
     def __init__(self, db_ctrl):
         self.__db_ctrl = db_ctrl
         
@@ -40,70 +37,38 @@ class GroupDialog(QtGui.QDialog):
         """
             Initialize UI components.
         """
+        SaveDialog.initUi(self)
+        
         logging.info("initializing UI components.")
-        
-        # not maximize, minimize buttons
-        self.setWindowFlags(QtCore.Qt.Tool);
-        
-        layout_gl = QtGui.QGridLayout()
-        self.setLayout(layout_gl)
         
         # create lables
         name_label = QtGui.QLabel("<b>" + tr("Name:") + "</b>")
         description_label = QtGui.QLabel("<b>" + tr("Description:") + "</b>")
         icon_label = QtGui.QLabel("<b>" + tr("Icon:") + "</b>")
         
-        layout_gl.addWidget(name_label, 0, 0)
-        layout_gl.addWidget(description_label, 1, 0)
-        layout_gl.addWidget(icon_label, 2, 0)
+        self._layout_gl.addWidget(name_label, 0, 0)
+        self._layout_gl.addWidget(description_label, 1, 0)
+        self._layout_gl.addWidget(icon_label, 2, 0)
         
         # create inputs
         self._name = QtGui.QLineEdit()
         self._desc = QtGui.QLineEdit()
         self._icons = QtGui.QComboBox()
         
-        layout_gl.addWidget(self._name, 0, 1)
-        layout_gl.addWidget(self._desc, 1, 1)
-        layout_gl.addWidget(self._icons, 2, 1)
-        
-        # create buttons
-        self.__button_box = QtGui.QDialogButtonBox()
-        
-        self.__save_button = QtGui.QPushButton(tr("&Save"))
-        self.__save_button.setEnabled(False)
-        
-        self.__cancel_button = QtGui.QPushButton(tr("&Cancel"))
-        
-        self.__button_box.addButton(self.__save_button, QtGui.QDialogButtonBox.AcceptRole)
-        self.__button_box.addButton(self.__cancel_button, QtGui.QDialogButtonBox.RejectRole)
-        
-        layout_gl.addWidget(self.__button_box, 3, 1)
+        self._layout_gl.addWidget(self._name, 0, 1)
+        self._layout_gl.addWidget(self._desc, 1, 1)
+        self._layout_gl.addWidget(self._icons, 2, 1)
         
     def initConnections(self):
         """
             Inialize event handlers.
         """
-        # connections to buttons
-        self.__button_box.accepted.connect(self.saveChanges)
-        self.__button_box.rejected.connect(self.close)
+        SaveDialog.initConections(self)
         
         # when something changed, enable save button
         self._name.textChanged.connect(self.enableSaveButton)
         self._desc.textChanged.connect(self.enableSaveButton)
         self._icons.currentIndexChanged.connect(self.enableSaveButton)
-        
-    def center(self):
-        """
-            Center window.
-        """
-        # get frame geometry
-        wg = self.frameGeometry()
-        
-        # get screen center
-        cs = QtGui.QDesktopWidget().availableGeometry().center()
-        wg.moveCenter(cs)
-        
-        self.move(wg.topLeft())
         
     def loadIcons(self, i_id = False):
         """
@@ -144,24 +109,6 @@ class GroupDialog(QtGui.QDialog):
         # set current group
         if (i_id):
             self._icons.setCurrentIndex(tmp)
-            
-    def enableSaveButton(self):
-        """
-            Enable save button.
-        """
-        if (not self.__save_button.isEnabled()):
-            logging.info("enabling save button")
-            
-            self.__save_button.setEnabled(True)
-            
-    def disableSaveButton(self):
-        """
-            Disable save button.
-        """
-        if (self.__save_button.isEnabled()):
-            logging.info("disabling save button")
-            
-            self.__save_button.setEnabled(False)
             
     def getIconId(self):
         """
