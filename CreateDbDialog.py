@@ -131,15 +131,17 @@ class CreateDbDialog(QtGui.QDialog):
         """
             Select DB file.
         """
-        file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Save DB file"), AppSettings.DEFAULT_DB)
+        dir_path = AppSettings.APP_ABS_ROOT + AppSettings.DEFAULT_DB
+        
+        file_path = QtGui.QFileDialog.getSaveFileName(self, tr("Save DB file"), QtCore.QString.fromUtf8(dir_path))
         
         logging.debug("save db to file: %s", file_path)
         
         if (not file_path.isEmpty()):
-            file_path = str(file_path)
+            file_path = str(file_path.toUtf8())
             logging.debug("db file path: %s", file_path)
             
-            self._db_file_path.setText(file_path)
+            self._db_file_path.setText(QtCore.QString.fromUtf8(file_path))
             
             if (os.path.exists(file_path)):
                 logging.debug("removing existing file: '%s'", file_path)
@@ -151,22 +153,23 @@ class CreateDbDialog(QtGui.QDialog):
         """
             Create DB file and new user with master password.
         """
-        db_path = str(self._db_file_path.text())
+        db_path = str(self._db_file_path.text().toUtf8())
         
         logging.debug("creating new DB: '%s'", db_path)
         
+        # write to setting file
+        AppSettings.writeDbFilePath(db_path)
+        
         self.__db_ctrl.connectDB(db_path)
         self.__db_ctrl.createTables()
+        self.__db_ctrl.insertDefRows()
         
         logging.debug("inserting user to DB: '%s'", AppSettings.USER_NAME)
         
-        master = str(self._passwd.text())
+        master = str(self._passwd.text().toUtf8())
         
         user = UserController(self.__db_ctrl)
         user.insertUser(AppSettings.USER_NAME, master)
-        
-        # write to setting file
-        AppSettings.writeDbFilePath(db_path)
         
         self.signalDbCreated.emit()
         self.close()

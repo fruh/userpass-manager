@@ -20,6 +20,7 @@
 import sqlite3
 import logging
 from IconModel import IconModel
+import AppSettings
 
 class IconController:
     """
@@ -142,11 +143,11 @@ class IconController:
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
             
     def deleteIcon(self, i_id):
@@ -155,7 +156,7 @@ class IconController:
             @param g_id: group ID
         """
         try:
-            self._cursor.execute("DELETE FROM Icons WHERE id = :id", {"id" : i_id})
+            self._cursor.execute("DELETE FROM Icons WHERE id = :id;", {"id" : i_id})
             self._connection.commit()
             
             count = self._cursor.rowcount
@@ -167,7 +168,7 @@ class IconController:
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
             
     def readImage(self, path):
@@ -183,7 +184,7 @@ class IconController:
         # open and read icon
         try:
             logging.debug("reading icon image from path: %s", path)
-            img = open(path, "rb")
+            img = open(AppSettings.decodePath(path), "rb")
             
             icon = img.read()
             icon = sqlite3.Binary(icon)

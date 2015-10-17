@@ -83,12 +83,6 @@ class GroupsWidget(QtGui.QTreeWidget):
         
         self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         
-#     def keyPressEvent(self, event):
-#         """
-#             Handle key press event.
-#         """
-#         if (event.key() == )
-        
     def keyReleaseEvent(self, event):
         """
             Handle key released event, to edit password, when enter pressed.
@@ -170,8 +164,8 @@ class GroupsWidget(QtGui.QTreeWidget):
         pix.loadFromData(icon)
   
         item.setIcon(self.__COL_ICON, QtGui.QIcon(pix))
-        item.setText(self.__COL_NAME, tr(name))
-        item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, tooltip)
+        item.setText(self.__COL_NAME, QtCore.QString.fromUtf8(tr(name)))
+        item.setData(self.__COL_NAME, QtCore.Qt.ToolTipRole, QtCore.QString.fromUtf8(tr(tooltip)))
         item.setData(self.__COL_ID, QtCore.Qt.DisplayRole, item_id)
         item.setData(self.__COL_TYPE, QtCore.Qt.DisplayRole, item_type)
         item.setData(self.__COL_GRP_ID, QtCore.Qt.DisplayRole, item_grp_id)
@@ -244,6 +238,29 @@ class GroupsWidget(QtGui.QTreeWidget):
             return g_id
         else:
             return False
+        
+    def currentItemGroupName(self):
+        """
+            Return current item group name.
+        """
+        g_id = self.currentItemGroupID()
+        
+        if (g_id):
+            group_ctrl = GroupController(self.__parent._db_ctrl)
+            
+            return group_ctrl.selectById(g_id)._name
+        return False
+        
+    def deleteGroup(self, g_id):
+        """
+            Delete group with id. Delete cascade implemented on passwords.
+            
+            @param g_id: group id
+        """
+        logging.info("deleting group and chlidren password with ID: '%i'", g_id)
+        
+        group_ctrl = GroupController(self.__parent._db_ctrl)
+        group_ctrl.deleteGroup(g_id)
         
     def currentPasswordTitle(self):
         """

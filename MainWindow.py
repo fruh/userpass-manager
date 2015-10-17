@@ -24,8 +24,13 @@ from PasswordsWidget import PasswordsWidget
 from DetailWidget import DetailWidget
 from EditPasswdDialog import EditPasswdDialog
 from NewPasswdDialog import NewPasswdDialog
+from NewGroupDialog import NewGroupDialog
 import logging
 from UserController import UserController
+import AppSettings
+from EditGroupDialog import EditGroupDialog
+import shutil
+import InfoMsgBoxes
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -54,12 +59,22 @@ class MainWindow(QtGui.QMainWindow):
         logging.debug("deleting clipboard")
         QtGui.QApplication.clipboard().clear()
         
+        try:
+            logging.info("removing tmp dir: '%s'", AppSettings.TMP_PATH)
+            
+            # remove tmp files
+            shutil.rmtree(AppSettings.decodePath(AppSettings.TMP_PATH))
+        except Exception as e:
+            logging.exception(e)
+            
+            InfoMsgBoxes.showErrorMsg(e)
+        
     def initUI(self):
         """
             Initialize gui components. Create dock widgets.
         """        
 #         self.resize(300, 300)
-        self.setWindowTitle("UserPass Manager alpha")
+        self.setWindowTitle("UserPass Manager " + AppSettings.APP_VERSION)
         self.resize(1000, 600)
         self.center()
         
@@ -122,14 +137,18 @@ class MainWindow(QtGui.QMainWindow):
         """
         user_ctrl = UserController(self._db_ctrl)
         
-        username = str(username)
-        master = str(master)
+        username = str(username.toUtf8())
+        master = str(master.toUtf8())
         
         logging.debug("username %s, master %s", username, master)
         
         self._user = user_ctrl.selectByNameMaster(username, master)
         
-        self.reloadItems()
+        if (self._user):
+            self.reloadItems()
+        else:
+            logging.error("something wrong, can't log in user.")
+            logging.debug("username: '%s', password: '%s'", username, master)
         self.show()
         
     def initConections(self):
@@ -152,6 +171,7 @@ class MainWindow(QtGui.QMainWindow):
         
         # enable/disable delete action with selection password talbe
         self._passwords_table.signalSelChangedTypeId.connect(self.enDisPassGrpActions)
+        
     def createActions(self):
         """
             Initialize all actions, i.e. Close, Save etc.
@@ -198,6 +218,46 @@ class MainWindow(QtGui.QMainWindow):
         
         self._del_passwd_g.triggered.connect(self.deletePassword)
         
+        # new group action
+        self._new_group = QtGui.QAction(tr("New"), self)
+        self._new_group.setToolTip(tr("Add new group to DB"))
+        
+        self._new_group.triggered.connect(self.showNewGroupDialog)
+        
+        # new group action in groups tree right click menu
+        self._new_group_g = QtGui.QAction(tr("New group"), self)
+        self._new_group_g.setToolTip(tr("Add new group to DB"))
+        
+        self._new_group_g.triggered.connect(self.showNewGroupDialog)
+        
+        # edit group action
+        self._edit_group = QtGui.QAction(tr("Edit"), self)
+        self._edit_group.setToolTip(tr("Edit selected group"))
+        self._edit_group.setDisabled(True)
+        
+        self._edit_group.triggered.connect(self.showEditGroupDialog)
+        
+        # edit group action in groups tree right click menu
+        self._edit_group_g = QtGui.QAction(tr("Edit group"), self)
+        self._edit_group_g.setToolTip(tr("Edit selected group"))
+        self._edit_group_g.setDisabled(True)
+        
+        self._edit_group_g.triggered.connect(self.showEditGroupDialog)
+        
+        # delete group in groups tree
+        self._del_group = QtGui.QAction(tr("Delete"), self)
+        self._del_group.setToolTip(tr("Delete group from DB"))
+        self._del_group.setDisabled(True)
+        
+        self._del_group.triggered.connect(self.deleteGroup)
+        
+        # delete group displayed in groups tree
+        self._del_group_g = QtGui.QAction(tr("Delete group"), self)
+        self._del_group_g.setToolTip(tr("Delete group from DB"))
+        self._del_group_g.setDisabled(True)
+        
+        self._del_group_g.triggered.connect(self.deleteGroup)
+        
         # add to table actions
         self._passwords_table.addAction(self._new_passwd)
         self._passwords_table.addAction(self._del_passwd)
@@ -205,6 +265,9 @@ class MainWindow(QtGui.QMainWindow):
         # add to groups tree actions
         self._groups_tw.addAction(self._new_passwd_g)
         self._groups_tw.addAction(self._del_passwd_g)
+        self._groups_tw.addAction(self._new_group_g)
+        self._groups_tw.addAction(self._edit_group_g)
+        self._groups_tw.addAction(self._del_group_g)
         
     def enDisPassGrpActions(self, item_type, item_id):
         """
@@ -216,6 +279,17 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self._del_passwd.setEnabled(False)
             self._del_passwd_g.setEnabled(False)
+        
+        if (item_type == self._groups_tw._TYPE_GROUP):
+            self._del_group.setEnabled(True)
+            self._del_group_g.setEnabled(True)
+            self._edit_group.setEnabled(True)
+            self._edit_group_g.setEnabled(True)
+        else:
+            self._del_group.setEnabled(False)
+            self._del_group_g.setEnabled(False)
+            self._edit_group.setEnabled(False)
+            self._edit_group_g.setEnabled(False)
         
     def createMenu(self):
         """
@@ -234,6 +308,9 @@ class MainWindow(QtGui.QMainWindow):
         password_menu.addAction(self._del_passwd)
         
         group_menu = self.menuBar().addMenu(tr("Group"))
+        group_menu.addAction(self._new_group)
+        group_menu.addAction(self._edit_group)
+        group_menu.addAction(self._del_group)
         
         settings_menu = self.menuBar().addMenu(tr("Settings"))
         
@@ -254,7 +331,7 @@ class MainWindow(QtGui.QMainWindow):
         self.move(wg.topLeft())
         
     def aboutDialog(self):
-        QtGui.QMessageBox(QtGui.QMessageBox.Information, tr("About"), tr("ABOUT_TEXT") + """
+        QtGui.QMessageBox(QtGui.QMessageBox.Information, tr("About"), tr("ABOUT_TEXT_1") + " " + AppSettings.APP_VERSION + "\n" + tr("ABOUT_TEXT_2") + """
         
         Copyright (C) 2013  Frantisek Uhrecky 
                             <frantisek.uhrecky[at]gmail.com>
@@ -291,9 +368,19 @@ class MainWindow(QtGui.QMainWindow):
             Password dialog to add new password.
         """
         new_pass_dialog = NewPasswdDialog(self, self._groups_tw.currentItemGroupID(), self._passwords_table._show_pass)
-        new_pass_dialog.signalPasswdSaved.connect(self.reloadItems)
         
-        new_pass_dialog.exec_()
+        if (new_pass_dialog.exec_() == QtGui.QDialog.Accepted):
+            # all done
+            self.reloadItems()
+        
+    def showNewGroupDialog(self):
+        """
+            Group dialog to add new password.
+        """
+        new_group_dialog = NewGroupDialog(self)
+        if (new_group_dialog.exec_() == QtGui.QDialog.Accepted):
+            # all done
+            self.reloadItems()
         
     def deletePassword(self):
         """
@@ -324,16 +411,59 @@ class MainWindow(QtGui.QMainWindow):
                 self.reloadItems()
         logging.debug("Not password selected title: %s", title)
         
+    def deleteGroup(self):
+        """
+            Delete group from database and also all passwords in this group, if foreign key are enabled.
+        """
+        # frist check tree widget
+        title = self._groups_tw.currentItemGroupName()
+        g_id = self._groups_tw.currentItemGroupID()
+        
+        logging.debug("delete group title: %s, ID: %i", title, g_id)
+        
+        if (title != False):
+            msg = QtGui.QMessageBox(QtGui.QMessageBox.Question, title ,tr("Do you want delete group '") 
+                              + title + "' and also containing passwords?")
+            msg.addButton(QtGui.QMessageBox.Yes)
+            msg.addButton(QtGui.QMessageBox.No)
+            
+            ret = msg.exec_()
+            
+            if (ret == QtGui.QMessageBox.Yes):
+                # delete password
+                self._groups_tw.deleteGroup(g_id)
+                self.reloadItems()
+        logging.debug("Not group selected title: %s", title)
+        
+    def showEditGroupDialog(self):
+        """
+            Edit selected group.
+        """
+        g_id = self._groups_tw.currentItemGroupID()
+        
+        if (g_id):
+            # is group selected
+            edit_group_dialog = EditGroupDialog(self, g_id)
+            
+            if (edit_group_dialog.exec_() == QtGui.QDialog.Accepted):
+                # all done
+                self.reloadItems()
+            
     def reloadItems(self, p_id = -1):
         """
             Reload groups, passwords.
             
             @param p_id: password id to display, if is < 0, doesn't display
         """
-        self._groups_tw.reloadItems()
-        self._passwords_table.reloadItems()
-        
-        if (p_id >= 0):
-            self._detail_w.setPassword(p_id)
-        else:
-            self._detail_w.setHidden(True)
+        try:
+            self._groups_tw.reloadItems()
+            self._passwords_table.reloadItems()
+
+            if (p_id >= 0):
+                self._detail_w.setPassword(p_id)
+            else:
+                self._detail_w.setHidden(True)
+        except Exception as e:
+            logging.exception(e)
+            
+            InfoMsgBoxes.showErrorMsg(e)

@@ -22,23 +22,42 @@ import logging
 from PyQt4 import QtCore
 import sys
 
+# file ssytem encoding
+FILE_SYS_ENCODING = sys.getfilesystemencoding()
+
 def getAbsAppRoot():
     """
         Return absolute root dir.
     """
-    root_dir = os.path.dirname(sys.argv[0])
+    global FILE_SYS_ENCODING
+    
+    if (not FILE_SYS_ENCODING):
+        FILE_SYS_ENCODING = "utf-8"
+    root_dir = os.path.dirname((str(sys.argv[0]).decode(FILE_SYS_ENCODING)).encode("utf-8"))
     
     if (len(root_dir) > 0):
         # if is not empty add dir separator at the end
         root_dir = root_dir + os.sep
     
-    return root_dir
+    return str(root_dir)
 
-# application abs path
+# application relative path path
 APP_ABS_ROOT = getAbsAppRoot()
+
+# tmp directory
+TMP_PATH = APP_ABS_ROOT + "tmp" + os.sep
+
+# App version
+APP_VERSION = "v0.0.6-alpha"
+
+# App version
+APP_DB_VERSION = 1
 
 # language
 LANG = "en"
+
+# when inserted worng password, sleep for seconds
+WRONG_PASWD_SLEEP = 3
 
 # clipboard 'live' in miliseconds
 CLIPBOARD_LIVE_MSEC = 60000
@@ -62,7 +81,7 @@ DB_PATH = APP_ABS_ROOT + "db" + os.path.sep
 DB_FILE_NAME = "userpass.db"
 
 # default DB
-DEFAULT_DB = DB_PATH + DB_FILE_NAME
+DEFAULT_DB = "db" + os.path.sep + DB_FILE_NAME
 
 # icons path
 ICONS_PATH = APP_ABS_ROOT + "icons" + os.sep
@@ -100,8 +119,8 @@ def readDbFilePath():
         @return: DB file path
     """
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    data = str(settings.value(SET_KEY_DB, DEFAULT_DB).toString())
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    data = str(settings.value(SET_KEY_DB, DEFAULT_DB).toString().toUtf8())
     
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, data)
     
@@ -114,15 +133,15 @@ def writeDbFilePath(db_path):
         
         @param db_path: DB file path
     """
-    rel_path = os.path.relpath(db_path, APP_ABS_ROOT)
+    rel_path = str(os.path.relpath(db_path, APP_ABS_ROOT))
     
     logging.debug("current working dir: '%s'", APP_ABS_ROOT)
     logging.debug("abs. path: '%s', rel. path: '%s'", db_path, rel_path)
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, rel_path)
         
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    settings.setValue(SET_KEY_DB, rel_path)
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    settings.setValue(SET_KEY_DB, QtCore.QString.fromUtf8(rel_path))
     
 def readLanguage():
     """
@@ -131,8 +150,8 @@ def readLanguage():
         @return: language
     """
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    data = str(settings.value(SET_KEY_LANG, LANG).toString())
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    data = str(settings.value(SET_KEY_LANG, LANG).toString().toUtf8())
     
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_LANG, data) 
     
@@ -148,5 +167,19 @@ def writeLanguage(lang):
     logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_LANG, lang)
         
     # open settings
-    settings = QtCore.QSettings(SETTINGS_FILE_PATH, QtCore.QSettings.IniFormat)
-    settings.setValue(SET_KEY_LANG, lang)
+    settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
+    settings.setValue(SET_KEY_LANG, QtCore.QString.fromUtf8(lang))
+    
+def decodePath(path):
+    """
+        Decode path from utf-8 to system encoding.
+        
+        @param path: path in utf-8 encoding
+        
+        @return: encoded path in system encoding
+    """
+    out = str(path).decode("utf-8").encode(FILE_SYS_ENCODING)
+    
+    logging.info("in: '%s', out: '%s'", path, out)
+    
+    return out

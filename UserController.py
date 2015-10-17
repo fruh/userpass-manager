@@ -114,13 +114,12 @@ class UserController:
             user = self.selectByName(name)
             
             if (not user):
-                logging.debug("username doesn't exist, %s", name)
+                logging.info("username doesn't exist, %s", name)
                 
                 return None
             
             # prepare hash
-            passwd = user._salt + master
-            passwd = CryptoBasics.getSha512(passwd)
+            passwd = CryptoBasics.getUserPassHash(user._salt, master)
         except sqlite3.Error as e:
             logging.exception(e)
             
@@ -133,13 +132,14 @@ class UserController:
                 
                 return user
             else:
+                logging.info("user password not correct")
                 logging.debug("user password not correct, '%s'", master)
                 
                 return None
 
     def insertUser(self, name, passwd):
         """
-            Inset user in talbe Users. User password is hashed with salt_p.
+            Insert user in talbe Users. User password is hashed with salt_p.
             @param name: user name
             @param passwd: user password
         """
@@ -149,8 +149,7 @@ class UserController:
         salt_p = CryptoBasics.genUserPassSalt()
         
         # prepends salts and create hash
-        passwd = salt_p + passwd
-        passwd = CryptoBasics.getSha512(passwd)
+        passwd = CryptoBasics.getUserPassHash(salt_p, passwd)
         
         try:
             self._cursor.execute("INSERT INTO Users(name, passwd, salt_p) VALUES(:name, :passwd, :salt_p)",

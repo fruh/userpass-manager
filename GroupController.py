@@ -55,7 +55,7 @@ class GroupController:
         """
             Search group by id.
             @param id: group id
-            @return: row
+            @return: row, group model object
         """
         try:
             self._cursor.execute("SELECT * FROM Groups WHERE id = :id;", {"id" : g_id})
@@ -104,8 +104,8 @@ class GroupController:
             @param description: group description
             @param icon_id: group icon id
         """
-        name = name.decode("utf8")
-        description = description.decode("utf8")
+        name = name.decode("utf-8")
+        description = description.decode("utf-8")
         
         try:
             self._cursor.execute("INSERT INTO Groups(name, description, icon_id) VALUES(:name, :description, :icon_id)",
@@ -131,6 +131,9 @@ class GroupController:
             @param description: group description
             @param icon_id: group icon ID
         """
+        name = name.decode("utf-8")
+        description = description.decode("utf-8")
+        
         try:
             self._cursor.execute("UPDATE Groups SET name = :name, description = :description, icon_id = :icon_id WHERE id = :id;",
                                 {"id" : g_id, "name" : name, "description" : description, "icon_id" : icon_id})
@@ -140,11 +143,11 @@ class GroupController:
         except sqlite3.IntegrityError as e:
             logging.warning(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
             
     def deleteGroup(self, g_id):
@@ -165,7 +168,7 @@ class GroupController:
         except sqlite3.Error as e:
             logging.exception(e)
             
-            self._cursor.rollback()
+            self._connection.rollback()
             raise e
         
     def createGroupObj(self, dic):

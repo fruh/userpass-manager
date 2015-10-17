@@ -24,6 +24,8 @@ from LoginController import LoginController
 import AppSettings
 from CreateDbDialog import CreateDbDialog
 import os
+import InfoMsgBoxes
+import time
 
 class LoginDialog(QtGui.QDialog):
     """
@@ -46,7 +48,7 @@ class LoginDialog(QtGui.QDialog):
         """
             Initialize UI components.
         """
-        self.setWindowTitle(tr("Log in: ") + os.path.basename(AppSettings.readDbFilePath()))
+        self.setWindowTitle(tr("Log in: ") + QtCore.QString.fromUtf8(os.path.basename(AppSettings.readDbFilePath())))
         self.setFixedSize(500, 100)
         
         # create main grid layout
@@ -139,16 +141,17 @@ class LoginDialog(QtGui.QDialog):
         if (not b):
             self.setWindowTitle(tr("Database not selected."))
         else:
-            self.setWindowTitle(tr("Log in: ") + os.path.basename(AppSettings.readDbFilePath()))
+            self.setWindowTitle(tr("Log in: ") + QtCore.QString.fromUtf8(os.path.basename(AppSettings.readDbFilePath())))
         
     def selectDB(self):
         """
             Select database file.
         """
-        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Select database"), AppSettings.DB_PATH)
+        dir_path = AppSettings.APP_ABS_ROOT + AppSettings.DEFAULT_DB
+        file_path = QtGui.QFileDialog.getOpenFileName(self, tr("Select database"), QtCore.QString.fromUtf8(dir_path))
         
         if (not file_path.isEmpty()):
-            db_path = str(file_path)
+            db_path = str(file_path.toUtf8())
             
             logging.debug("database file path: %s", db_path)
             
@@ -177,20 +180,29 @@ class LoginDialog(QtGui.QDialog):
         """
         logging.debug("logging user ...")
         
-        self.__db_ctrl.connectDB(AppSettings.readDbFilePath())
-        login_ctrl = LoginController(self.__db_ctrl)
-        
-        username = AppSettings.USER_NAME
-        master = str(self._passwd.text()).decode('utf-8')
-        
-        logged_user = login_ctrl.logInUser(username, master)
-        
-        if (logged_user):
-            self.signalSuccessfullyLogged.emit(username, master)
+        try:
+            path = AppSettings.readDbFilePath()
+            self.__db_ctrl.connectDB(path)
             
-            self.close()
-        else:
-            QtGui.QMessageBox( QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
+            login_ctrl = LoginController(self.__db_ctrl)
+            
+            username = AppSettings.USER_NAME
+            master = str(self._passwd.text().toUtf8())
+            
+            logged_user = login_ctrl.logInUser(username, master)
+            
+            if (logged_user):
+                self.signalSuccessfullyLogged.emit(QtCore.QString.fromUtf8(username), QtCore.QString.fromUtf8(master))
+                
+                self.close()
+            else:
+                # sleep for a while
+                time.sleep(AppSettings.WRONG_PASWD_SLEEP)
+                
+                # show message
+                QtGui.QMessageBox(QtGui.QMessageBox.Critical, tr("Wrong credentials!"), tr("Username or password are wrong.")).exec_()
+        except Exception as e:
+            InfoMsgBoxes.showErrorMsg(e)
         
     def setVisibilityPass(self, state):
         """

@@ -134,10 +134,10 @@ class PasswordsWidget(QtGui.QTableWidget):
             if (self.rowCount()):
                 self.callEditPasswd()
             else:
-                logging.debug("empty table")
+                logging.info("empty table")
         elif (event.matches(QtGui.QKeySequence.Copy)):
             # copy data to clipboard
-            logging.debug("copy shorcut pressed")
+            logging.info("copy shortcut pressed")
             
             self.copyToClipBoard()
          
@@ -148,13 +148,13 @@ class PasswordsWidget(QtGui.QTableWidget):
         row = self.currentRow()
         col = self.currentColumn()
         
-        logging.debug("curent row: %i, column: %i", row, col)
+        logging.info("curent row: %i, column: %i", row, col)
         
         data = ""
         
         # first stop old timer to clear clipboard
         if (self._del_clipboard and self._del_clipboard.isActive()):
-            logging.debug("stopping old timer to delete clipboard")
+            logging.info("stopping old timer to delete clipboard")
             
             self._del_clipboard.stop()
         
@@ -177,21 +177,21 @@ class PasswordsWidget(QtGui.QTableWidget):
                 data = passwd._passwd
             else:
                 item = self.item(row, col)
-                data = item.text()
+                data = str(item.text().toUtf8())
             # copy to clipboard
-            QtGui.QApplication.clipboard().setText(data)
+            QtGui.QApplication.clipboard().setText(QtCore.QString.fromUtf8(data))
             logging.debug("data to clipboard: '%s'", data)
             
             # delete clipboard after time
             self._del_clipboard.start()
             
-            logging.debug("clipboard will be cleared after %i seconds", AppSettings.CLIPBOARD_LIVE_MSEC / 1000)
+            logging.info("clipboard will be cleared after %i seconds", AppSettings.CLIPBOARD_LIVE_MSEC / 1000)
     
     def deleteClipboard(self):
         """
             Security meaning. Delete clipboart after few seconds.
         """
-        logging.debug("deleting clipboard")
+        logging.info("deleting clipboard")
         
         QtGui.QApplication.clipboard().clear()
     def showAll(self):
@@ -232,17 +232,17 @@ class PasswordsWidget(QtGui.QTableWidget):
             pix.loadFromData(passwd._grp._icon._icon)
        
             # set data
-            self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem((QtGui.QIcon(pix)), passwd._title))
+            self.setItem(row, self.__COL_TITLE, QtGui.QTableWidgetItem((QtGui.QIcon(pix)), QtCore.QString.fromUtf8(passwd._title)))
             
             if (self._show_pass):
                 # have to show pass username in visible form
-                self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(passwd._username))
-                self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(passwd._passwd))
+                self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem(QtCore.QString.fromUtf8(passwd._username)))
+                self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem(QtCore.QString.fromUtf8(passwd._passwd)))
             else:
                 # show as stars
                 self.setItem(row, self.__COL_USERNAME, QtGui.QTableWidgetItem("******"))
                 self.setItem(row, self.__COL_PASSWORD, QtGui.QTableWidgetItem("******"))
-            self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(passwd._url))
+            self.setItem(row, self.__COL_URL, QtGui.QTableWidgetItem(QtCore.QString.fromUtf8(passwd._url)))
             self.setItem(row, self.__COL_ID, QtGui.QTableWidgetItem(str(passwd._id)))
         # enable sorting
         self.setSortingEnabled(True)
@@ -258,7 +258,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         # first remove all items
         self.removeAllRows()
 
-        logging.debug("signal: type: %i, ID: %i", item_type, item_id)
+        logging.info("signal: type: %i, ID: %i", item_type, item_id)
         passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         
         # detect type
@@ -281,6 +281,7 @@ class PasswordsWidget(QtGui.QTableWidget):
         self.setSortingEnabled(False)
         
         for i in range(0, self.rowCount()):
+            i
             self.removeRow(self.rowCount() - 1)
             
     def showDetails(self, row, column):
@@ -294,11 +295,11 @@ class PasswordsWidget(QtGui.QTableWidget):
         
         if item:
             p_id = item.text().toInt()[0]
-            logging.debug("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, p_id)
+            logging.info("item selection changed at item row: %i, column: %i, emiting ID: %i", row, column, p_id)
         
             self.signalShowDetailPasswd.emit(p_id)
         else:
-            logging.debug("no item selected")
+            logging.info("no item selected")
         
     def editPasswd(self, row, column):
         """
@@ -307,7 +308,7 @@ class PasswordsWidget(QtGui.QTableWidget):
             @param row: row index in table
             @param column: column index in table
         """
-        logging.debug("double clicked or enter pressed at item row: %i, column: %i", row, column)
+        logging.info("double clicked or enter pressed at item row: %i, column: %i", row, column)
         
         self.signalEditPasswd.emit(self.item(row, self.__COL_ID).text().toInt()[0])
         
@@ -333,11 +334,12 @@ class PasswordsWidget(QtGui.QTableWidget):
         item = self.item(row, self.__COL_TITLE)
         
         if (item):
-            logging.debug("curent item title: %s", item.text())
+            item_text = str(item.text().toUtf8())
+            logging.info("curent item title: %s", item_text)
             
-            return str(item.text())
+            return str(item_text)
         
-        logging.debug("item: %s", item)
+        logging.info("item: %s", item)
         return False
     
     def currentItemID(self):
@@ -366,7 +368,7 @@ class PasswordsWidget(QtGui.QTableWidget):
             
             @param p_id: password ID
         """
-        logging.debug("deleting password with id: %i", p_id)
+        logging.info("deleting password with id: %i", p_id)
         
         passwd_ctrl = PasswdController(self.__parent._db_ctrl, self.__parent._user._master)
         passwd_ctrl.deletePassword(p_id)

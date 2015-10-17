@@ -1,2 +1,4 @@
-ABOUT_TEXT
-UserPass Manager v0.0.3 alpha, safely backup your credentials.
+ABOUT_TEXT_1
+UserPass Manager 
+ABOUT_TEXT_2
+Safely backup your credentials.
