@@ -125,7 +125,7 @@ def readDbFilePath():
     logging.debug("reading setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, data)
     
     # read DB file path
-    return APP_ABS_ROOT + data
+    return data
 
 def writeDbFilePath(db_path):
     """
@@ -133,15 +133,12 @@ def writeDbFilePath(db_path):
         
         @param db_path: DB file path
     """
-    rel_path = str(os.path.relpath(db_path, APP_ABS_ROOT))
-    
     logging.debug("current working dir: '%s'", APP_ABS_ROOT)
-    logging.debug("abs. path: '%s', rel. path: '%s'", db_path, rel_path)
-    logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, rel_path)
+    logging.debug("writing setting file: '%s', key: '%s', data: '%s'", SETTINGS_FILE_PATH, SET_KEY_DB, db_path)
         
     # open settings
     settings = QtCore.QSettings(QtCore.QString.fromUtf8(SETTINGS_FILE_PATH), QtCore.QSettings.IniFormat)
-    settings.setValue(SET_KEY_DB, QtCore.QString.fromUtf8(rel_path))
+    settings.setValue(SET_KEY_DB, QtCore.QString.fromUtf8(db_path))
     
 def readLanguage():
     """
