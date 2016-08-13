@@ -92,6 +92,6 @@ def main():
     sys.exit(app.exec_())
     
 if (__name__ == "__main__"):
-    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.INFO)
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s::%(module)s::%(funcName)s() %(message)s', level=logging.WARNING)
     
     main()

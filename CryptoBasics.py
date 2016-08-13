@@ -92,8 +92,6 @@ def getUserPassHash(salt, passwd):
     tmp = salt + passwd
     hash_str = getSha512(tmp)
     
-    logging.debug("salt + password: '%s', hash: '%s'", tmp, hash_str)
-    
     return hash_str
 
 def genIV():
@@ -115,7 +113,6 @@ def genCipherKey(passwd, salt):
     """
     tmp = salt + passwd
     logging.info("generating symetric key")
-    logging.debug("salt + passord: '%s'", tmp)
     
     return binascii.unhexlify(getSha256(tmp))
 
@@ -170,14 +167,14 @@ def addPadding(data):
         Append padding to data, max padding AES.block_size.
         Append n*bytes, where n = padding
         
-        @param data: unput data
+        @param data: input data
         @return: padded data
     """
     data_len = len(data)
     padding = AES.block_size - (data_len % 16)
     data += chr(padding) * padding
     
-    logging.info("data len: %s, padding: %i, padded data len: %s", data_len, padding, len(data))
+    logging.debug("data len: %s, padding: %i, padded data len: %s", data_len, padding, len(data))
     
     return data
 
@@ -188,10 +185,10 @@ def remPadding(data):
         @return: data without padding
     """
     padding = ord(data[-1])
-    logging.info("data with padding len: %s, padding: %i", len(data), padding)
+    logging.debug("data with padding len: %s, padding: %i", len(data), padding)
     
     data_np = data[:-padding]
     
-    logging.info("data without padding len: %s", len(data_np))
+    logging.debug("data without padding len: %s", len(data_np))
     
     return data_np

@@ -19,6 +19,7 @@
 """
 import logging
 from PyQt4 import QtGui, QtCore
+from PyQt4.Qt import Qt
 from PasswdController import PasswdController
 from GroupsWidget import GroupsWidget
 import AppSettings
@@ -246,6 +247,7 @@ class PasswordsWidget(QtGui.QTableWidget):
             self.setItem(row, self.__COL_ID, QtGui.QTableWidgetItem(str(passwd._id)))
         # enable sorting
         self.setSortingEnabled(True)
+        self.sortByColumn(self.__COL_TITLE, Qt.AscendingOrder)
         
     def showPasswords(self, item_type, item_id):
         """

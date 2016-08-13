@@ -148,7 +148,6 @@ class MainWindow(QtGui.QMainWindow):
             self.reloadItems()
         else:
             logging.error("something wrong, can't log in user.")
-            logging.debug("username: '%s', password: '%s'", username, master)
         self.show()
         
     def initConections(self):
