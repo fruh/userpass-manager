@@ -48,7 +48,6 @@ def genSalt(l):
         @return: salt as hexa string
     """
     salt = str(binascii.hexlify(os.urandom(l)))
-    logging.debug("length = %s, salt = %s", l, salt)
     
     return salt
 
@@ -71,7 +70,6 @@ def getSha256(string):
         @return: sha256 checksum, hexa string
     """
     hash_str = hashlib.new("sha256", string.encode("utf8")).hexdigest()
-    logging.debug("sha256 = %s", hash_str)
     
     return hash_str
 
@@ -82,7 +80,6 @@ def getSha512(string):
         @return: sha512 checksum, hexa string
     """
     hash_str = hashlib.new("sha512", string.encode("utf8")).hexdigest()
-    logging.debug("sha512 = %s", hash_str)
     
     return hash_str
 
@@ -107,7 +104,7 @@ def genIV():
         @return: IV random bytes
     """
     iv = genSalt(IV_LEN)
-    logging.debug("length = %s, iv = %s", IV_LEN, iv)
+    logging.debug("generating IV")
     
     return binascii.unhexlify(iv)
 
