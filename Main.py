@@ -34,6 +34,7 @@ from LoginDialog import LoginDialog
 import AppSettings
 import TransController
 import shutil
+import time
     
 def ifNotExCreate(directory):
     """
@@ -83,8 +84,14 @@ def main():
         # if default DB file doesnt exists, run create DB dialog
         login_dialog.enLogIn(False)
     else:
+        # leave only last 10 backups
+        backups = sorted(os.listdir(AppSettings.BACKUP_PATH), reverse=True)
+
+        if len(backups) >= 10:
+            for i in range(9, len(backups)):
+                os.remove(AppSettings.BACKUP_PATH + backups[i])
         # first backup database
-        backup_file = AppSettings.BACKUP_PATH + os.path.basename(db_path)
+        backup_file = AppSettings.BACKUP_PATH + time.strftime("%Y-%m-%dT%H:%M:%S_", time.localtime()) + os.path.basename(db_path)
         logging.info("backup file: '%s'", backup_file)
         
         shutil.copyfile(AppSettings.decodePath(db_path), AppSettings.decodePath(backup_file))
