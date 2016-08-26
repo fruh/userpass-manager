@@ -133,8 +133,7 @@ class UserController:
                 return user
             else:
                 logging.info("user password not correct")
-                logging.debug("user password not correct, '%s'", master)
-                
+
                 return None
 
     def insertUser(self, name, passwd):

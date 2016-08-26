@@ -22,13 +22,15 @@ from UserController import UserController
 import sqlite3
 import logging
 
+
 class PasswdModel:
     """
         Holds password data.
     """
-    def __init__(self, p_id = None, title = None, username = None, passwd = None, 
-                 url = None, comment = None, c_date = None, m_date = None, e_date = None, grp_id = None, 
-                 user_id = None, attachment = None, att_name = None, salt = None, iv = None, expire = None, db_ctrl = None):
+
+    def __init__(self, p_id=None, title=None, username=None, passwd=None,
+                 url=None, comment=None, c_date=None, m_date=None, e_date=None, grp_id=None,
+                 user_id=None, attachment=None, att_name=None, salt=None, iv=None, expire=None, db_ctrl=None):
         """
             Initialize PasswdModel.
             
@@ -65,10 +67,10 @@ class PasswdModel:
         self._salt = salt
         self._iv = iv
         self._expire = expire
-        
+
         self.selectGroup(grp_id, db_ctrl)
         self.selectUser(user_id, db_ctrl)
-        
+
     def selectGroup(self, g_id, db_ctrl):
         """
             Select group from DB with id g_id.
@@ -80,7 +82,7 @@ class PasswdModel:
             self._grp = GroupController(db_ctrl).selectById(g_id)
         except sqlite3.Error as e:
             logging.exception("group with ID: %i, %s", g_id, e)
-            
+
             raise e
 
     def selectUser(self, u_id, db_ctrl):
@@ -94,8 +96,8 @@ class PasswdModel:
             self._user = UserController(db_ctrl).selectById(u_id)
         except sqlite3.Error as e:
             logging.exception("user with ID: %i, %s", u_id, e)
-            
+
             raise e
-        
+
     def __str__(self):
-        return "{'id' : " + str(self._id) + ", 'title' : " + self._title + ", 'username' : " + self._username + "...}"
+        return "{'id' : " + str(self._id) + ", 'title' : " + self._title + "...}"

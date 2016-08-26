@@ -140,8 +140,6 @@ class MainWindow(QtGui.QMainWindow):
         username = str(username.toUtf8())
         master = str(master.toUtf8())
         
-        logging.debug("username %s, master %s", username, master)
-        
         self._user = user_ctrl.selectByNameMaster(username, master)
         
         if (self._user):
