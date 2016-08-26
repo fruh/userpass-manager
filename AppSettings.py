@@ -54,7 +54,7 @@ APP_ABS_ROOT = getAbsAppRoot()
 TMP_PATH = APP_ABS_ROOT + "tmp" + os.sep
 
 # App version
-APP_VERSION = "v0.0.6-alpha"
+APP_VERSION = "v0.0.7-dev"
 
 # App version
 APP_DB_VERSION = 1
