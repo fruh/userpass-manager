@@ -31,6 +31,59 @@ import os
 import AppSettings
 from SaveDialog import SaveDialog
 import InfoMsgBoxes
+import qrcode
+
+
+class Image(qrcode.image.base.BaseImage):
+    def __init__(self, border, width, box_size):
+        self.border = border
+        self.width = width
+        self.box_size = box_size
+        size = (width + border * 2) * box_size
+        self._image = QtGui.QImage(
+            size, size, QtGui.QImage.Format_RGB16)
+        self._image.fill(QtCore.Qt.white)
+
+    def pixmap(self):
+        return QtGui.QPixmap.fromImage(self._image)
+
+    def drawrect(self, row, col):
+        painter = QtGui.QPainter(self._image)
+        painter.fillRect(
+            (col + self.border) * self.box_size,
+            (row + self.border) * self.box_size,
+            self.box_size, self.box_size,
+            QtCore.Qt.black)
+
+    def save(self, stream, kind=None):
+        pass
+
+
+class QrDialog(QtGui.QDialog):
+    def __init__(self, text):
+        super(QrDialog, self).__init__()
+        self.setWindowFlags(QtCore.Qt.Tool)
+
+        self.label = QtGui.QLabel(self)
+        layout = QtGui.QVBoxLayout(self)
+        layout.addWidget(self.label)
+
+        text = unicode(text)
+        self.label.setPixmap(qrcode.make(text, image_factory=Image).pixmap())
+
+    def center(self):
+        """
+            Center window.
+        """
+        # get frame geometry
+        wg = self.frameGeometry()
+
+        # get screen center
+        cs = QtGui.QDesktopWidget().availableGeometry().center()
+        wg.moveCenter(cs)
+
+        self.move(wg.topLeft())
+
 
 class PasswdDialog(SaveDialog):
     # emiting after saving passowrd
@@ -117,7 +170,12 @@ class PasswdDialog(SaveDialog):
         # password visibility check box
         self._show_passwd_check = QtGui.QCheckBox(tr("Show"))
         self._show_passwd_check.setChecked(self.__show_pass)
+
+        # password QR code
+        self._qr_button = QtGui.QPushButton(tr("QR"))
+
         passwd_hl.addWidget(self._show_passwd_check)
+        passwd_hl.addWidget(self._qr_button)
               
         self._url = QtGui.QLineEdit()
         self._e_date = QtGui.QLineEdit()
@@ -211,7 +269,10 @@ class PasswdDialog(SaveDialog):
         # never checked
         self._e_date_never.stateChanged.connect(self.enDisExpDate)
         self._e_date_never.stateChanged.connect(self.enableSaveButton)
-        
+
+        # show QR
+        self._qr_button.clicked.connect(self.showQrCode)
+
         # open attachment
         self._att_button.clicked.connect(self.loadAttachment)
         
@@ -327,7 +388,15 @@ class PasswdDialog(SaveDialog):
             Handle release event.
         """
         logging.info("key release event")
-        
+
+    def showQrCode(self):
+        print "dsadsa"
+        qr_w = QrDialog(self._passwd.text())
+        qr_w.resize(200, 200)
+        qr_w.setGeometry(self.geometry().x() + self.geometry().width(), self.geometry().y(), 200, 200)
+        # qr_w.center()
+        qr_w.exec_()
+
     def loadAttachment(self):
         """
             Exec filedialog, open file and get absolute file path and name.
