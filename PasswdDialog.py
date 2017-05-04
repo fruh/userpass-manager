@@ -32,6 +32,8 @@ import AppSettings
 from SaveDialog import SaveDialog
 import InfoMsgBoxes
 import qrcode
+import random
+import string
 
 
 class Image(qrcode.image.base.BaseImage):
@@ -149,7 +151,7 @@ class PasswdDialog(SaveDialog):
         
         self._layout_gl.addWidget(title_label, 0, 0)
         self._layout_gl.addWidget(username_label, 1, 0)
-        self._layout_gl.addWidget(passwd_label, 2, 0)
+        self._layout_gl.addWidget(passwd_label, 2, 0, QtCore.Qt.AlignTop)
         self._layout_gl.addWidget(url_label, 3, 0)
         self._layout_gl.addWidget(e_date_label, 6 + layout_offset, 0)
         self._layout_gl.addWidget(attachment_label, 7 + layout_offset, 0)
@@ -158,24 +160,37 @@ class PasswdDialog(SaveDialog):
         
         self._title = QtGui.QLineEdit()
         self._username = QtGui.QLineEdit()
+        self._username.setFont(QtGui.QFont("Monospace"))
         self._passwd = QtGui.QLineEdit()
-        
+        self._passwd.setFont(QtGui.QFont("Monospace"))
+
+        self._pw_size = QtGui.QSpinBox()
+        self._pw_size.setMinimum(16)
+        self._pw_size.setValue(32)
+        self._pw_size.setToolTip("Minimum is 16 characters")
+
         if (not self.__show_pass):
             self._passwd.setEchoMode(QtGui.QLineEdit.Password)
         
         # password layout
+        passwd_vl = QtGui.QVBoxLayout()
         passwd_hl = QtGui.QHBoxLayout()
-        passwd_hl.addWidget(self._passwd)
-        
+
         # password visibility check box
-        self._show_passwd_check = QtGui.QCheckBox(tr("Show"))
+        self._show_passwd_check = QtGui.QCheckBox(tr("Show passwd"))
         self._show_passwd_check.setChecked(self.__show_pass)
 
         # password QR code
         self._qr_button = QtGui.QPushButton(tr("QR"))
+        self._pwgen_btn = QtGui.QPushButton(tr("RND"))
+
+        passwd_vl.addWidget(self._passwd)
+        passwd_vl.addLayout(passwd_hl)
 
         passwd_hl.addWidget(self._show_passwd_check)
         passwd_hl.addWidget(self._qr_button)
+        passwd_hl.addWidget(self._pwgen_btn)
+        passwd_hl.addWidget(self._pw_size)
               
         self._url = QtGui.QLineEdit()
         self._e_date = QtGui.QLineEdit()
@@ -188,7 +203,7 @@ class PasswdDialog(SaveDialog):
         
         self._layout_gl.addWidget(self._title, 0, 1)
         self._layout_gl.addWidget(self._username, 1, 1)
-        self._layout_gl.addLayout(passwd_hl, 2, 1)
+        self._layout_gl.addLayout(passwd_vl, 2, 1)
         self._layout_gl.addWidget(self._url, 3, 1)
         
         # attachment vertical layout
@@ -290,7 +305,13 @@ class PasswdDialog(SaveDialog):
         
         # show/hide password
         self._show_passwd_check.stateChanged.connect(self.setVisibilityPass)
-        
+
+        # pw generator
+        self._pwgen_btn.clicked.connect(self.pwGen)
+
+    def pwGen(self):
+        self._passwd.setText(''.join(random.SystemRandom().choice(string.letters + string.digits) for _ in range(self._pw_size.value())))
+
     def delAttachment(self):
         """
             Delete actual attachment.
